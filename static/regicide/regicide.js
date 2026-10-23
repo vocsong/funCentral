@@ -933,7 +933,7 @@ function inviteUrl() {
 async function shareInvite() {
   const url = inviteUrl();
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
-    try { await navigator.share({ title: 'Regicide on Fun Central', text: `Join my Regicide game — room ${roomCode}`, url }); return; } catch { /* cancelled */ }
+    try { await navigator.share({ title: 'Regicide on funCentral', text: `Join my Regicide game — room ${roomCode}`, url }); return; } catch { /* cancelled */ }
   }
   try {
     await navigator.clipboard.writeText(url);

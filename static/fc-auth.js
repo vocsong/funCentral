@@ -1,6 +1,6 @@
 'use strict';
 
-// Shared Telegram sign-in for Fun Central mini apps (Bridge keeps its own copy in app.js).
+// Shared Telegram sign-in for funCentral mini apps (Bridge keeps its own copy in app.js).
 // Same storage key as Bridge, so signing in once works across every app on this origin.
 window.FunAuth = (() => {
   const KEY = 'authToken';

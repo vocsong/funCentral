@@ -1,4 +1,4 @@
-# Fun Central
+# funCentral
 
 A multiplayer card-game hub built with Cloudflare Workers, Durable Objects,
 D1 and a vanilla JavaScript frontend.

@@ -1,4 +1,4 @@
-# Fun Central documentation
+# funCentral documentation
 
 ## Current guides
 
@@ -39,7 +39,7 @@ that the present revision passed a check**.
 
 Historical documents may refer to Bridge at `/`, former product names,
 old port numbers, a single-game Telegram command menu or manual deployment
-snippets. In the current app, `/` is the Fun Central hub, `/newgame` is an
+snippets. In the current app, `/` is the funCentral hub, `/newgame` is an
 inline game chooser, and releases use a PR merge to `master` and Workers
 Builds. Use the current guides above for commands and resource operations;
 never replay historical destructive database/reset instructions.

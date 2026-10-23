@@ -80,7 +80,7 @@ describe('Telegram game selection', () => {
     await sendGameMenu('test-only', '-100123');
     const body = JSON.parse(fetch.mock.calls[0][1]?.body as string);
     expect(body.chat_id).toBe('-100123');
-    expect(body.text).toContain('Fun Central');
+    expect(body.text).toContain('funCentral');
     expect(body.reply_markup.inline_keyboard).toEqual(GAME_CATALOG.map((game) => [{
       text: `${game.emoji} ${game.name} (${game.players})`, callback_data: `newgame:${game.id}`,
     }]));

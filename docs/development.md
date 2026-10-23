@@ -67,7 +67,7 @@ Open the localhost URL printed by Wrangler (normally port 8787):
 
 | URL | Purpose |
 | --- | --- |
-| `/` | Fun Central game hub and shared leaderboard |
+| `/` | funCentral game hub and shared leaderboard |
 | `/bridge/` | Bridge home, rooms, history/replay and statistics |
 | `/regicide/` | Regicide home and rooms |
 | `/regicide/?view=stats` | Regicide statistics |
