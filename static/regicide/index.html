@@ -3,25 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1324">
   <title>Regicide · Fun Central</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
-  <!-- Bridge's stylesheet is the Fun Central design system; regicide.css only adds what Regicide needs on top. -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Bridge's stylesheet is the Fun Central design system; regicide.css adds the castle theme on top. -->
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/regicide/regicide.css">
 </head>
-<body>
+<body class="rc-body">
 
   <!-- Top bar (visible when in a room) -->
-  <div id="top-bar" class="top-bar hidden">
+  <div id="top-bar" class="top-bar rc-top-bar hidden">
     <button id="tb-room" type="button" class="top-bar-room" aria-label="Copy invite link"></button>
     <span id="tb-name" class="top-bar-name"></span>
-    <button id="btn-rules" type="button" class="btn-leave-global">Rules</button>
+    <button id="btn-sound" type="button" class="rc-icon-btn" aria-pressed="false" aria-label="Sound effects" title="Sound effects"></button>
+    <button id="btn-rules" type="button" class="rc-icon-btn" aria-label="How to play" title="How to play"></button>
+    <button id="btn-end" type="button" class="rc-icon-btn hidden" aria-label="End this run" title="End this run (host)"></button>
     <button id="btn-leave" type="button" class="btn-leave-global">Leave</button>
   </div>
 
   <div id="toasts" class="rc-toasts" role="status" aria-live="polite"></div>
+  <!-- Animation layer: flying cards, damage numbers, callouts. Never intercepts input. -->
+  <div id="fx" class="rc-fx" aria-hidden="true"></div>
 
   <!-- Reconnecting overlay -->
   <div id="overlay-reconnect" class="overlay hidden">
@@ -33,12 +38,16 @@
 
   <!-- Home -->
   <div id="screen-home" class="screen active">
-    <div class="home-container">
+    <div class="home-container rc-home">
       <a href="/" class="fc-back-link">← Fun Central</a>
-      <h1>♚ Regicide ♛</h1>
-      <p class="subtitle">Co-op Card Game · 1–4 players</p>
+      <div class="rc-hero" aria-hidden="true">
+        <div class="rc-hero-card rc-hero-j"><span class="rc-hero-rank">J</span><span class="rc-hero-glyph">♞</span><span class="rc-hero-suit">♣</span></div>
+        <div class="rc-hero-card rc-hero-k"><span class="rc-hero-rank">K</span><span class="rc-hero-glyph">♚</span><span class="rc-hero-suit red">♥</span></div>
+        <div class="rc-hero-card rc-hero-q"><span class="rc-hero-rank">Q</span><span class="rc-hero-glyph">♛</span><span class="rc-hero-suit">♠</span></div>
+      </div>
+      <h1 class="rc-title">Regicide</h1>
+      <p class="subtitle rc-tagline">Storm the castle together · co-op · 1–4 players</p>
 
-      <div id="leaderboard-section"></div>
       <p id="identity-status" class="subtitle hidden" role="status" aria-live="polite"></p>
 
       <!-- Telegram login (shown when not signed in) -->
@@ -61,20 +70,23 @@
           <label for="input-name">Your Name</label>
           <input type="text" id="input-name" placeholder="Enter your name" maxlength="64" autocomplete="off" enterkeyhint="done">
         </div>
-        <button id="btn-create" type="button" class="btn btn-primary">Create Game</button>
+        <button id="btn-create" type="button" class="btn btn-primary rc-btn-royal">♛ Create Game</button>
 
-        <div class="divider"><span>or</span></div>
+        <div class="divider"><span>or join a party</span></div>
 
-        <div class="form-group">
-          <label for="input-code">Room Code</label>
-          <input type="text" id="input-code" placeholder="e.g. AB12" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase" enterkeyhint="go">
+        <div class="rc-join-row">
+          <input type="text" id="input-code" placeholder="CODE" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Room code">
+          <button id="btn-join" type="button" class="btn btn-secondary">Join</button>
         </div>
-        <button id="btn-join" type="button" class="btn btn-secondary">Join Game</button>
         <div id="auth-status" class="auth-status"></div>
       </div>
 
-      <button id="btn-rules-home" type="button" class="btn btn-ghost rc-rules-btn">📖 How to Play</button>
-      <button id="btn-stats" type="button" class="btn btn-ghost rc-stats-btn">📊 Regicide Stats</button>
+      <div class="rc-home-links">
+        <button id="btn-rules-home" type="button" class="btn btn-ghost rc-rules-btn">📖 How to Play</button>
+        <button id="btn-stats" type="button" class="btn btn-ghost rc-stats-btn">📊 Stats</button>
+      </div>
+
+      <div id="leaderboard-section"></div>
     </div>
   </div>
 
@@ -102,100 +114,132 @@
 
   <!-- Lobby -->
   <div id="screen-lobby" class="screen">
-    <div class="lobby-container">
-      <h2>Game Lobby</h2>
-      <div class="room-code-display">
-        <span class="label">Room Code</span>
+    <div class="lobby-container rc-lobby">
+      <p class="rc-eyebrow">War council</p>
+      <h2>Gather your party</h2>
+      <button id="lobby-code-btn" type="button" class="room-code-display rc-code" aria-label="Copy invite link">
+        <span class="label">Room code</span>
         <span id="lobby-code" class="code">----</span>
-      </div>
+        <span class="rc-code-hint">tap to copy invite</span>
+      </button>
       <div class="lobby-invite-row">
         <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
       </div>
-      <div id="lobby-players" class="player-list"></div>
-      <p id="lobby-setup" class="practice-notice">🤝 Co-op</p>
+      <div id="lobby-players" class="player-list rc-seats"></div>
+      <div id="lobby-setup" class="rc-setup"></div>
       <p id="lobby-wait" class="status-text">Waiting for players...</p>
-      <button id="btn-start" type="button" class="btn btn-primary hidden">Start Game</button>
+      <button id="btn-start" type="button" class="btn btn-primary rc-btn-royal hidden">Start Game</button>
+      <button id="btn-rules-lobby" type="button" class="btn btn-ghost rc-rules-btn">📖 How to Play</button>
     </div>
   </div>
 
   <!-- Game -->
   <div id="screen-game" class="screen">
-    <div class="play-container rc-play">
-      <div class="game-info-bar rc-info-bar">
-        <span id="info-castle" title="Royals defeated">🏰 0/12</span>
-        <span id="info-attack" title="Damage you take after shields">⚔️ 10</span>
-        <span id="info-shield" title="Spade shield against this enemy">🛡️ 0</span>
-        <span id="info-immune" title="The enemy ignores this suit's power"></span>
-      </div>
+    <div class="rc-game" id="rc-game">
+      <section class="rc-main">
+        <div class="rc-table" id="rc-table">
+          <div class="rc-table-top">
+            <div id="castle-track" class="rc-castle" role="img" aria-label="Castle progress"></div>
+            <span id="info-castle" class="rc-castle-count" title="Royals defeated">0/12</span>
+          </div>
 
-      <div class="table rc-table" id="rc-table">
-        <div class="seat seat-top"><div class="seat-label" id="seat-top"></div></div>
-        <div class="seat seat-left"><div class="seat-label" id="seat-left"></div></div>
-        <div class="seat seat-right"><div class="seat-label" id="seat-right"></div></div>
-        <div class="seat seat-bottom"><div class="seat-label" id="seat-bottom"></div></div>
-
-        <div class="rc-center">
           <div class="rc-enemy" id="enemy-panel">
             <div id="enemy-card" class="rc-enemy-card-slot"></div>
-            <div class="rc-enemy-info">
+            <div class="rc-enemy-info" id="enemy-info">
               <div class="rc-enemy-name" id="enemy-name"></div>
-              <div class="rc-hp"><div id="hp-fill" class="rc-hp-fill"></div></div>
-              <div class="rc-hp-text"><b id="hp-left">0</b> / <span id="hp-max">0</span> HP</div>
+              <div class="rc-hp" id="hp-bar" role="meter" aria-label="Enemy health" aria-valuemin="0">
+                <div id="hp-ghost" class="rc-hp-ghost"></div>
+                <div id="hp-fill" class="rc-hp-fill"></div>
+                <span class="rc-hp-text"><b id="hp-left">0</b><span class="rc-hp-sep">/</span><span id="hp-max">0</span></span>
+              </div>
+              <div class="rc-enemy-stats">
+                <span id="info-attack" class="rc-stat rc-stat-attack" title="Damage the enemy deals after shields"></span>
+                <span id="info-shield" class="rc-stat rc-stat-shield" title="Spade shield against this enemy"></span>
+                <span id="info-immune" class="rc-stat rc-immune" title="The enemy ignores this suit's power"></span>
+              </div>
             </div>
           </div>
-          <div id="played-cards" class="rc-played" aria-label="Cards played against this enemy"></div>
+
+          <div class="rc-field">
+            <div class="rc-pile rc-pile-tavern" id="pile-tavern" title="Tavern deck (draw pile)">
+              <div class="rc-stack" aria-hidden="true"><i></i><i></i><i></i></div>
+              <b id="tavern-count" class="rc-pile-count">0</b>
+              <span class="rc-pile-label">Tavern</span>
+            </div>
+            <div id="played-cards" class="rc-played" aria-label="Cards played against this enemy"></div>
+            <div class="rc-pile rc-pile-discard" id="pile-discard" title="Discard pile (hearts heal from here)">
+              <div class="rc-stack rc-stack-discard" aria-hidden="true"><i></i><i></i><i></i></div>
+              <b id="discard-count" class="rc-pile-count">0</b>
+              <span class="rc-pile-label">Discard</span>
+            </div>
+          </div>
+
+          <p id="last-action" class="rc-ticker" aria-live="polite"></p>
+          <div id="party" class="rc-party" aria-label="Players"></div>
         </div>
+      </section>
 
-        <div class="rc-piles">
-          <span title="Tavern deck (draw pile)">🂠 <b id="tavern-count">0</b></span>
-          <span title="Discard pile">🗑 <b id="discard-count">0</b></span>
-        </div>
-      </div>
-
-      <p id="last-action" class="rc-last-action" aria-live="polite"></p>
-
-      <div class="hand-display" id="hand-area">
+      <section class="rc-dock" id="hand-area">
         <h3 id="turn-banner" class="rc-turn"></h3>
+        <div id="preview" class="rc-forecast"></div>
         <div id="hand" class="card-hand hand-fan rc-hand" aria-label="Your hand"></div>
-        <p class="rc-hand-footer">
-          <span id="hand-total"></span>
-          <span id="preview" class="rc-preview"></span>
-        </p>
-      </div>
+        <div class="rc-hand-footer">
+          <span id="hand-total" class="rc-hand-total"></span>
+          <span id="survival" class="rc-survival"></span>
+        </div>
+        <div class="rc-actions" id="action-bar">
+          <button id="btn-bestfit" type="button" class="btn btn-secondary hidden" title="Select the cheapest cards that cover the damage (B)">✨ Best fit</button>
+          <button id="btn-flip" type="button" class="btn btn-secondary rc-btn-jester hidden" title="Discard your hand and draw a fresh one (F)">🃏 Flip <span class="rc-flip-left">×<span id="flip-count">2</span></span></button>
+          <button id="btn-yield" type="button" class="btn btn-secondary" title="Skip attacking and take the hit (Y)">Yield</button>
+          <button id="btn-act" type="button" class="btn btn-primary rc-btn-royal">Play</button>
+        </div>
+        <p id="action-note" class="rc-action-note"></p>
+        <p class="rc-keys">Keys: <kbd>1</kbd>–<kbd>8</kbd> select · <kbd>Enter</kbd> play · <kbd>Y</kbd> yield · <kbd>B</kbd> best fit · <kbd>Esc</kbd> clear</p>
+      </section>
 
-      <div class="rc-actions" id="action-bar">
-        <button id="btn-bestfit" type="button" class="btn btn-ghost hidden">✨ Best fit</button>
-        <button id="btn-flip" type="button" class="btn btn-secondary hidden" title="Discard your hand and draw 8 fresh cards">🃏 Flip ×<span id="flip-count">2</span></button>
-        <button id="btn-yield" type="button" class="btn btn-secondary">Yield</button>
-        <button id="btn-act" type="button" class="btn btn-primary">Play</button>
-      </div>
-
-      <details id="log-details" class="rc-log">
-        <summary>Game log</summary>
-        <ol id="log"></ol>
-      </details>
+      <aside class="rc-side">
+        <details id="log-details" class="rc-log">
+          <summary>Battle log</summary>
+          <ol id="log"></ol>
+        </details>
+      </aside>
     </div>
   </div>
 
   <!-- Jester: choose next player -->
-  <div id="modal-jester" class="overlay rc-modal hidden" role="dialog" aria-modal="true" aria-labelledby="jester-title">
-    <div class="lobby-container rc-modal-box">
-      <h2 id="jester-title">🃏 Who goes next?</h2>
-      <p class="subtitle">The Jester cancelled the enemy's immunity. Pick who takes the next turn.</p>
+  <div id="modal-jester" class="overlay rc-modal rc-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="jester-title">
+    <div class="lobby-container rc-modal-box rc-jester-box">
+      <div class="rc-modal-icon rc-icon-jester" aria-hidden="true">🃏</div>
+      <h2 id="jester-title">Who goes next?</h2>
+      <p class="subtitle">The Jester cancelled the enemy's immunity. Pick who takes the next turn — no talking about your cards!</p>
       <div id="jester-choices" class="player-list"></div>
     </div>
   </div>
 
   <!-- Game over -->
   <div id="modal-over" class="overlay rc-modal hidden" role="dialog" aria-modal="true" aria-labelledby="over-title">
-    <div class="gameover-container rc-modal-box" id="over-box">
+    <div class="gameover-container rc-modal-box rc-over-box" id="over-box">
+      <div id="over-emblem" class="rc-over-emblem" aria-hidden="true"></div>
       <h2 id="over-title"></h2>
       <p id="over-sub" class="subtitle"></p>
+      <div id="over-track" class="rc-castle rc-over-track" role="img" aria-label="Royals defeated"></div>
       <div id="over-stats" class="rc-over-stats"></div>
       <div id="over-rating" class="rc-over-rating hidden"></div>
       <div class="gameover-actions">
-        <button id="btn-again" type="button" class="btn btn-primary">Play Again</button>
+        <button id="btn-again" type="button" class="btn btn-primary rc-btn-royal">Play Again</button>
         <button id="btn-over-close" type="button" class="btn btn-ghost">View Board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div id="modal-confirm" class="overlay rc-modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="lobby-container rc-modal-box rc-confirm-box">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-body" class="subtitle"></p>
+      <div class="rc-confirm-actions">
+        <button id="confirm-cancel" type="button" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" type="button" class="btn btn-primary">OK</button>
       </div>
     </div>
   </div>
@@ -204,36 +248,45 @@
   <div id="modal-rules" class="overlay rc-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
     <div class="lobby-container rc-modal-box rc-rules">
       <button type="button" class="kick-btn rc-close" data-close aria-label="Close">✕</button>
+      <p class="rc-eyebrow">Field manual</p>
       <h2 id="rules-title">How to Play</h2>
-      <p><b>Goal:</b> together, defeat all 12 royals — 4 Jacks, then 4 Queens, then 4 Kings. If anyone can't survive a hit, everyone loses.</p>
-      <table class="rc-rules-table">
-        <thead><tr><th>Enemy</th><th>Attack</th><th>Health</th></tr></thead>
-        <tbody><tr><td>Jack</td><td>10</td><td>20</td></tr><tr><td>Queen</td><td>15</td><td>30</td></tr><tr><td>King</td><td>20</td><td>40</td></tr></tbody>
-      </table>
+      <p class="rc-rules-lead">Work together to defeat all <b>12 royals</b> — 4 Jacks, then 4 Queens, then 4 Kings. If anyone can't survive a hit, everyone loses.</p>
+
+      <div class="rc-rules-royals">
+        <div><span class="rc-mini-royal">J</span><b>Jack</b><span>⚔ 10 · ❤ 20</span></div>
+        <div><span class="rc-mini-royal">Q</span><b>Queen</b><span>⚔ 15 · ❤ 30</span></div>
+        <div><span class="rc-mini-royal">K</span><b>King</b><span>⚔ 20 · ❤ 40</span></div>
+      </div>
+
       <h3>Your turn</h3>
-      <ol>
-        <li><b>Attack</b> with a card or combo — or <b>yield</b> (not allowed if every other player yielded on their last turn, and never in solo).</li>
+      <ol class="rc-steps">
+        <li><b>Attack</b> with a card or combo — or <b>yield</b> (not if every other player yielded on their last turn, and never in solo).</li>
         <li>Your cards' <b>suit powers</b> trigger.</li>
-        <li><b>Deal damage</b> equal to the cards' value. If the enemy falls, you go again against the next one.</li>
-        <li>Otherwise the enemy <b>strikes back</b>: discard cards worth at least its attack (minus shields).</li>
+        <li><b>Deal damage</b> equal to the cards' value. If the enemy falls, you go again against the next royal.</li>
+        <li>Otherwise it <b>strikes back</b>: discard cards worth at least its attack (minus shields).</li>
       </ol>
+
       <h3>Suit powers</h3>
-      <ul class="rc-powers">
-        <li><span class="red">♥</span> <b>Heal</b> — shuffle the discard pile and return that many cards to the bottom of the tavern deck.</li>
-        <li><span class="red">♦</span> <b>Draw</b> — players draw that many cards in turn, starting with you (no one exceeds their hand size).</li>
-        <li><span>♣</span> <b>Double</b> — the attack deals double damage.</li>
-        <li><span>♠</span> <b>Shield</b> — reduce this enemy's attack by that much for the rest of the fight.</li>
+      <ul class="rc-powers-list">
+        <li class="p-H"><span>♥</span><div><b>Heal</b> — shuffle the discard pile and put that many cards under the tavern deck.</div></li>
+        <li class="p-D"><span>♦</span><div><b>Draw</b> — players draw that many cards in turn, starting with you (no one exceeds their hand size).</div></li>
+        <li class="p-C"><span>♣</span><div><b>Double</b> — the attack deals double damage.</div></li>
+        <li class="p-S"><span>♠</span><div><b>Shield</b> — reduce this enemy's attack by that much for the rest of the fight.</div></li>
       </ul>
       <p>Each enemy is <b>immune</b> to its own suit's power (the damage still counts).</p>
+
       <h3>Combos</h3>
       <ul>
         <li><b>Animal Companion (A)</b> is worth 1 and pairs with any one other card. Both suits' powers apply.</li>
-        <li><b>Sets</b>: 2–4 cards of the same rank totalling 10 or less (e.g. 5+5, 3+3+3, 2+2+2+2).</li>
+        <li><b>Sets</b>: 2–4 cards of the same rank totalling 10 or less (5+5, 3+3+3, 2+2+2+2).</li>
       </ul>
+
       <h3>Defeating royals</h3>
-      <p>Hit an enemy for <b>exactly</b> its remaining health and it joins your side — it goes on top of the tavern deck (J=10, Q=15, K=20).</p>
+      <p>Hit an enemy for <b>exactly</b> its remaining health and it joins your side — it goes on top of the tavern deck (J=10, Q=15, K=20). Overkill sends it to the discard pile.</p>
+
       <h3>The Jester 🃏</h3>
       <p>Play it alone: it cancels the enemy's immunity (spades already played start shielding) and you choose who goes next. No damage is dealt or taken.</p>
+
       <h3>Players</h3>
       <table class="rc-rules-table">
         <thead><tr><th>Players</th><th>Hand size</th><th>Jesters</th></tr></thead>
