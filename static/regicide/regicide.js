@@ -264,6 +264,7 @@ const lobbySeen = new Set();
 
 // ---------- Networking ----------
 function connect(code) {
+  if (window.FC_MOVED) return; // this page is forwarding to funcentral.vocs.io (fc-host.js)
   roomCode = code;
   clearTimeout(reconnectTimer);
   if (ws) { ws.onclose = null; ws.close(); }
@@ -2037,7 +2038,7 @@ function inviteUrl() {
 async function shareInvite() {
   const url = inviteUrl();
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
-    try { await navigator.share({ title: 'Regicide on Fun Central', text: `Join my Regicide game — room ${roomCode}`, url }); return; } catch { /* cancelled */ }
+    try { await navigator.share({ title: 'Regicide on funCentral', text: `Join my Regicide game — room ${roomCode}`, url }); return; } catch { /* cancelled */ }
   }
   try {
     await navigator.clipboard.writeText(url);

@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Fun Central</title>
+  <title>funCentral</title>
+  <script src="/fc-host.js"></script>
   <script>
     // Old Bridge invite links were /#ROOM — send them to the Bridge app.
     const toBridge = () => { if (/^#[A-Za-z0-9]{4}(:|$)/.test(location.hash)) location.replace('/bridge/' + location.hash); };
-    toBridge();
-    addEventListener('hashchange', toBridge);
+    if (!window.FC_MOVED) {
+      toBridge();
+      addEventListener('hashchange', toBridge);
+    }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
-  <!-- Bridge's stylesheet is the Fun Central design system. -->
+  <!-- Bridge's stylesheet is the funCentral design system. -->
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/hub.css">
 </head>
 <body>
   <main class="hub">
     <header class="hub-header">
-      <h1>♠♥ Fun Central ♦♣</h1>
-      <p class="subtitle">Card games for your group</p>
+      <h1>♠♥ funCentral ♦♣</h1>
+      <p class="subtitle">Games for your group</p>
       <p id="hub-greeting" class="hub-greeting hidden"></p>
     </header>
 

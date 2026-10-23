@@ -2,6 +2,14 @@ name = "sgbridgegame"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
+# Adding routes would otherwise turn workers.dev off; the Telegram webhook and
+# older links still use https://sgbridgegame.vocs.workers.dev.
+workers_dev = true
+
+# Public address (vocs.io zone in the same Cloudflare account).
+[[routes]]
+pattern = "funcentral.vocs.io"
+custom_domain = true
 
 [assets]
 directory = "./static"

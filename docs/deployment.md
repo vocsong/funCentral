@@ -8,16 +8,22 @@
   **Never run `npm run deploy` manually.** Its script exists, but it is not
   the release or validation workflow.
 - Existing Worker/service: **`sgbridgegame`**.
-- Public URL: <https://sgbridgegame.vocs.workers.dev>.
+- Public URL: <https://funcentral.vocs.io>, a Workers Custom Domain declared
+  in `wrangler.toml` (`[[routes]]`, `custom_domain = true`; zone `vocs.io`).
+- Legacy URL: <https://sgbridgegame.vocs.workers.dev> stays enabled
+  (`workers_dev = true`; without it, adding routes would disable it). It still
+  serves `/api/*`, so older webhooks/sockets keep working, while its pages
+  forward to the public URL with path and `#ROOM` intact (`static/fc-host.js`).
 - Existing D1 database: **`sg-bridge-users`**, binding **`DB`**.
 - Existing secrets: **`JWT_SECRET`** and **`TELEGRAM_BOT_TOKEN`**.
 - Public variable: **`TELEGRAM_BOT_USERNAME=funCentral_bot`**.
 - **`ALLOW_DEV_LOGIN` must be absent in production.** It also gates Regicide
   seed/debug conveniences; it is not just a UI switch.
 
-Fun Central is the product/repository name, not a reason to rename existing
+funCentral is the product/repository name, not a reason to rename existing
 Cloudflare resources. Keep the service/database names, binding identities,
-secrets and URLs so existing data, Telegram integration and links survive.
+secrets and the legacy workers.dev URL so existing data, Telegram integration
+and links survive.
 Never put credential values in documentation, shell arguments or commits.
 
 Run [PR validation](testing.md) before opening/updating a PR. Tests use local
@@ -95,10 +101,18 @@ repeat the read-only inspection before future changes.
 ## Telegram integration
 
 The existing bot is **[@funCentral_bot](https://t.me/funCentral_bot)**. Its
-webhook is `/api/telegram` on the existing Worker origin. Bot-owner webhook
-or domain changes are separate intentional operations, not prerequisites for
-each game addition or each release. Never include a bot-token-bearing URL
-in the repository.
+webhook is `/api/telegram` on the Worker. Bot-owner webhook or domain changes
+are separate intentional operations, not prerequisites for each game addition
+or each release. Never include a bot-token-bearing URL in the repository.
+
+Two bot settings follow the public URL `funcentral.vocs.io`:
+
+- **Login Widget domain** (BotFather `/setdomain`). The widget works on one
+  domain only, so sign-in on the legacy workers.dev host stops once this
+  points at the public URL; that host's pages forward there anyway.
+- **Webhook URL** (`https://funcentral.vocs.io/api/telegram`). Join links in
+  bot messages use the origin the webhook was called on. A webhook still on
+  workers.dev keeps working, but its links rely on the page forward.
 
 `/newgame` offers inline game choices; a callback creates the chosen room in
 the same group. The registered command menu (`newgame`, `leaderboard`,

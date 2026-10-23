@@ -68,7 +68,7 @@ const ALIASES: Record<string, CommandName> = {
 export const BOT_COMMANDS: { command: string; description: string }[] = [
   { command: 'newgame', description: 'Choose a game to start with your group' },
   { command: 'leaderboard', description: "This group's Bridge and Regicide leaderboards" },
-  { command: 'help', description: 'Fun Central games and commands' },
+  { command: 'help', description: 'funCentral games and commands' },
 ];
 
 /** Sets the bot's command menu for group chats. Fire-and-forget like sendMessage. */
@@ -93,7 +93,7 @@ export async function sendGameMenu(token: string, chatId: string): Promise<void>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: '🎪 <b>Fun Central</b>\nWhich game would you like to start?',
+      text: '🎪 <b>funCentral</b>\nWhich game would you like to start?',
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: GAME_CATALOG.map((game) => [{
         text: `${game.emoji} ${game.name} (${game.players})`,

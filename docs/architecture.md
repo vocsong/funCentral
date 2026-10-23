@@ -1,6 +1,6 @@
-# Fun Central architecture
+# funCentral architecture
 
-Fun Central is one Cloudflare Worker serving a hub and independent multiplayer
+funCentral is one Cloudflare Worker serving a hub and independent multiplayer
 games. Share identity and presentation where useful, not game state or rating
 systems. [Development](development.md), [deployment](deployment.md) and
 [testing](testing.md) cover operations.

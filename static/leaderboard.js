@@ -1,6 +1,6 @@
 'use strict';
 
-// One leaderboard card for every Fun Central page, with a Bridge | Regicide switch.
+// One leaderboard card for every funCentral page, with a Bridge | Regicide switch.
 // Bridge's ELO and Regicide's rating are separate boards; this is just the shared entry point.
 window.FunLeaderboard = (() => {
   const GAMES = {

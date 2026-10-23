@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-**Fun Central** — a multiplayer card-game hub on Cloudflare Workers, with Durable Objects for authoritative rooms/WebSockets, D1 for profiles/history/statistics, and a vanilla JavaScript frontend. Floating Bridge is the original four-player game; Regicide is cooperative for 1–4 players.
+**funCentral** — a multiplayer card-game hub on Cloudflare Workers, with Durable Objects for authoritative rooms/WebSockets, D1 for profiles/history/statistics, and a vanilla JavaScript frontend. Floating Bridge is the original four-player game; Regicide is cooperative for 1–4 players.
+
+**Brand name:** always write **funCentral** — one word, lower-case `f`, capital `C` — in UI text, page titles, bot messages and docs (never "Fun Central"/"FunCentral"), including at the start of a sentence. Hostnames stay lowercase (`funcentral.vocs.io`); code identifiers (`FunAuth`, `fc-*.js`) are not branding.
 
 Repository: `https://github.com/vocsong/funCentral`, default branch `master`.
 Start with [README.md](README.md) and the [documentation index](docs/README.md).
@@ -12,7 +14,7 @@ Current guides: [architecture / adding a game](docs/architecture.md),
 [local development](docs/development.md), [testing](docs/testing.md),
 [deployment / migrations](docs/deployment.md).
 
-## Fun Central (multi-app layout)
+## funCentral (multi-app layout)
 
 | URL | Files | Backend |
 |-----|-------|---------|
@@ -58,8 +60,11 @@ production D1 or deploy. Report actual results and device/emulation limits.
 ## Deployment
 
 **Never run `npm run deploy` manually.** A PR merge to `master` triggers
-Cloudflare Workers Builds. Keep Worker `sgbridgegame`, D1 `sg-bridge-users`,
-existing bindings/secrets and public URL `https://sgbridgegame.vocs.workers.dev`.
+Cloudflare Workers Builds. Keep Worker `sgbridgegame`, D1 `sg-bridge-users` and
+existing bindings/secrets. The public URL is `https://funcentral.vocs.io` (Custom
+Domain in `wrangler.toml`); keep `workers_dev = true` so the legacy
+`https://sgbridgegame.vocs.workers.dev` still serves `/api/*` while its pages
+forward to the public URL (`static/fc-host.js`).
 Required existing secrets are `JWT_SECRET` and `TELEGRAM_BOT_TOKEN`; the public
 username is `funCentral_bot`. Production `ALLOW_DEV_LOGIN` must be absent.
 

@@ -1,17 +1,17 @@
-# Fun Central
+# funCentral
 
 A multiplayer card-game hub built with Cloudflare Workers, Durable Objects,
 D1 and a vanilla JavaScript frontend.
 
-**Play:** <https://sgbridgegame.vocs.workers.dev> ·
+**Play:** <https://funcentral.vocs.io> ·
 **Repository:** <https://github.com/vocsong/funCentral> · Default branch: `master`
 
 ## Games
 
 | Game | URL | Play |
 | --- | --- | --- |
-| Floating Bridge | [/bridge/](https://sgbridgegame.vocs.workers.dev/bridge/) | Four-player Singaporean Bridge: bid, call a secret partner and win tricks. Includes bots, spectators, Classic/2.5D views, history and replay. |
-| Regicide | [/regicide/](https://sgbridgegame.vocs.workers.dev/regicide/) | Cooperative play for 1–4 players: use suit powers to defeat all 12 royals. Includes solo mode, spectators and separate ratings/stats. |
+| Floating Bridge | [/bridge/](https://funcentral.vocs.io/bridge/) | Four-player Singaporean Bridge: bid, call a secret partner and win tricks. Includes bots, spectators, Classic/2.5D views, history and replay. |
+| Regicide | [/regicide/](https://funcentral.vocs.io/regicide/) | Cooperative play for 1–4 players: use suit powers to defeat all 12 royals. Includes solo mode, spectators and separate ratings/stats. |
 
 Choose a game from the hub, sign in with Telegram, create a room and share its
 four-character code or invite link. Both games use the same account and saved
@@ -84,8 +84,9 @@ views, not unrestricted state; spectator views are explicit exceptions
 **Do not run `npm run deploy` manually.** Merge a reviewed PR to `master`;
 Cloudflare Workers Builds deploys the existing `sgbridgegame` service. The
 legacy service/database names are intentional: preserve existing resources,
-secrets, data and public URLs. Database migrations are a separate controlled
-step; see [deployment](docs/deployment.md).
+secrets, data and public URLs. The old `sgbridgegame.vocs.workers.dev`
+address stays enabled and forwards pages to `funcentral.vocs.io`. Database
+migrations are a separate controlled step; see [deployment](docs/deployment.md).
 
 The [documentation index](docs/README.md) links current guides and historical
 design/screenshot evidence. Root Python files and `.env.example` belong to

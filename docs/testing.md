@@ -1,4 +1,4 @@
-# Fun Central PR validation
+# funCentral PR validation
 
 Run `npm ci --include=dev` using the locked dependencies, then use an already
 available Playwright browser. All app tooling is in `devDependencies`. No

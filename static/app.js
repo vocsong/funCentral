@@ -89,7 +89,7 @@ async function loadLeaderboard() {
 function renderLeaderboard(data) {
   const section = document.getElementById('leaderboard-section');
   if (!section) return;
-  // Shared Fun Central card with a Bridge | Regicide switch (static/leaderboard.js).
+  // Shared funCentral card with a Bridge | Regicide switch (static/leaderboard.js).
   if (window.FunLeaderboard) {
     window.FunLeaderboard.mount(section, { game: 'bridge', bridgeData: data, footer: '<button class="btn-link" onclick="showStats()">📊 Full stats →</button>' });
     return;
@@ -1159,6 +1159,7 @@ function getSuitClass(suit) {
 
 // --- WebSocket ---
 function connect() {
+  if (window.FC_MOVED) return; // this page is forwarding to funcentral.vocs.io (fc-host.js)
   if (!identityReady) return;
   if (identityNeedsLogin) { requestPlayerName(); return; }
   playerName = normalizePlayerName(playerName);
