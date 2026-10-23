@@ -137,6 +137,7 @@ let joinSent = false;
 
 // ---------- Networking ----------
 function connect(code) {
+  if (window.FC_MOVED) return; // this page is forwarding to funcentral.vocs.io (fc-host.js)
   roomCode = code;
   clearTimeout(reconnectTimer);
   if (ws) { ws.onclose = null; ws.close(); }
