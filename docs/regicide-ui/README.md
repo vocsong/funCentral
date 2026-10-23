@@ -1,7 +1,8 @@
 # Regicide UI revamp
 
 Captures of the Regicide client before (master `28a2df4`) and after this
-change, using the same seeded rooms, dev-only state patches, Chrome, viewport
+change (merged with master `ce4f76d`, i.e. including the funCentral branding),
+using the same seeded rooms, dev-only state patches, Chrome, viewport
 and taps. They come from a local Worker with synthetic test players, not
 production. Phone captures use Chrome mobile emulation (390 × 844, touch,
 2× pixels); this is not iPhone/Safari or Telegram WebView evidence.
