@@ -1159,6 +1159,7 @@ function getSuitClass(suit) {
 
 // --- WebSocket ---
 function connect() {
+  if (window.FC_MOVED) return; // this page is forwarding to funcentral.vocs.io (fc-host.js)
   if (!identityReady) return;
   if (identityNeedsLogin) { requestPlayerName(); return; }
   playerName = normalizePlayerName(playerName);

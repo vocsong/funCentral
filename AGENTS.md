@@ -46,7 +46,9 @@
   checks alongside E2E. Never deploy as part of verification.
 - **Never run `npm run deploy` manually.** A PR merge to `master` in
   `vocsong/funCentral` triggers Cloudflare Workers Builds. Preserve Worker
-  `sgbridgegame`, D1 `sg-bridge-users`, existing bindings/secrets and URLs.
+  `sgbridgegame`, D1 `sg-bridge-users`, existing bindings/secrets, the public
+  Custom Domain `funcentral.vocs.io` and the legacy workers.dev URL
+  (`workers_dev = true`).
 - Production requires existing `JWT_SECRET`/`TELEGRAM_BOT_TOKEN` secrets and
   public username `funCentral_bot`; `ALLOW_DEV_LOGIN` must be absent.
 - Inspect remote D1 schema/ledger and list pending migrations before applying
