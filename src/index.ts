@@ -33,7 +33,7 @@ async function createRegicideRoom(env: Env, extra: Record<string, unknown> = {})
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const HELP_TEXT = [
-  '🎪 <b>Fun Central</b> — card games for this group',
+  '🎪 <b>funCentral</b> — card games for this group',
   '',
   '/newgame — choose a game to start',
   ...GAME_CATALOG.map((game) => `/${game.telegramCommand} — start ${game.name} (${game.players})`),

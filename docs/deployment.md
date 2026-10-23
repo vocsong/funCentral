@@ -20,7 +20,7 @@
 - **`ALLOW_DEV_LOGIN` must be absent in production.** It also gates Regicide
   seed/debug conveniences; it is not just a UI switch.
 
-Fun Central is the product/repository name, not a reason to rename existing
+funCentral is the product/repository name, not a reason to rename existing
 Cloudflare resources. Keep the service/database names, binding identities,
 secrets and the legacy workers.dev URL so existing data, Telegram integration
 and links survive.

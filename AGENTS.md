@@ -1,4 +1,8 @@
-# Fun Central
+# funCentral
+
+The brand is always written **funCentral** (one word, lower-case `f`, capital
+`C`) in UI text, titles, bot messages and docs, even at the start of a
+sentence. Hostnames stay lowercase (`funcentral.vocs.io`).
 
 ## Repo Map
 - `src/index.ts` is the shared Cloudflare Worker router; `src/games.ts` is the
