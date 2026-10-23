@@ -1,0 +1,187 @@
+/* Regicide additions on top of Bridge's /style.css. Reuses Bridge tokens and
+   components (.home-container, .lobby-container, .table, .seat-label,
+   .game-info-bar, .card-hand.hand-fan, .card-mini, .btn…); only game-specific
+   pieces live here. */
+
+.rc-rules-btn { margin-top: 0.75rem; }
+.rc-stats-btn { margin-top: 0.5rem; }
+#screen-stats.active { align-items: flex-start; }
+body.modal-open { overflow: hidden; }
+
+/* --- Top bar --- */
+button.top-bar-room { cursor: pointer; font-family: var(--mono); }
+button.top-bar-room::after { content: ' 🔗'; font-size: 0.65rem; letter-spacing: 0; }
+
+/* --- Lobby --- */
+.player-list .player-item.rc-player { grid-template-columns: 32px 7px minmax(0, 1fr) auto 36px; }
+.rc-player .lobby-meta { justify-content: flex-end; }
+.rc-you { color: var(--accent-light); font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem; text-transform: uppercase; }
+.rc-host { font-size: 0.75rem; color: var(--gold); font-weight: 600; white-space: nowrap; }
+.player-item.rc-empty { display: flex; justify-content: center; color: var(--text-dimmer); font-size: 0.85rem; border-style: dashed; }
+#lobby-setup { margin: 0 0 0.75rem; }
+#lobby-wait { margin: 0.75rem 0; }
+@media (max-width: 600px) {
+  .player-list .player-item.rc-player { grid-template-columns: 32px 7px minmax(0, 1fr) auto 36px; }
+  .rc-player .lobby-meta { grid-column: 4; grid-row: 1; }
+  .rc-player .lobby-action { grid-column: 5; grid-row: 1; }
+}
+
+/* --- Play screen --- */
+.rc-play { max-width: 860px; padding-bottom: 1.5rem; }
+#screen-game.active { align-items: flex-start; }
+.rc-info-bar { gap: 0.4rem; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+.rc-info-bar span { padding: 0.25rem 0.6rem; }
+#info-immune.red { color: var(--red-suit); }
+#info-immune.cancelled { color: var(--accent-light); }
+
+.rc-table { aspect-ratio: auto; height: clamp(230px, 36vh, 400px); max-height: none; }
+@media (min-width: 700px) { .rc-table { height: clamp(260px, 44vh, 400px); } }
+.rc-table .seat-label { min-width: 64px; }
+.rc-table .seat-label:empty { display: none; }
+.rc-table .seat-name-row { max-width: 96px; }
+.rc-table .seat-sets { font-size: 0.78rem; }
+.rc-table .seat-label .rc-tag {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold);
+}
+
+.rc-center {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: 54%;
+}
+.rc-enemy { display: flex; align-items: center; gap: 10px; }
+.rc-enemy.hit .rc-enemy-card { animation: rc-hit 0.45s; }
+@keyframes rc-hit { 20% { transform: translateX(-5px) rotate(-3deg); filter: brightness(1.3); } 60% { transform: translateX(4px) rotate(2deg); } }
+.rc-enemy-info { display: flex; flex-direction: column; gap: 4px; min-width: 84px; }
+.rc-enemy-name { font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap; }
+.rc-hp { height: 8px; border-radius: 99px; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.rc-hp-fill { height: 100%; width: 100%; background: var(--danger); border-radius: inherit; transition: width 0.45s ease; }
+.rc-hp-fill.low { background: var(--gold); }
+.rc-hp-text { font-size: 0.72rem; color: var(--text-dim); }
+.rc-hp-text b { color: var(--gold); font-size: 0.95rem; }
+
+/* Enemy royal: a larger Bridge card face */
+.rc-enemy-card {
+  position: relative;
+  width: clamp(58px, 15vw, 84px); aspect-ratio: 5 / 7;
+  border-radius: 8px; background: var(--card-bg);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 2px rgba(255,211,42,0.25), 0 8px 24px rgba(0,0,0,0.45);
+  color: #2d3436; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.rc-enemy-card.red { color: var(--red-suit); }
+.rc-enemy-card .card-corner { --corner-font: clamp(13px, 3.4vw, 18px); top: 3px; left: 4px; }
+.rc-enemy-card .rc-big { font-size: clamp(1.8rem, 7vw, 2.6rem); line-height: 1; margin-top: 10%; }
+.rc-enemy-card.reveal { animation: rc-reveal 0.45s ease; }
+@keyframes rc-reveal { from { transform: rotateY(90deg); opacity: 0; } }
+.rc-enemy-empty { font-size: 2.5rem; }
+
+.rc-played { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 30px; }
+.rc-played-group { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: 6px; }
+.rc-played .card-mini { width: clamp(26px, 6vw, 36px); font-size: clamp(0.85rem, 3vw, 1.05rem); }
+.rc-played-dmg { font-size: 0.7rem; font-weight: 800; color: var(--gold); margin-left: 2px; }
+.rc-played-empty { font-size: 0.72rem; color: var(--text-dimmer); }
+
+.rc-piles {
+  position: absolute; right: 3%; bottom: 4%; z-index: 1;
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
+  font-size: 0.68rem; color: var(--text-dim);
+}
+.rc-piles span { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 2px 8px; }
+.rc-piles b { color: #fff; }
+
+.rc-last-action {
+  min-height: 1.4em; margin: 0.35rem 0 0.1rem; text-align: center;
+  font-size: 0.8rem; line-height: 1.4; color: var(--text-dim);
+}
+.rc-last-action .la-latest { color: var(--text); font-weight: 600; }
+.rc-last-action.pop .la-latest { animation: rc-pop 0.3s ease; }
+@keyframes rc-pop { from { opacity: 0; transform: translateY(3px); } }
+
+/* Hand: Bridge's fan, laid out by regicide.js */
+.rc-turn { margin-bottom: 0.1rem !important; }
+.rc-turn.mine { color: var(--gold) !important; }
+.rc-turn.danger { color: var(--danger) !important; }
+.rc-turn.good { color: var(--success) !important; }
+.rc-hand { margin: 0 auto; --hand-lift: 16px; overflow-x: clip; overflow-y: visible; }
+.rc-hand .hand-card { cursor: default; }
+.rc-hand.interactive .hand-card { cursor: pointer; }
+.rc-hand .hand-card.rc-dim { filter: brightness(0.6); }
+.rc-hand .hand-card .rc-face { position: absolute; right: 6%; bottom: 5%; font-size: calc(var(--hand-card-width) * 0.38); line-height: 1; opacity: 0.9; }
+.rc-hand-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-dimmer); font-size: 0.85rem; }
+.rc-hand-footer { display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; font-size: 0.75rem; color: var(--text-dimmer); min-height: 1.2em; }
+.rc-preview { color: var(--text); font-weight: 600; text-align: right; flex: 1; }
+.rc-preview.bad { color: var(--danger); }
+.rc-preview.good { color: var(--success); }
+
+.rc-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.rc-actions .btn { flex: 1 1 0; min-width: 0; padding-left: 0.75rem; padding-right: 0.75rem; white-space: nowrap; }
+.rc-actions #btn-act { flex: 2 1 0; }
+.rc-actions .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+#btn-bestfit { flex-basis: 100%; }
+
+.rc-log { margin-top: 0.9rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem; }
+.rc-log summary { cursor: pointer; font-size: 0.75rem; color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 0.08em; }
+.rc-log ol { list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--text-dim); max-height: 220px; overflow-y: auto; }
+.rc-log li:first-child { color: var(--text); }
+.rc-log .log-defeat { color: var(--success); }
+.rc-log .log-damage, .rc-log .log-lost { color: #f87171; }
+.rc-log .log-reveal { color: var(--gold); }
+
+/* --- Modals (Bridge overlay + glass box) --- */
+.rc-modal { padding: 16px; }
+.rc-modal-box { position: relative; max-height: calc(100dvh - 32px); overflow-y: auto; background: #1a1d26; }
+.rc-modal-box .subtitle { margin-bottom: 1.25rem; }
+.rc-modal-box h2 { margin-bottom: 0.5rem; font-size: 1.4rem; font-weight: 700; }
+.rc-modal-box .gameover-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+#jester-choices .player-item { cursor: pointer; width: 100%; font: inherit; color: inherit; display: flex; }
+#jester-choices .player-item .lobby-player-name { flex: 1; }
+.rc-over-stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.5rem; }
+.rc-over-stats div { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-sm); padding: 0.6rem 0.4rem; }
+.rc-over-stats b { display: block; font-size: 1.3rem; color: var(--gold); }
+.rc-over-stats span { font-size: 0.7rem; color: var(--text-dim); }
+.rc-close { position: absolute; top: 14px; right: 14px; }
+.rc-rules { max-width: 560px; text-align: left; font-size: 0.88rem; line-height: 1.55; color: var(--text-dim); }
+.rc-rules h2 { color: var(--text); }
+.rc-rules h3 { margin: 1rem 0 0.35rem; font-size: 0.9rem; color: var(--text); }
+.rc-rules p { margin-bottom: 0.5rem; }
+.rc-rules b { color: var(--text); }
+.rc-rules ol, .rc-rules ul { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 3px; }
+.rc-powers { list-style: none; padding-left: 0 !important; }
+.rc-powers span { display: inline-block; width: 1.2rem; text-align: center; color: var(--black-suit); }
+.rc-powers span.red { color: var(--red-suit); }
+.rc-rules-table { width: 100%; border-collapse: collapse; margin: 0.4rem 0 0.6rem; font-size: 0.82rem; }
+.rc-rules-table th, .rc-rules-table td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--glass-border); text-align: left; }
+.rc-rules-table th { color: var(--text-dimmer); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.rc-note { font-size: 0.78rem; color: var(--text-dimmer); }
+
+/* --- Toasts --- */
+.rc-toasts {
+  position: fixed; left: 50%; top: 56px; transform: translateX(-50%); z-index: 2000;
+  display: flex; flex-direction: column; gap: 0.4rem; align-items: center; width: min(92vw, 420px); pointer-events: none;
+}
+.rc-toast {
+  padding: 0.55rem 0.9rem; border-radius: var(--radius-sm); font-size: 0.85rem; text-align: center;
+  background: rgba(30,33,43,0.95); border: 1px solid var(--glass-border); box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: rc-pop 0.2s ease;
+}
+.rc-toast.error { border-color: rgba(255,71,87,0.4); color: #ff9aa4; }
+
+@media (max-width: 380px) {
+  .rc-table .seat-label { min-width: 56px; padding: 3px 7px; }
+  .rc-center { width: 60%; }
+}
+
+/* --- Sign-in (mirrors Bridge's login box) --- */
+.rc-dev-login { margin-top: 16px; padding: 12px; border: 1px dashed #888; border-radius: 8px; }
+.rc-dev-note { font-size: 12px; color: #aaa; margin-bottom: 8px; }
+#login-section .subtitle { margin-bottom: 1rem; }
+
+/* --- Rating result on the game-over panel --- */
+.rc-over-rating { margin-top: 1rem; text-align: left; }
+.rc-over-rating .lb-header { margin-bottom: 0.4rem; }
+.rc-over-rating .rc-delta-up { color: var(--success); font-weight: 700; }
+.rc-over-rating .rc-delta-down { color: var(--danger); font-weight: 700; }
+.rc-best-win { color: var(--gold); font-weight: 700; }
+.rc-player-meta { display: inline-flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }

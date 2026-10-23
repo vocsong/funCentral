@@ -33,7 +33,7 @@ async function expectCreatorSeated(page, name) {
 test('creating a game seats the creator even when the tab remembers a spectator role', async ({ page }) => {
   const auth = await login('Creator Stale');
   await initialize(page, { authToken: auth.token, playerName: 'Creator Stale' }, { joinRole: 'spectator' });
-  await page.goto(worker.origin);
+  await page.goto(`${worker.origin}/bridge/`);
   await expect(page.locator('#game-section')).toBeVisible();
   await page.locator('#btn-create').click();
   await expectCreatorSeated(page, 'Creator Stale');
@@ -45,7 +45,7 @@ test('creating a game seats the creator even when the tab remembers a spectator 
 test('spectating one room then leaving does not make the next created room spectate', async ({ page }) => {
   const auth = await login('Creator Watcher'); const watched = await room();
   await initialize(page, { authToken: auth.token, playerName: 'Creator Watcher' });
-  await page.goto(`${worker.origin}/#${watched}`);
+  await page.goto(`${worker.origin}/bridge/#${watched}`);
   await page.locator('#btn-join-spectator').click();
   await expect.poll(() => page.evaluate(() => gameState?.isSpectator)).toBe(true);
   await page.locator('#btn-leave-global').click();

@@ -1,0 +1,71 @@
+/* Fun Central hub — built on Bridge's /style.css tokens and components. */
+.hub {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 16px 2rem;
+  min-height: 100vh;
+}
+
+.hub-header { text-align: center; margin-bottom: 1.75rem; }
+.hub-header h1 {
+  font-size: 1.75rem; font-weight: 700;
+  margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hub-header .subtitle { margin-bottom: 0; }
+.hub-greeting { margin-top: 0.75rem; font-size: 0.85rem; font-weight: 600; color: var(--accent-light); }
+
+.hub-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .hub-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Each tile is a Bridge glass panel with a strip of the green felt table. */
+.game-tile {
+  display: flex; flex-direction: column;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  color: inherit; text-decoration: none;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.game-tile:hover { border-color: rgba(162,155,254,0.35); transform: translateY(-2px); }
+.game-tile:hover .tile-btn { box-shadow: 0 6px 20px var(--accent-glow); }
+
+.tile-felt {
+  height: 108px;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: radial-gradient(ellipse at center, #0f3520 0%, #091a10 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+}
+/* Mini Bridge card faces: corner rank over suit. */
+.tile-card {
+  width: 46px; aspect-ratio: 5 / 7;
+  border-radius: 6px; background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 3px 5px; line-height: 1.05;
+  font-size: 1.05rem; font-weight: 700;
+}
+.tile-card i { font-style: normal; }
+.tile-card.red { color: var(--red-suit); }
+.tile-card.black { color: #2d3436; }
+.tile-card:nth-child(odd) { transform: rotate(-6deg) translateY(3px); }
+.tile-card:nth-child(even) { transform: rotate(5deg); }
+
+.tile-body { padding: 1.1rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+.tile-body h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+.tile-body p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.45; }
+.tile-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.tile-meta span {
+  padding: 0.2rem 0.6rem; border-radius: 8px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+}
+.tile-btn { margin-top: auto; width: 100%; }
+.hub-leaderboard { max-width: 420px; margin: 0 auto 0.5rem; }
+.hub-leaderboard:empty { display: none; }
