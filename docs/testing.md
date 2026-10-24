@@ -48,7 +48,7 @@ The final repeat is the hand-layout suite, not every browser test in 2.5D.
 | Bridge live game E2E | Local Worker + SQLite Durable Object + actual WebSockets: four-player create/join, bid/pass, partner selection, legal mouse/touch play until the contract resolves, keyboard illegality guards, results, refresh/reconnect and live view switching |
 | Bridge creator regression | A creator with stale spectator state is seated as a player; leaving spectator mode does not contaminate the next created room, including reload/reconnect |
 | Identity live E2E | Real profile endpoints, database, signed synthetic auth and WebSockets: name recovery, delayed/stale responses, invalid credentials, reconnect/session replacement |
-| Regicide live E2E | Hub links and legacy Bridge redirects; shared leaderboard entry points; dev login and seat authorization; seeded complete 1–4-player UI games; exact rule scenarios, spectators, reloads, results/ratings and stats filters |
+| Regicide live E2E | Hub links and legacy Bridge redirects; shared leaderboard entry points; dev login and seat authorization; seeded complete 1–4-player UI games with animations running; exact rule scenarios and their forecasts (real heal/draw counts, immunity, exact/fatal outcomes), named yield blocks, styled leave confirmation, desktop keys, reduced motion, spectators, reloads, results/ratings and stats filters |
 | Telegram local integration | Actual local webhook with captured outbound Bot API calls: `/newgame` choices/callbacks, acknowledgement before same-group room creation, unsupported/private selection rejection, typed shortcuts, command registration, membership, lobby/start/result posts and separate group boards. No calls reach Telegram. |
 | Missing Regicide schema | `0011_regicide.sql` deliberately skipped: gameplay still finishes, Regicide board/stats stay empty and Bridge room creation/bot board remain available |
 | Real local chat | Two browser clients, desktop/mobile, composer send, reconnect replay, order, duplicate joins, empty messages, latest 50, room changes and delayed old-socket frames |
@@ -61,7 +61,9 @@ journey. Regicide's targeted rule scenarios use a fixed seed and dev-only
 state patching; distinguish these from complete seeded games. Bridge chat
 E2E substitutes unrelated auth/leaderboard HTTP requests, not gameplay or
 chat frames. Identity and Regicide suites exercise their actual local auth
-endpoints with synthetic credentials.
+endpoints with synthetic credentials. `tests/ui/regicide-capture.cjs`
+regenerates the Regicide review screenshots and clips; it is not part of any
+suite, and its images are not test results.
 
 For Telegram chooser changes, keep captured-webhook regressions for
 `/newgame`'s inline Bridge/Regicide choices, callback validation and room

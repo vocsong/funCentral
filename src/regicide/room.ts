@@ -511,6 +511,8 @@ export function buildView(state: RoomState, playerId: string) {
       defeated: game.defeated,
       pendingDamage: game.pendingDamage,
       canYield: canYield(game),
+      /** Whether each seat's last turn was a yield (public; explains why yielding is blocked). */
+      yielded: game.hands.map((_, s) => !!game.lastTurnYielded?.[s]),
       soloJestersLeft: game.soloJestersLeft,
       log: game.log.slice(-VIEW_LOG),
       loseReason: game.loseReason,

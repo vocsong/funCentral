@@ -33,6 +33,7 @@ that the present revision passed a check**.
 | [Card drag](card-drag/README.md) | Drag interaction work and recorded validation |
 | [Chat/input](chat-input/README.md) | Chat/input review and before/after captures |
 | [UI polish](ui-polish/README.md) | Table-drag/lobby polish and recorded validation |
+| [Regicide UI](regicide-ui/README.md) | Regicide board/forecast/animation revamp with before/after captures and clips |
 | [Dated design specs](superpowers/specs/) | Original feature designs, including single-game auth, leaderboards and group integration |
 | [Dated implementation plans](superpowers/plans/) | Historical task plans, not a current migration/release checklist |
 | [Feature notes](../features/) | Dated feature/change notes and their original context |
