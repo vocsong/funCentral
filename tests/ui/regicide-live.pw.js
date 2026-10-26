@@ -98,19 +98,74 @@ test('hub and Bridge share the leaderboard entry point; old bridge links redirec
   } finally { await context.close(); }
 });
 
-test('signed-out visitors see the Telegram login and cannot take a seat', async ({ browser }) => {
+test('signed-out visitors watch the lobby as guests and sign in to take a seat', async ({ browser }) => {
   const room = await createRoom(3);
   const guest = await client(browser, 'Guest', { signedIn: false, room });
   try {
+    await expect(guest.page.locator('#screen-lobby')).toHaveClass(/active/);
+    await expect(guest.page.locator('#lobby-players .rc-player')).toHaveCount(0);
+    await expect(guest.page.locator('#lobby-wait')).toContainText('sign in');
+    await expect(guest.page.locator('#lobby-watchers')).toContainText('Guest');
+    await expect(guest.page.locator('#tb-name')).toHaveText('Guest');
+    // Sign in from the room: the login appears, and dev login (localhost only) returns and seats them.
+    await guest.page.locator('#btn-seat').click();
     await expect(guest.page.locator('#login-section')).toBeVisible();
     await expect(guest.page.locator('[data-dev-login]')).toBeVisible();
     await expect(guest.page.locator('#game-section')).toBeHidden();
-    // Dev login (localhost only) signs in and joins the pending invite.
     await guest.page.locator('#input-dev-name').fill('Late Guest');
     await guest.page.locator('[data-dev-login] button').click();
     await expect(guest.page.locator('#screen-lobby')).toHaveClass(/active/);
     await expect(guest.page.locator('#lobby-players .rc-player')).toHaveCount(1);
+    await expect(guest.page.locator('#btn-seat')).toBeHidden();
+    await expect(guest.page.locator('#lobby-watchers')).toBeHidden();
   } finally { await close([guest]); }
+});
+
+test('spectators: invite links open a running game to watch; the table sees who is watching', async ({ browser }) => {
+  const { pages } = await table(browser, 2, { seed: 31 });
+  const [host, other] = pages;
+  const room = (await view(host.page)).roomCode;
+  const guest = await client(browser, 'Anon', { signedIn: false, room, mobile: true });
+  const fan = await client(browser, 'Fan31', { room });
+  try {
+    // A signed-out visitor watches the live board, with no hand and a way to sign in.
+    await expect(guest.page.locator('#screen-game')).toHaveClass(/active/);
+    await expect(guest.page.locator('#hand')).toContainText('watching');
+    await expect(guest.page.locator('#turn-banner')).toContainText('Watching');
+    await expect(guest.page.locator('#party .rc-plate')).toHaveCount(2);
+    await expect(guest.page.locator('#btn-act')).toHaveText('Sign in to Play');
+    await expect(guest.page.locator('#btn-act')).toBeEnabled();
+    expect(await noSideScroll(guest.page)).toBe(true);
+    // A signed-in visitor watches too and is not seated.
+    await expect(fan.page.locator('#screen-game')).toHaveClass(/active/);
+    await expect(fan.page.locator('#btn-act')).toBeDisabled();
+    expect((await view(fan.page)).you.seat).toBe(-1);
+    // Players see both watchers.
+    for (const p of [host, other]) {
+      await expect(p.page.locator('#tb-watchers')).toBeVisible();
+      await expect(p.page.locator('#tb-watchers')).toHaveText('2');
+      await expect(p.page.locator('#tb-watchers')).toHaveAttribute('title', /Guest.*Fan31|Fan31.*Guest/);
+    }
+    // A watcher leaving updates the count.
+    await guest.page.locator('#btn-leave').click();
+    await expect(guest.page.locator('#screen-home')).toHaveClass(/active/);
+    await expect(host.page.locator('#tb-watchers')).toHaveText('1');
+
+    // Back in the lobby the watcher is not auto-seated (the host's party stays as it was) until they ask.
+    await host.page.locator('#btn-end').click();
+    await host.page.locator('#confirm-ok').click();
+    for (const p of [host, other, fan]) await expect(p.page.locator('#screen-lobby')).toHaveClass(/active/);
+    await fan.page.waitForTimeout(800);
+    expect((await view(fan.page)).you.seat).toBe(-1);
+    await expect(host.page.locator('#lobby-players .rc-player')).toHaveCount(2);
+    await expect(host.page.locator('#lobby-watchers')).toContainText('Fan31');
+    await expect(fan.page.locator('#lobby-wait')).toContainText("You're watching");
+    await fan.page.locator('#btn-seat').click();
+    await expect(host.page.locator('#lobby-players .rc-player')).toHaveCount(3);
+    await expect.poll(async () => (await view(fan.page)).you.seat).toBe(2);
+    await expect(host.page.locator('#tb-watchers')).toBeHidden();
+    await expect(fan.page.locator('#btn-seat')).toBeHidden();
+  } finally { await close([...pages, guest, fan]); }
 });
 
 test('solo: companion pair resolves both suits; yield is not offered', async ({ browser }) => {

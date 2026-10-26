@@ -84,7 +84,10 @@ The Python files, `bot/`, `game/`, `requirements.txt`, Docker files and
 - **Authority and visibility:** clients submit actions; rooms validate them
   and broadcast game-specific views. Seated players normally see only their
   own hand. Bridge spectators can watch a selected seat or the full board;
-  Regicide spectators do not receive a private hand. Bridge reveals partner
+  Regicide spectators do not receive a private hand. Anyone opening a
+  Regicide link (signed out included, as a guest) can watch; the view lists
+  connected watchers' names from live sockets, and someone who arrived
+  mid-game is not seated afterwards until they choose to. Bridge reveals partner
   identity publicly when the called card is played (and at game over).
 
 ## Persistence and lifecycle

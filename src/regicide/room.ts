@@ -165,7 +165,8 @@ export class RegicideRoom extends DurableObject {
     const reconnected = player && !player.connected;
     if (player) player.connected = true;
     await this.save(state);
-    if (reconnected) this.broadcast(state);
+    // A new watcher changes everyone's spectator list, like a seated player coming back online.
+    if (reconnected || !player) this.broadcast(state);
     else this.sendState(server, state, playerId);
     this.ctx.waitUntil(this.rateFinishedGame());
     return new Response(null, { status: 101, webSocket: client });
@@ -415,7 +416,7 @@ export class RegicideRoom extends DurableObject {
     }
     if (state.gameNo > before.gameNo && state.game) {
       const n = state.game.numPlayers;
-      post(`♛ Regicide started — ${n === 1 ? 'solo run' : `${n} players`}: ${names(state.players)}`);
+      post(`♛ Regicide started — ${n === 1 ? 'solo run' : `${n} players`}: ${names(state.players)}${link ? `\n👁 Watch → ${link}` : ''}`);
     }
     // A game was just rated (won, lost, or ended early after a royal fell).
     const rating = state.lastRating;
@@ -455,11 +456,22 @@ export class RegicideRoom extends DurableObject {
   }
 
   private broadcast(state: RoomState): void {
-    for (const [ws, session] of this.sessions) this.sendState(ws, state, session.playerId);
+    const spectators = this.spectators(state);
+    for (const [ws, session] of this.sessions) this.sendState(ws, state, session.playerId, spectators);
   }
 
-  private sendState(ws: WebSocket, state: RoomState, playerId: string): void {
-    try { ws.send(JSON.stringify(buildView(state, playerId))); } catch { /* closing */ }
+  private sendState(ws: WebSocket, state: RoomState, playerId: string, spectators = this.spectators(state)): void {
+    try { ws.send(JSON.stringify(buildView(state, playerId, spectators))); } catch { /* closing */ }
+  }
+
+  /** Names of everyone connected without a seat. Live sockets are the source (rehydrated after hibernation), so nothing is stored. */
+  private spectators(state: RoomState): string[] {
+    const seated = new Set(state.players.map((p) => p.id));
+    const names = new Map<string, string>();
+    for (const { playerId, name } of this.sessions.values()) {
+      if (!seated.has(playerId)) names.set(playerId, name ?? 'Guest');
+    }
+    return [...names.values()];
   }
 }
 
@@ -467,7 +479,7 @@ function asCards(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((c): c is string => typeof c === 'string').slice(0, 8) : [];
 }
 
-export function buildView(state: RoomState, playerId: string) {
+export function buildView(state: RoomState, playerId: string, spectators: string[] = []) {
   const seat = state.players.findIndex((p) => p.id === playerId);
   const game = state.game;
   const stats = game ? enemyStats(game) : null;
@@ -476,6 +488,8 @@ export function buildView(state: RoomState, playerId: string) {
     roomCode: state.roomCode,
     gameNo: state.gameNo,
     you: { seat, isHost: state.hostId === playerId, id: playerId },
+    /** Display names of connected watchers (guests show as "Guest"); never ids or hands. */
+    spectators,
     players: state.players.map((p) => ({
       id: p.id, name: p.name, connected: p.connected, isHost: p.id === state.hostId,
       // Only meaningful in group rooms: false = plays and is rated, but doesn't count for the group board.

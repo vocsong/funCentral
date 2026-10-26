@@ -46,6 +46,12 @@ button.top-bar-room::after { content: '🔗'; font-size: 0.62rem; letter-spacing
 .rc-icon-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
 .rc-icon-btn[aria-pressed="true"] { color: var(--rc-gold); border-color: rgba(245, 196, 81, 0.4); }
 #btn-end:hover { color: var(--rc-blood); border-color: rgba(255, 77, 94, 0.4); }
+.rc-watchers {
+  height: 34px; flex: none; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0 0.55rem;
+  border-radius: 10px; border: 1px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.08);
+  color: #67e8f9; font: 700 0.78rem var(--font); cursor: pointer;
+}
+.rc-watchers .rc-ico { font-size: 16px; }
 
 /* --- Shared buttons --- */
 .rc-btn-royal, .btn.rc-btn-royal {
@@ -146,7 +152,12 @@ button.top-bar-room::after { content: '🔗'; font-size: 0.62rem; letter-spacing
 .rc-setup-stat span { font-size: 0.66rem; color: var(--text-dim); }
 .rc-setup-group { margin-top: 0.55rem; font-size: 0.78rem; color: var(--accent-light); font-weight: 600; }
 #lobby-wait { margin: 0.6rem 0 0.9rem; }
-.rc-lobby #btn-start { width: 100%; }
+.rc-lobby #btn-start, .rc-lobby #btn-seat { width: 100%; }
+.rc-lobby-watchers {
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin: 0 0 0.8rem;
+  font-size: 0.8rem; color: #67e8f9; overflow-wrap: anywhere;
+}
+.rc-lobby-watchers .rc-ico { flex: none; font-size: 15px; }
 .rc-rules-btn { margin-top: 0.6rem; width: 100%; }
 
 /* Avatars (lobby rows, plates, Jester chooser) */
