@@ -19,6 +19,7 @@
   <div id="top-bar" class="top-bar rc-top-bar hidden">
     <button id="tb-room" type="button" class="top-bar-room" aria-label="Copy invite link"></button>
     <span id="tb-name" class="top-bar-name"></span>
+    <button id="tb-watchers" type="button" class="rc-watchers hidden" aria-label="Watching"></button>
     <button id="btn-sound" type="button" class="rc-icon-btn" aria-pressed="false" aria-label="Sound effects" title="Sound effects"></button>
     <button id="btn-rules" type="button" class="rc-icon-btn" aria-label="How to play" title="How to play"></button>
     <button id="btn-end" type="button" class="rc-icon-btn hidden" aria-label="End this run" title="End this run (host)"></button>
@@ -127,9 +128,11 @@
         <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
       </div>
       <div id="lobby-players" class="player-list rc-seats"></div>
+      <p id="lobby-watchers" class="rc-lobby-watchers hidden"></p>
       <div id="lobby-setup" class="rc-setup"></div>
       <p id="lobby-wait" class="status-text">Waiting for players...</p>
       <button id="btn-start" type="button" class="btn btn-primary rc-btn-royal hidden">Start Game</button>
+      <button id="btn-seat" type="button" class="btn btn-primary rc-btn-royal hidden">♛ Take a Seat</button>
       <button id="btn-rules-lobby" type="button" class="btn btn-ghost rc-rules-btn">📖 How to Play</button>
     </div>
   </div>

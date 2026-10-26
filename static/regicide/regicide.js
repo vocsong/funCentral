@@ -71,6 +71,7 @@ const ICON_PATHS = {
   mute: '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/>',
   help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
   flag: '<path d="M4 22V4c2-1.3 4-1.6 6-1 2 .7 4 2 7 1.3 1-.2 2-.6 3-1.3v11c-1 .7-2 1.1-3 1.3-3 .7-5-.6-7-1.3-2-.6-4-.3-6 1"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
 };
 function icon(name, cls = '') {
   const span = el('span', `rc-ico ${cls}`.trim());
@@ -257,6 +258,8 @@ let tickerSeq = 0;
 let lastGameNo = -1;
 let overDismissed = false;
 let joinSent = false;
+let joining = false; // a join is in flight: cleared by a seat or an error
+let watchOnly = false; // arrived while a game was running: watch, and only take a seat when asked
 let modalTimer = 0;
 let modalAt = 0;
 let lastFocus = null;
@@ -273,6 +276,7 @@ function connect(code) {
   const socket = new WebSocket(`${proto}//${location.host}/api/regicide/ws?room=${code}&playerId=${encodeURIComponent(playerId)}${token ? `&token=${encodeURIComponent(token)}` : ''}`);
   ws = socket;
   joinSent = false;
+  joining = false;
   socket.onopen = () => {
     reconnectDelay = 800;
     $('overlay-reconnect').classList.add('hidden');
@@ -309,12 +313,30 @@ function onError(msg) {
     leaveRoom(false);
     return;
   }
+  if (joining) { joining = false; if (view && !view.game) renderLobby(); }
   toast(msg.message, 'error');
+}
+
+/** Asks the room for a seat (signed-in players only; the room checks the rest). */
+function requestSeat() {
+  joinSent = true;
+  joining = ws?.readyState === WebSocket.OPEN;
+  send({ type: 'join', name: playerName });
+}
+
+/** A guest watcher signs in on the home screen, then comes straight back to this room. */
+function signInToPlay() {
+  const room = roomCode;
+  leaveRoom(false);
+  pendingRoom = room;
+  $('input-code').value = room;
+  toast(`Sign in to take a seat in room ${room}`);
 }
 
 function onState(next) {
   const prev = view;
-  if (next.you.seat >= 0) joinSent = true; // seated: never auto-join again on this connection (e.g. after a kick)
+  if (next.you.seat >= 0) { joinSent = true; joining = false; } // seated: never auto-join again on this connection (e.g. after a kick)
+  else if (next.game) watchOnly = true;
   // Connection flags, names and late rating results don't change the game itself: refresh those
   // parts without interrupting an animation or the pending results modal.
   if (next.game && prev?.game && prev.gameNo === next.gameNo && JSON.stringify(next.game) === JSON.stringify(prev.game)) {
@@ -331,10 +353,8 @@ function onState(next) {
   const scene = snapshotScene();
   view = next;
   // Join on first contact if we aren't seated yet and seats are open (signed-in players only).
-  if (!joinSent && next.you.seat < 0 && !next.game && FunAuth.token()) {
-    joinSent = true;
-    send({ type: 'join', name: playerName });
-  }
+  // Someone who came in to watch a running game stays a watcher until they take a seat themselves.
+  if (!joinSent && !watchOnly && next.you.seat < 0 && !next.game && FunAuth.token()) requestSeat();
   if (next.gameNo !== lastGameNo) {
     lastGameNo = next.gameNo;
     overDismissed = false;
@@ -361,7 +381,7 @@ function render({ deferModals = false, reflow = false } = {}) {
   const inRoom = !!roomCode;
   $('top-bar').classList.toggle('hidden', !inRoom);
   $('tb-room').textContent = roomCode || '';
-  $('tb-name').textContent = playerName;
+  $('tb-name').textContent = FunAuth.token() ? playerName : 'Guest';
   renderTopBar();
   if (!inRoom) { showScreen('screen-home'); return; }
   if (!view) { showScreen('screen-lobby'); renderLobbyLoading(); return; }
@@ -380,12 +400,21 @@ function renderTopBar() {
   if (!$('btn-end').firstChild) $('btn-end').append(icon('flag'));
   const g = view?.game;
   $('btn-end').classList.toggle('hidden', !(g && !isOver(g) && view.you.isHost && view.you.seat >= 0));
+  // Everyone (players and watchers) sees who is watching.
+  const watchers = (roomCode && view?.spectators) || [];
+  const chip = $('tb-watchers');
+  chip.classList.toggle('hidden', !watchers.length);
+  chip.replaceChildren(icon('eye'), el('b', null, String(watchers.length)));
+  chip.title = `Watching: ${watchers.join(', ')}`;
+  chip.setAttribute('aria-label', `${watchers.length} watching: ${watchers.join(', ')}`);
 }
 
 function renderLobbyLoading() {
   $('lobby-code').textContent = roomCode;
   $('lobby-players').replaceChildren(el('div', 'player-item rc-empty', 'Connecting…'));
   $('btn-start').classList.add('hidden');
+  $('btn-seat').classList.add('hidden');
+  $('lobby-watchers').classList.add('hidden');
   $('lobby-wait').textContent = '';
   $('lobby-setup').classList.add('hidden');
 }
@@ -455,16 +484,24 @@ function renderLobby() {
     setup.replaceChildren(...parts);
   }
 
+  const watchers = view.spectators ?? [];
+  const watching = $('lobby-watchers');
+  watching.classList.toggle('hidden', !watchers.length);
+  watching.replaceChildren(icon('eye'), el('span', null, `Watching: ${watchers.join(', ')}`));
+
   const seated = you.seat >= 0;
+  const signedIn = !!FunAuth.token();
   $('btn-start').classList.toggle('hidden', !you.isHost);
-  if (!seated && !FunAuth.token()) {
-    $('lobby-wait').textContent = 'Sign in with Telegram on the Regicide home screen to take a seat — you can watch until then.';
-    return;
-  }
   $('btn-start').textContent = n === 1 ? '♛ Start Solo Run' : `♛ Start Game (${n} players)`;
+  const seatBtn = $('btn-seat');
+  seatBtn.classList.toggle('hidden', seated || joining || n >= 4);
+  seatBtn.textContent = signedIn ? '♛ Take a Seat' : 'Sign in to Play';
+  seatBtn.dataset.action = signedIn ? 'join' : 'signin';
   const wait = $('lobby-wait');
   wait.textContent = !seated
-    ? (n >= 4 ? 'This room is full.' : 'Joining…')
+    ? (joining ? 'Joining…'
+      : n >= 4 ? "This room is full — you're watching."
+        : signedIn ? "👁 You're watching — take an open seat to play." : "👁 You're watching — sign in with Telegram to take a seat.")
     : you.isHost
       ? (n < 4 ? 'Share the code — up to 4 can play, or start now.' : 'Table is full — ready when you are.')
       : `Waiting for ${players.find((p) => p.isHost)?.name ?? 'the host'} to start...`;
@@ -1029,10 +1066,12 @@ function renderActions(g, myTurn) {
     return;
   }
   if (!seated) {
+    // Guests can sign in now and take a seat once this run is over.
+    const guest = !FunAuth.token();
     yieldBtn.classList.add('hidden');
-    act.textContent = 'Watching';
-    act.disabled = true;
-    act.dataset.action = '';
+    act.textContent = guest ? 'Sign in to Play' : '👁 Watching';
+    act.disabled = !guest;
+    act.dataset.action = guest ? 'signin' : '';
     return;
   }
   const sel = [...selected];
@@ -1805,8 +1844,11 @@ function showOverModal(g) {
   $('over-title').textContent = won
     ? `${g.tier ? `${g.tier[0].toUpperCase()}${g.tier.slice(1)} Victory!` : 'Victory!'}`
     : 'Defeat';
+  const watching = view.you.seat < 0;
   $('over-sub').textContent = won
-    ? (g.numPlayers === 1 ? `You stormed the castle using ${2 - g.soloJestersLeft} Jester flip${2 - g.soloJestersLeft === 1 ? '' : 's'}.` : 'Your party stormed the castle together.')
+    ? (g.numPlayers === 1
+      ? `${who(0)} stormed the castle using ${2 - g.soloJestersLeft} Jester flip${2 - g.soloJestersLeft === 1 ? '' : 's'}.`
+      : `${watching ? 'The' : 'Your'} party stormed the castle together.`)
     : `${who(g.currentSeat)} ${g.loseReason}.`;
   renderCastle($('over-track'), g);
   const stats = $('over-stats');
@@ -1919,6 +1961,7 @@ function enterRoom(code) {
   roomCode = code;
   view = null;
   lastGameNo = -1;
+  watchOnly = false;
   lobbySeen.clear();
   history.replaceState(null, '', `#${code}${hashInfo.pid ? `:${hashInfo.pid}` : ''}`);
   render();
@@ -2078,6 +2121,12 @@ $('btn-share').addEventListener('click', shareInvite);
 $('lobby-code-btn').addEventListener('click', shareInvite);
 $('tb-room').addEventListener('click', shareInvite);
 $('btn-start').addEventListener('click', () => send({ type: 'start' }));
+$('btn-seat').addEventListener('click', () => {
+  if ($('btn-seat').dataset.action === 'signin') { signInToPlay(); return; }
+  requestSeat();
+  renderLobby();
+});
+$('tb-watchers').addEventListener('click', () => toast(`👁 Watching: ${(view?.spectators ?? []).join(', ')}`));
 $('btn-leave').addEventListener('click', async () => {
   const g = view?.game;
   const midGame = g && !isOver(g) && view.you.seat >= 0;
@@ -2104,6 +2153,7 @@ $('btn-act').addEventListener('click', () => {
   if (action === 'results') { overDismissed = false; showOverModal(view.game); return; }
   if (action === 'jester') { showJesterModal(view.game); return; }
   if (action === 'flip') { send({ type: 'flip' }); return; }
+  if (action === 'signin') { signInToPlay(); return; }
   if (!action) return;
   send({ type: action, cards: [...selected] });
 });
@@ -2174,8 +2224,9 @@ setInterval(() => { if (ws?.readyState === WebSocket.OPEN) ws.send('ping'); }, 2
 
 function openFromHash(room) {
   $('input-code').value = room;
-  if (FunAuth.token() && playerName) enterRoom(room);
-  else { pendingRoom = room; render(); toast(`Sign in to join room ${room}`); }
+  // Signed-out visitors watch as guests (a running game, or the lobby) and can sign in from the room.
+  if (!FunAuth.token() || playerName) enterRoom(room);
+  else { pendingRoom = room; render(); toast(`Enter your name to join room ${room}`); }
 }
 
 // An invite link opened in an already-loaded tab only changes the hash.
