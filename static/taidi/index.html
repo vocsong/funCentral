@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1f17">
+  <title>Tai Di · funCentral</title>
+  <script src="/fc-host.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Bridge's stylesheet is the funCentral design system; taidi.css adds the table theme on top. -->
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/taidi/taidi.css">
+</head>
+<body class="td-body">
+
+  <!-- Top bar (visible when in a room) -->
+  <div id="top-bar" class="top-bar hidden">
+    <button id="tb-room" type="button" class="top-bar-room" aria-label="Copy invite link"></button>
+    <span id="tb-name" class="top-bar-name"></span>
+    <button id="btn-sound" type="button" class="td-icon-btn" aria-pressed="false" aria-label="Sound effects" title="Sound effects"></button>
+    <button id="btn-rules" type="button" class="td-icon-btn" aria-label="How to play" title="How to play">?</button>
+    <button id="btn-end" type="button" class="td-icon-btn hidden" aria-label="End this game" title="End this game (host)">⏹</button>
+    <button id="btn-leave" type="button" class="btn-leave-global">Leave</button>
+  </div>
+
+  <div id="fx" class="td-fx" aria-hidden="true"></div>
+  <div id="toasts" class="td-toasts" role="status" aria-live="polite"></div>
+
+  <!-- Reconnecting overlay -->
+  <div id="overlay-reconnect" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <p>Reconnecting...</p>
+    </div>
+  </div>
+
+  <!-- Home -->
+  <div id="screen-home" class="screen active">
+    <div class="home-container td-home">
+      <a href="/" class="fc-back-link">← funCentral</a>
+      <div class="td-hero" aria-hidden="true">
+        <div class="td-hero-card td-hero-a"><span>2</span><i>♦</i></div>
+        <div class="td-hero-card td-hero-b"><span>2</span><i>♣</i></div>
+        <div class="td-hero-card td-hero-c"><span>2</span><i>♥</i></div>
+        <div class="td-hero-card td-hero-d"><span>2</span><i>♠</i></div>
+      </div>
+      <h1 class="td-title">Tai Di</h1>
+      <p class="subtitle">Empty your hand first · 2–4 players</p>
+
+      <p id="identity-status" class="subtitle hidden" role="status" aria-live="polite"></p>
+
+      <!-- Telegram login (shown when not signed in) -->
+      <div id="login-section" class="hidden">
+        <p class="subtitle">Sign in with Telegram to play and get on the Tai Di leaderboard.</p>
+        <div data-telegram id="telegram-widget-container"></div>
+        <div data-dev-login class="hidden td-dev-login">
+          <div class="td-dev-note">Localhost dev login (not available in production)</div>
+          <div class="form-group">
+            <label for="input-dev-name">Dev display name</label>
+            <input type="text" id="input-dev-name" placeholder="e.g. Alice" maxlength="20" autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-secondary">Dev Login</button>
+        </div>
+      </div>
+
+      <!-- Game section (shown after sign-in) -->
+      <div id="game-section" class="hidden">
+        <div class="form-group">
+          <label for="input-name">Your Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name" maxlength="64" autocomplete="off" enterkeyhint="done">
+        </div>
+        <button id="btn-create" type="button" class="btn btn-primary">🎴 Create Game</button>
+
+        <div class="divider"><span>or join a table</span></div>
+
+        <div class="td-join-row">
+          <input type="text" id="input-code" placeholder="CODE" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Room code">
+          <button id="btn-join" type="button" class="btn btn-secondary">Join</button>
+        </div>
+        <div id="auth-status" class="auth-status"></div>
+      </div>
+
+      <div class="td-home-links">
+        <button id="btn-rules-home" type="button" class="btn btn-ghost">📖 How to Play</button>
+        <button id="btn-stats" type="button" class="btn btn-ghost">📊 Stats</button>
+      </div>
+
+      <div id="leaderboard-section"></div>
+    </div>
+  </div>
+
+  <!-- Stats (same layout as Bridge's stats screen; ranking only) -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-container">
+      <div class="stats-topbar">
+        <span class="stats-title">📊 Tai Di Stats</span>
+        <div class="stats-topbar-right">
+          <button id="btn-stats-home" type="button" class="btn-link">← Home</button>
+        </div>
+      </div>
+      <div class="stats-filter-bar">
+        <span class="stats-filter-label">Min games:</span>
+        <div class="min-games-filter" id="td-min-games">
+          <button class="min-games-btn active" data-value="3">3</button>
+          <button class="min-games-btn" data-value="10">10</button>
+          <button class="min-games-btn" data-value="20">20</button>
+        </div>
+      </div>
+      <div id="stats-content"></div>
+      <p class="stats-footer">Rating = each game counts as a match against every other player at the table, by finishing order · Separate from Bridge ELO and Regicide</p>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="screen-lobby" class="screen">
+    <div class="lobby-container td-lobby">
+      <h2>Gather your table</h2>
+      <button id="lobby-code-btn" type="button" class="room-code-display" aria-label="Copy invite link">
+        <span class="label">Room code</span>
+        <span id="lobby-code" class="code">----</span>
+        <span class="td-code-hint">tap to copy invite</span>
+      </button>
+      <div class="lobby-invite-row">
+        <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
+      </div>
+      <div id="lobby-players" class="player-list td-seats"></div>
+      <div id="lobby-setup" class="td-setup"></div>
+      <p id="lobby-wait" class="status-text">Waiting for players...</p>
+      <button id="btn-start" type="button" class="btn btn-primary hidden">Start Game</button>
+      <button id="btn-rules-lobby" type="button" class="btn btn-ghost">📖 How to Play</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="screen-game" class="screen">
+    <div class="td-game" id="td-game">
+      <section class="td-table" id="td-table">
+        <div id="opponents" class="td-opponents" aria-label="Players"></div>
+
+        <div class="td-felt">
+          <div id="table-meta" class="td-table-meta"></div>
+          <div id="table-play" class="td-play" aria-live="polite" aria-label="Cards on the table"></div>
+          <p id="table-caption" class="td-caption"></p>
+        </div>
+      </section>
+
+      <section class="td-dock" id="hand-area">
+        <h3 id="turn-banner" class="td-turn"></h3>
+        <div id="preview" class="td-preview"></div>
+        <div id="hand" class="card-hand hand-fan td-hand" aria-label="Your hand"></div>
+        <div class="td-actions" id="action-bar">
+          <button id="btn-pass" type="button" class="btn btn-secondary" title="Pass this turn (P)">Pass</button>
+          <button id="btn-act" type="button" class="btn btn-primary" title="Play the selected cards (Enter)">Play</button>
+        </div>
+        <p class="td-keys">Keys: <kbd>1</kbd>–<kbd>9</kbd> select · <kbd>Enter</kbd> play · <kbd>P</kbd> pass · <kbd>Esc</kbd> clear</p>
+      </section>
+
+      <aside class="td-side">
+        <details id="log-details" class="td-log">
+          <summary>Game log</summary>
+          <ol id="log"></ol>
+        </details>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Game over -->
+  <div id="modal-over" class="overlay td-modal hidden" role="dialog" aria-modal="true" aria-labelledby="over-title">
+    <div class="gameover-container td-modal-box">
+      <h2 id="over-title"></h2>
+      <p id="over-sub" class="subtitle"></p>
+      <div id="over-results" class="td-results"></div>
+      <div id="over-rating" class="td-over-rating hidden"></div>
+      <div class="gameover-actions">
+        <button id="btn-again" type="button" class="btn btn-primary">Play Again</button>
+        <button id="btn-over-close" type="button" class="btn btn-ghost">View Table</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div id="modal-confirm" class="overlay td-modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="lobby-container td-modal-box">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-body" class="subtitle"></p>
+      <div class="td-confirm-actions">
+        <button id="confirm-cancel" type="button" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div id="modal-rules" class="overlay td-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <div class="lobby-container td-modal-box td-rules">
+      <button type="button" class="kick-btn td-close" data-close aria-label="Close">✕</button>
+      <h2 id="rules-title">How to Play</h2>
+      <p>Be the first to get rid of every card in your hand. 2–4 players, one deck.</p>
+
+      <h3>Card order</h3>
+      <p>Ranks, low to high: <b>3 4 5 6 7 8 9 10 J Q K A 2</b>. The 2 is the highest card. Suits, low to high: <b>♦ ♣ ♥ ♠</b>, used to break ties between equal ranks.</p>
+
+      <h3>Plays</h3>
+      <ul>
+        <li><b>Single</b>, <b>pair</b> or <b>triple</b> of the same rank.</li>
+        <li><b>Five cards</b>, lowest to highest: <b>straight</b> &lt; <b>flush</b> &lt; <b>full house</b> &lt; <b>four of a kind + 1</b> &lt; <b>straight flush</b>.</li>
+        <li>Straights run 3-4-5-6-7 up to 10-J-Q-K-A. They never wrap, and 2s can't be in a straight.</li>
+        <li>A flush is decided by suit first, then the top card. A full house goes by its triple, four of a kind by the four.</li>
+      </ul>
+
+      <h3>Turns</h3>
+      <ol>
+        <li>The player holding the lowest card (the 3♦) opens, and the first play must include it.</li>
+        <li>Each player then plays the <b>same number of cards</b> that beat the table, or <b>passes</b>. A five-card hand can beat any weaker five-card hand.</li>
+        <li>Passing doesn't lock you out — you can play on your next turn.</li>
+        <li>When everyone else passes, the last player to play takes the table and leads anything they like.</li>
+      </ol>
+
+      <h3>Fewer than four players</h3>
+      <table class="td-rules-table">
+        <thead><tr><th>Players</th><th>Deal</th></tr></thead>
+        <tbody>
+          <tr><td>4</td><td>13 each</td></tr>
+          <tr><td>3</td><td>17 each; the last card is turned face up and goes to the 3♦ holder</td></tr>
+          <tr><td>2</td><td>17 each; the other 18 cards stay out of play</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Winning &amp; rating</h3>
+      <p>The first player to empty their hand wins. Everyone else is ranked by how few cards they have left. Each game is rated like a match against every other player at the table, so beating stronger players earns more.</p>
+    </div>
+  </div>
+
+  <script src="/fc-auth.js"></script>
+  <script src="/leaderboard.js"></script>
+  <script src="/taidi/taidi.js"></script>
+</body>
+</html>

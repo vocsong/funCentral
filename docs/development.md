@@ -36,7 +36,7 @@ examples or test commands. `.env.example` and `start_local.sh` belong to the
 archived Python implementation and are not Worker setup instructions.
 
 Telegram's Login Widget does not work on localhost. On `localhost` or
-`127.0.0.1`, the Bridge and Regicide login screens expose **Dev Login**.
+`127.0.0.1`, the Bridge, Regicide and Tai Di login screens expose **Dev Login**.
 With `ALLOW_DEV_LOGIN=1`, `/api/auth/dev` creates a local profile and signed
 token; the same display name maps to the same synthetic identity. Both
 games share the sign-in token and profile. Production must have
@@ -71,6 +71,8 @@ Open the localhost URL printed by Wrangler (normally port 8787):
 | `/bridge/` | Bridge home, rooms, history/replay and statistics |
 | `/regicide/` | Regicide home and rooms |
 | `/regicide/?view=stats` | Regicide statistics |
+| `/taidi/` | Tai Di home and rooms |
+| `/taidi/?view=stats` | Tai Di statistics |
 
 Create a room after signing in and open another browser context to join as
 a different player. Separate contexts avoid sharing `localStorage` identity.

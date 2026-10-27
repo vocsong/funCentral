@@ -12,6 +12,7 @@ systems. [Development](development.md), [deployment](deployment.md) and
 | Hub | `/` → `static/index.html`, `hub.css` | Static game tiles and shared leaderboard |
 | Bridge | `/bridge/` → `static/bridge/index.html` | `GameRoom` via `GAME_ROOM`; existing `/api/create`, `/api/ws`, history/stats APIs |
 | Regicide | `/regicide/` → `static/regicide/` | `RegicideRoom` via `REGICIDE_ROOM`; `/api/regicide/*`; `regicide_*` D1 tables |
+| Tai Di | `/taidi/` → `static/taidi/` | `TaiDiRoom` via `TAIDI_ROOM`; `/api/taidi/*`; `taidi_*` D1 tables |
 | Shared services | Same-origin clients | Telegram auth, `/api/me`, `/api/config`, `/api/telegram`, shared users/groups in D1 |
 
 `src/index.ts` routes requests and exports the room classes. A room code names
@@ -42,6 +43,10 @@ src/
     engine.ts            Pure Regicide rules
     room.ts              Regicide room and durable completion outbox
     rating.ts, db.ts      Separate Regicide rating/statistics persistence
+  taidi/
+    engine.ts            Pure Tai Di (Big Two) rules
+    room.ts              Tai Di room and durable completion outbox
+    rating.ts, db.ts      Separate pairwise-Elo rating/statistics persistence
 static/
   index.html, hub.css    Hub tiles
   bridge/index.html     Bridge page
@@ -51,6 +56,7 @@ static/
   fc-auth.js            Shared auth helper for other game clients
   leaderboard.js        Shared leaderboard card with separate game boards
   regicide/             Regicide page, client and game-specific styles
+  taidi/                Tai Di page, client and game-specific styles
 migrations/             Ordered D1 schema/data migrations
 tests/                  Unit/runtime regressions and tests/ui browser suites
 ```
@@ -65,26 +71,26 @@ The Python files, `bot/`, `game/`, `requirements.txt`, Docker files and
 
 - **Identity:** Telegram Login Widget verification and JWTs are shared.
   `localStorage.authToken` and the saved `playerName` work across this origin.
-  Bridge keeps its client login flow in `app.js`; Regicide uses `fc-auth.js`.
+  Bridge keeps its client login flow in `app.js`; Regicide and Tai Di use `fc-auth.js`.
   A URL/player name, bot link or unverified Mini App data is not authentication.
 - **Presentation:** reuse `/style.css` components for cards, felt, seats,
   buttons and layouts; layer game-specific CSS above them. Shared style or
   leaderboard changes need regression coverage on the hub and both games.
-- **Leaderboards:** `leaderboard.js` presents separate Bridge and Regicide
+- **Leaderboards:** `leaderboard.js` presents separate Bridge, Regicide and Tai Di
   boards. Sharing a card does not merge scores or rating algorithms.
 - **Telegram:** `/newgame` presents inline choices from `GAME_CATALOG` in
   `src/games.ts`. Entries carry `id`, `name`, `path`, `telegramCommand`,
   `players` and `emoji`; button data is `newgame:<id>`. Selection callbacks
   are acknowledged before creating a room in the originating group;
   unsupported/private selections are acknowledged without creating rooms.
-  Typed `/newbridge` and `/newregicide` shortcuts remain, as does
-  `/newregicidegame`. The registered menu is `newgame`, `leaderboard`, `help`.
+  Typed `/newbridge`, `/newregicide` and `/newtaidi` shortcuts remain, as do
+  `/newregicidegame` and `/newtaidigame`. The registered menu is `newgame`, `leaderboard`, `help`.
   Static hub tiles are still authored in `static/index.html`; the catalog
   neither generates those tiles nor exposes an automated website endpoint.
 - **Authority and visibility:** clients submit actions; rooms validate them
   and broadcast game-specific views. Seated players normally see only their
   own hand. Bridge spectators can watch a selected seat or the full board;
-  Regicide spectators do not receive a private hand. Bridge reveals partner
+  Regicide and Tai Di spectators do not receive a private hand. Bridge reveals partner
   identity publicly when the called card is played (and at game over).
 
 ## Persistence and lifecycle
@@ -113,9 +119,19 @@ holds shared profiles/groups and persistent game statistics/history.
 - Global Regicide results count signed-in players; group statistics count
   verified members of the linked Telegram group.
 
+- Tai Di owns `taidi_ratings`, `taidi_games`, `taidi_rating_history` and
+  `taidi_group_stats`. A finished game is rated like a match between every
+  pair of players, scored by finishing place (the player who empties their
+  hand first, then fewest cards left; equal counts tie), with Bridge's K rule
+  (32 for the first 30 games, then 16). Ending a game early is not rated.
+  Its room uses the same durable pending-result outbox, idempotent completion
+  batch and 30-minute cleanup rule as Regicide, and missing Tai Di tables
+  leave boards/stats empty while gameplay and Bridge remain available.
+
 D1 SQL migrations and Durable Object class migrations are separate. Existing
 bindings are `GAME_ROOM`/`GameRoom` (`v1`) and
-`REGICIDE_ROOM`/`RegicideRoom` (`v2`). Keep those identities and add incremental
+`REGICIDE_ROOM`/`RegicideRoom` (`v2`) and
+`TAIDI_ROOM`/`TaiDiRoom` (`v3`). Keep those identities and add incremental
 migrations for future classes. See [deployment](deployment.md).
 
 ## Adding another game
