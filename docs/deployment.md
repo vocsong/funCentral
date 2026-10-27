@@ -40,9 +40,10 @@ version; do not treat a successful build alone as application verification.
 | --- | --- | --- |
 | `GAME_ROOM` | `GameRoom` | `v1` creates the existing SQLite-backed Bridge class |
 | `REGICIDE_ROOM` | `RegicideRoom` | `v2` adds the separate SQLite-backed Regicide class |
+| `TAIDI_ROOM` | `TaiDiRoom` | `v3` adds the separate SQLite-backed Tai Di class |
 
 Workers deployment applies the configured class migration. Keep `v1` and
-`GAME_ROOM` intact; `v2` does not replace Bridge. Future games append a new
+`GAME_ROOM` intact; `v2` and `v3` do not replace Bridge. Future games append a new
 migration tag, binding and exported class. These are **not D1 SQL migrations**.
 
 ## D1 migrations are a separate controlled step
@@ -120,3 +121,14 @@ the same group. The registered command menu (`newgame`, `leaderboard`,
 update. Typed game shortcuts remain supported. See
 [architecture](architecture.md#shared-services-and-game-boundaries) for the
 catalog and static hub responsibilities.
+
+### Tai Di migration (pending)
+
+`0012_taidi.sql` creates four Tai Di tables (`taidi_ratings`, `taidi_games`,
+`taidi_rating_history`, `taidi_group_stats`) and two indexes, using
+`CREATE … IF NOT EXISTS`; it touches no existing data. Like `0011`, apply it
+as the separate controlled D1 step after inspecting the remote schema, ledger
+and pending list. Until it is applied, Tai Di gameplay still works: results
+stay in the room's durable outbox and retry every minute, and the Tai Di
+leaderboard and stats APIs return empty data. Do not rely on that fallback in
+place of applying the migration.

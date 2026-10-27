@@ -56,6 +56,8 @@ const ALIASES: Record<string, CommandName> = {
   newbridge: 'newbridge',
   newregicide: 'newregicide',
   newregicidegame: 'newregicide',
+  newtaidi: 'newtaidi',
+  newtaidigame: 'newtaidi',
   leaderboard: 'leaderboard',
   help: 'help',
   start: 'help',
@@ -67,7 +69,7 @@ const ALIASES: Record<string, CommandName> = {
  */
 export const BOT_COMMANDS: { command: string; description: string }[] = [
   { command: 'newgame', description: 'Choose a game to start with your group' },
-  { command: 'leaderboard', description: "This group's Bridge and Regicide leaderboards" },
+  { command: 'leaderboard', description: "This group's Bridge, Regicide and Tai Di leaderboards" },
   { command: 'help', description: 'funCentral games and commands' },
 ];
 

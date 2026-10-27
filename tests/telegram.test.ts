@@ -13,6 +13,9 @@ describe('parseUpdate', () => {
     ['/newbridge', 'newbridge'],
     ['/newregicide', 'newregicide'],
     ['/newregicidegame', 'newregicide'],
+    ['/newtaidi', 'newtaidi'],
+    ['/newtaidigame', 'newtaidi'],
+    ['/NewTaiDi@funCentral_bot', 'newtaidi'],
     ['/leaderboard', 'leaderboard'],
     ['/help', 'help'],
     ['/start', 'help'],
@@ -24,6 +27,7 @@ describe('parseUpdate', () => {
 
   it('ignores private chats, plain text, unknown commands and prototype keys', () => {
     expect(parseUpdate(update('/newregicide', 'private'))).toBeNull();
+    expect(parseUpdate(update('/newtaidi', 'private'))).toBeNull();
     expect(parseUpdate(update('newregicide'))).toBeNull();
     expect(parseUpdate(update('/poker'))).toBeNull();
     expect(parseUpdate(update('/constructor'))).toBeNull();

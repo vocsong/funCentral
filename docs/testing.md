@@ -43,13 +43,16 @@ The final repeat is the hand-layout suite, not every browser test in 2.5D.
 
 | Layer | What is checked |
 | --- | --- |
-| TypeScript / Vitest | Bridge rules/bots, shared auth/names, statistics/history, persistent chat and storage ordering/lifecycle; Regicide rules, rating calculations and database behavior |
+| TypeScript / Vitest | Bridge rules/bots, shared auth/names, statistics/history, persistent chat and storage ordering/lifecycle; Regicide and Tai Di rules, rating calculations and database behavior |
 | Regicide runtime persistence | Eight focused regressions in `tests/regicide-persistence.test.ts` and `tests/regicide-concurrency.test.ts`, using `regicide-persistence-harness.ts`: real Miniflare/workerd, D1/SQLite transactions, rollback/retry, overlapping duplicate completions, additive cross-room rating updates, delayed group joins, delayed rating acknowledgements, durable outbox recovery across restart and retention through idle cleanup/retry |
 | Bridge live game E2E | Local Worker + SQLite Durable Object + actual WebSockets: four-player create/join, bid/pass, partner selection, legal mouse/touch play until the contract resolves, keyboard illegality guards, results, refresh/reconnect and live view switching |
 | Bridge creator regression | A creator with stale spectator state is seated as a player; leaving spectator mode does not contaminate the next created room, including reload/reconnect |
 | Identity live E2E | Real profile endpoints, database, signed synthetic auth and WebSockets: name recovery, delayed/stale responses, invalid credentials, reconnect/session replacement |
+| Tai Di persistence | Eight regressions in `tests/taidi-persistence.test.ts` (harness `taidi-persistence-harness.ts`): real Miniflare D1 completion, idempotent repeats, rollback on late failures, overlapping duplicates, additive cross-game ratings, tied places and leaderboard/stats/group boards |
+| Tai Di live E2E | Hub tile; two-player minimum lobby; sign-in/watch-only guests; exact opening/pass/going-out scenarios via the dev patch hook; full seeded 2/3/4-player UI games with hidden hands, spectator, reload mid-game, results and rating changes; early end unrated; full-room spectators |
 | Regicide live E2E | Hub links and legacy Bridge redirects; shared leaderboard entry points; dev login and seat authorization; seeded complete 1–4-player UI games with animations running; exact rule scenarios and their forecasts (real heal/draw counts, immunity, exact/fatal outcomes), named yield blocks, styled leave confirmation, desktop keys, reduced motion, spectators, reloads, results/ratings and stats filters |
 | Telegram local integration | Actual local webhook with captured outbound Bot API calls: `/newgame` choices/callbacks, acknowledgement before same-group room creation, unsupported/private selection rejection, typed shortcuts, command registration, membership, lobby/start/result posts and separate group boards. No calls reach Telegram. |
+| Missing Tai Di schema | `0012_taidi.sql` deliberately skipped: gameplay still finishes, Tai Di board/stats stay empty and Bridge remains available |
 | Missing Regicide schema | `0011_regicide.sql` deliberately skipped: gameplay still finishes, Regicide board/stats stay empty and Bridge room creation/bot board remain available |
 | Real local chat | Two browser clients, desktop/mobile, composer send, reconnect replay, order, duplicate joins, empty messages, latest 50, room changes and delayed old-socket frames |
 | Browser input / layout | Classic/2.5D, CDP dragging on a scrollable page, finger attachment and damped swing, felt-edge hit testing, single table drop, hand/outside return, pending/illegal/out-of-turn guards, cancellation, resize/blur/scroll, reconnect while dragging, stable hand DOM, typography, keyboard focus, reduced motion and responsive lobby actions |
@@ -66,7 +69,7 @@ regenerates the Regicide review screenshots and clips; it is not part of any
 suite, and its images are not test results.
 
 For Telegram chooser changes, keep captured-webhook regressions for
-`/newgame`'s inline Bridge/Regicide choices, callback validation and room
+`/newgame`'s inline Bridge/Regicide/Tai Di choices, callback validation and room
 creation in the originating group, as well as the typed game shortcuts and
 the `newgame`/`leaderboard`/`help` command menu. Static hub tiles and the typed
 `src/games.ts` catalog must remain consistent.
@@ -84,7 +87,9 @@ the `newgame`/`leaderboard`/`help` command menu. Static hub tiles and the typed
 | 4216 | Identity live Worker |
 | 4217 | Bridge creator/spectator-role live Worker |
 | 4218 | Regicide live Worker |
+| 4219 | Tai Di live Worker |
 | 4222 | Live Worker without Regicide tables |
+| 4223 | Live Worker without Tai Di tables |
 | 4230 | Telegram chooser/live webhook with outbound capture (replaces the earlier suite's 4220) |
 
 Keep these ports free and run one suite at a time. `tests/ui/live-worker.cjs`
@@ -104,7 +109,7 @@ npm run test:e2e
 npm run test:ui
 ```
 
-`test:e2e` selects the live game/chat/identity/creator/Regicide/Telegram suites
+`test:e2e` selects the live game/chat/identity/creator/Regicide/Tai Di/Telegram suites
 plus related input checks; `test:ui` runs all Playwright files. Neither replaces
 the complete PR runner. Add focused rule/persistence checks alongside E2E for
 the affected game and shared paths. A new room class must also be registered

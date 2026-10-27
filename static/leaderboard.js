@@ -1,15 +1,17 @@
 'use strict';
 
-// One leaderboard card for every funCentral page, with a Bridge | Regicide switch.
-// Bridge's ELO and Regicide's rating are separate boards; this is just the shared entry point.
+// One leaderboard card for every funCentral page, with a Bridge | Regicide | Tai Di switch.
+// Each game's rating is its own board; this is just the shared entry point.
 window.FunLeaderboard = (() => {
   const GAMES = {
     bridge: { label: 'Bridge', url: '/api/leaderboard', stats: (e) => `${e.wins}W / ${e.gamesPlayed}G` },
     regicide: { label: 'Regicide', url: '/api/regicide/leaderboard', stats: (e) => `${e.bestDefeated}/12 · ${e.gamesPlayed}G` },
+    taidi: { label: 'Tai Di', url: '/api/taidi/leaderboard', stats: (e) => `${e.wins}W / ${e.gamesPlayed}G` },
   };
   const medals = ['🥇', '🥈', '🥉'];
   // On the Regicide page this opens its stats screen in place; elsewhere it navigates there.
   const REGICIDE_FOOTER = '<div class="lb-footer"><a class="btn-link" href="/regicide/?view=stats" onclick="if (window.showStats && location.pathname.startsWith(\'/regicide\')) { event.preventDefault(); showStats(); }">📊 Full stats →</a></div>';
+  const TAIDI_FOOTER = '<div class="lb-footer"><a class="btn-link" href="/taidi/?view=stats" onclick="if (window.showStats && location.pathname.startsWith(\'/taidi\')) { event.preventDefault(); showStats(); }">📊 Full stats →</a></div>';
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const token = () => { try { return localStorage.getItem('authToken'); } catch { return null; } };
 
@@ -46,13 +48,14 @@ window.FunLeaderboard = (() => {
     const boards = {
       bridge: bridgeData !== undefined ? bridgeData : await fetchBoard('bridge'),
       regicide: await fetchBoard('regicide'),
+      taidi: await fetchBoard('taidi'),
     };
-    if (!boards.bridge?.top?.length && !boards.regicide?.top?.length) { el.innerHTML = ''; return; }
+    if (!Object.values(boards).some((b) => b?.top?.length)) { el.innerHTML = ''; return; }
     let current = game;
     const draw = () => {
       const tabs = Object.entries(GAMES).map(([key, g]) =>
         `<button type="button" class="lb-tab${key === current ? ' active' : ''}" data-game="${key}" aria-pressed="${key === current}">${g.label}</button>`).join('');
-      el.innerHTML = `<div class="lb-card"><div class="lb-header">🏆 Leaderboard</div><div class="lb-tabs" role="group" aria-label="Leaderboard game">${tabs}</div>${rows(current, boards[current])}${current === 'bridge' ? (footer ? `<div class="lb-footer">${footer}</div>` : '') : REGICIDE_FOOTER}</div>`;
+      el.innerHTML = `<div class="lb-card"><div class="lb-header">🏆 Leaderboard</div><div class="lb-tabs" role="group" aria-label="Leaderboard game">${tabs}</div>${rows(current, boards[current])}${current === 'bridge' ? (footer ? `<div class="lb-footer">${footer}</div>` : '') : current === 'taidi' ? TAIDI_FOOTER : REGICIDE_FOOTER}</div>`;
       for (const b of el.querySelectorAll('.lb-tab')) b.addEventListener('click', () => { current = b.dataset.game; draw(); });
     };
     draw();

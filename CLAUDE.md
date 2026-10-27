@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-**funCentral** — a multiplayer card-game hub on Cloudflare Workers, with Durable Objects for authoritative rooms/WebSockets, D1 for profiles/history/statistics, and a vanilla JavaScript frontend. Floating Bridge is the original four-player game; Regicide is cooperative for 1–4 players.
+**funCentral** — a multiplayer card-game hub on Cloudflare Workers, with Durable Objects for authoritative rooms/WebSockets, D1 for profiles/history/statistics, and a vanilla JavaScript frontend. Floating Bridge is the original four-player game; Regicide is cooperative for 1–4 players; Tai Di (Big Two) is a 2–4 player shedding game.
 
 **Brand name:** always write **funCentral** — one word, lower-case `f`, capital `C` — in UI text, page titles, bot messages and docs (never "Fun Central"/"FunCentral"), including at the start of a sentence. Hostnames stay lowercase (`funcentral.vocs.io`); code identifiers (`FunAuth`, `fc-*.js`) are not branding.
 
@@ -21,10 +21,11 @@ Current guides: [architecture / adding a game](docs/architecture.md),
 | `/` | `static/index.html`, `static/hub.css` | — (hub with a tile per app) |
 | `/bridge/` | `static/bridge/index.html` + root `static/app.js`, `hand.js`, `style.css`, `view.*` | `GameRoom` DO (`GAME_ROOM`), `/api/create`, `/api/ws`, … |
 | `/regicide/` | `static/regicide/{index.html,regicide.js,regicide.css}` | `RegicideRoom` DO (`REGICIDE_ROOM`), `/api/regicide/create`, `/api/regicide/ws`, `/api/regicide/leaderboard` |
+| `/taidi/` | `static/taidi/{index.html,taidi.js,taidi.css}` | `TaiDiRoom` DO (`TAIDI_ROOM`), `/api/taidi/create`, `/api/taidi/ws`, `/api/taidi/leaderboard`, `/api/taidi/stats` |
 
 - **Root `static/style.css` is the shared design system.** The hub and every app load `/style.css` and reuse its components (`.home-container`, `.lobby-container`, `.table` felt, `.seat-label`, `.game-info-bar`, `.card-hand.hand-fan`, `.card-mini`, `.btn*`); each app only adds its own small stylesheet on top.
 - Shared auth endpoints/profile and `localStorage.authToken` give both games one sign-in. Bridge retains its login flow in `static/app.js`; other clients use `static/fc-auth.js`. Dev login is local-only.
-- `static/leaderboard.js` — the shared 🏆 Leaderboard card with a **Bridge | Regicide** switch, shown on the hub, Bridge home and Regicide home. The two boards stay separate.
+- `static/leaderboard.js` — the shared 🏆 Leaderboard card with a **Bridge | Regicide | Tai Di** switch, shown on the hub and each game's home. The boards stay separate.
 - Old Bridge invite links (`/#ROOM`) are redirected by the hub to `/bridge/#ROOM`. Bridge invite messages now use `/bridge/#ROOM`.
 - `localStorage.playerName` is shared across apps so a player's name carries over.
 - Bridge's existing backend paths and `/api/create` / `/api/ws` compatibility routes intentionally remain in place. No broad layout move is required.
@@ -39,6 +40,11 @@ Current guides: [architecture / adding a game](docs/architecture.md),
 - **Rating (`rating.ts`, `db.ts`, migration `0011_regicide.sql` — all four Regicide tables, `CREATE … IF NOT EXISTS` only):** separate from Bridge ELO. Score = royals defeated ÷ 12 (win = 1) vs an Elo expectation against a fixed castle rating of 1200; K = 32 for a player's first 30 games, then 16 (as in `elo.ts`). Rated once per game when won/lost, or when ended early after at least one royal fell. Tables: `regicide_ratings`, `regicide_games`, `regicide_rating_history`, `regicide_group_stats`. Until they exist in an environment, Regicide still plays; only ratings/boards/stats are empty, and Bridge (incl. the bot's `/leaderboard`) is unaffected. `GET /api/regicide/leaderboard` returns Bridge's `{ top, me }` shape; `GET /api/regicide/stats` returns every rated player for the Bridge-style stats screen (`/regicide/?view=stats`: rating, games, wins, win%, best and average royals; min-games filter 3/10/20, no pairs).
 - **Dev/test only (gated on `ALLOW_DEV_LOGIN=1`):** `POST /api/regicide/create { seed }` pins the shuffle; `POST /api/regicide/debug/patch?room=` merges fields into the live game to set up exact scenarios (used by `tests/ui/regicide-live.pw.js`).
 - Rule calls worth knowing (from the official rulebook PDF; solo-yield from the official BGA adaptation): spades played before a Jester start shielding once it's played (clubs don't retro-double); **no yielding in solo**; the yield ban checks every other player's *last turn* (not a streak), so Jester reordering is handled; an empty hand is fine until you must cover damage or act; solo Jester flips are allowed at the start of Step 1 or Step 4; diamonds draw round-robin from the current player and skip full hands; an exact kill puts the royal on top of the tavern deck.
+
+### Tai Di (`src/taidi/`)
+- **`engine.ts`** — pure Big Two rules. Suits ♦ ♣ ♥ ♠ low→high, ranks 3…K A 2. Plays: single, pair, triple, or 5-card (straight < flush < full house < four + 1 < straight flush); flush compares suit then rank; no wrap, so A-2-3-4-5 is not a straight. Pass never locks you out; the trick ends when everyone else has passed. 4p = 13 each; 3p = 17 each, last card exposed and taken by the 3♦ holder; 2p = 17 each, 18 unused. The 3♦ holder (lowest dealt card in 2p) opens and must include it. First to empty their hand wins; others place by fewest cards left (ties share).
+- **`room.ts`** — `TaiDiRoom` DO, 2–4 humans (`tg_` ids only; guests watch), no bots. Same durable rating outbox, 30-minute idle cleanup and `ALLOW_DEV_LOGIN`-gated `/api/taidi/debug/patch` + seeded create as Regicide. Ending a game early is not rated.
+- **Rating (`rating.ts`, `db.ts`, migration `0012_taidi.sql`):** separate pairwise Elo — each pair of players is scored 1 / 0.5 / 0 by place, deltas averaged over opponents, K = 32 for the first 30 games then 16. Tables `taidi_ratings`, `taidi_games`, `taidi_rating_history`, `taidi_group_stats`. Until they exist, Tai Di still plays with empty boards.
 
 ## Commands
 
@@ -69,7 +75,7 @@ Required existing secrets are `JWT_SECRET` and `TELEGRAM_BOT_TOKEN`; the public
 username is `funCentral_bot`. Production `ALLOW_DEV_LOGIN` must be absent.
 
 DO migrations retain `GAME_ROOM`/`GameRoom` at `v1` and add
-`REGICIDE_ROOM`/`RegicideRoom` at `v2` automatically during deployment.
+`REGICIDE_ROOM`/`RegicideRoom` at `v2` and `TAIDI_ROOM`/`TaiDiRoom` at `v3` automatically during deployment.
 D1 SQL is a separate controlled step: inspect the remote schema/ledger and
 pending list first; never replay destructive `0006_stats_reset.sql`.
 See [deployment](docs/deployment.md) for the workflow and rollout checkpoint.
@@ -138,10 +144,11 @@ remain separately authored.
 
 | Command | Aliases | Does |
 |---|---|---|
-| `/newgame` | | Shows inline Bridge/Regicide choices; selection creates a room in the same group |
+| `/newgame` | | Shows inline Bridge/Regicide/Tai Di choices; selection creates a room in the same group |
 | `/newbridge` | | Creates a Bridge room directly |
 | `/newregicide` | `/newregicidegame` | Creates a Regicide room directly |
-| `/leaderboard` | | Group board for both games (Bridge ELO, separate Regicide rating) |
+| `/newtaidi` | `/newtaidigame` | Creates a Tai Di room directly |
+| `/leaderboard` | | Group board for all games (Bridge ELO, separate Regicide and Tai Di ratings) |
 | `/help` | `/start` | Lists the commands |
 
 - `/newgame` is **not** a Bridge alias. Buttons use `callback_data=newgame:<id>`; selection callbacks are acknowledged before room creation in the originating group. Unsupported/private selections are acknowledged without creating rooms.
