@@ -87,6 +87,8 @@ Open the localhost URL printed by Wrangler (normally port 8787):
 | `/regicide/?view=stats` | Regicide statistics |
 | `/taidi/` | Tai Di home and rooms |
 | `/taidi/?view=stats` | Tai Di statistics |
+| `/omok/` | Omok home, practice and multiplayer rooms |
+| `/omok/?view=stats` | Separate Omok statistics |
 
 Create a room after signing in and open another browser context to join as
 a different player. Separate contexts avoid sharing `localStorage` identity.

@@ -10,6 +10,9 @@
 | [Testing](testing.md) | Required PR runner, focused checks, local ports and honest coverage reporting |
 | [Deployment](deployment.md) | Workers Builds releases, existing resources/secrets and safe migration workflow |
 | [Bridge rating](bridge-rating.md) | Skill rating plan, shadow trial, evaluation queries and the season-close runbook |
+| [Omok](omok.md) | Rules, touch/keyboard controls, multiplayer architecture and release requirements |
+| [Omok verification](omok-verification.md) | Implementation checks, current screenshots and coverage limits |
+| [Omok review](omok-review.md) | Independent shared-path/security review, timing fixes and final validation |
 | [Contributor code notes](../CLAUDE.md) / [agent rules](../AGENTS.md) | Repository conventions and GitNexus requirements |
 
 The current application is the multi-game Worker, not the root archived

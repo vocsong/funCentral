@@ -186,6 +186,18 @@ not a substitute for migrating. After rollout, verify schema/ledger, a human
 and practice room, reconnect/rematch, separate Connect 4 ratings and group stats.
 Do not deploy as part of test verification.
 
+### Omok (`0016` SQL and `v5` Durable Object)
+
+`0016_omok.sql` adds four independent Omok tables and two indexes. The new
+`OMOK_ROOM` binding/`OmokRoom` class has an appended `v5` SQLite class migration;
+existing class tags and data are preserved. These are separate migration
+systems: deploying the Worker does not apply the D1 SQL. Inspect schema,
+ledger and pending migrations using the workflow above, then obtain release
+authorization before applying reviewed pending SQL. Never replay
+`0006_stats_reset.sql`. No production migration or deployment was performed
+as part of Omok implementation/testing. See [Omok](omok.md) for behavior and
+verification, including the missing-schema fallback.
+
 ### Tai Di migration (inspect current pending list)
 
 `0012_taidi.sql` creates four Tai Di tables (`taidi_ratings`, `taidi_games`,

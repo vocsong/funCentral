@@ -8,10 +8,12 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "test:ui": "playwright test",
-    "test:e2e": "playwright test tests/ui/chat-live.pw.js tests/ui/bridge-sync.pw.js tests/ui/chat-hand.pw.js tests/ui/card-drag.pw.js tests/ui/ui-polish.pw.js tests/ui/bridge-ux.pw.js tests/ui/bridge-seasons.pw.js tests/ui/identity-live.pw.js tests/ui/create-room.pw.js tests/ui/regicide-live.pw.js tests/ui/telegram-live.pw.js tests/ui/regicide-no-tables.pw.js tests/ui/taidi-live.pw.js tests/ui/taidi-ux.pw.js tests/ui/taidi-no-tables.pw.js tests/ui/connect4-review.pw.js tests/ui/connect4-modal-stack.pw.js tests/ui/connect4-layout.pw.js tests/ui/connect4-splash.pw.js",
+    "test:e2e": "playwright test tests/ui/chat-live.pw.js tests/ui/bridge-sync.pw.js tests/ui/chat-hand.pw.js tests/ui/card-drag.pw.js tests/ui/ui-polish.pw.js tests/ui/bridge-ux.pw.js tests/ui/bridge-seasons.pw.js tests/ui/identity-live.pw.js tests/ui/create-room.pw.js tests/ui/regicide-live.pw.js tests/ui/telegram-live.pw.js tests/ui/regicide-no-tables.pw.js tests/ui/taidi-live.pw.js tests/ui/taidi-ux.pw.js tests/ui/taidi-no-tables.pw.js tests/ui/connect4-review.pw.js tests/ui/connect4-modal-stack.pw.js tests/ui/connect4-layout.pw.js tests/ui/connect4-splash.pw.js tests/ui/omok-live.pw.js tests/ui/omok-no-tables.pw.js",
     "test:connect4:smoke": "playwright test tests/ui/connect4-review.pw.js tests/ui/connect4-modal-stack.pw.js tests/ui/connect4-layout.pw.js tests/ui/connect4-splash.pw.js",
     "test:connect4:chaos": "vitest run tests/connect4-concurrency.test.ts tests/connect4-review-room.test.ts --maxWorkers=1",
-    "test:pr": "node tests/run-pr-checks.cjs"
+    "test:pr": "node tests/run-pr-checks.cjs",
+    "test:omok": "vitest run tests/omok-engine.test.ts tests/omok-room.test.ts tests/omok-rating.test.ts tests/omok-pity.test.ts tests/omok-persistence.test.ts tests/omok-concurrency.test.ts --maxWorkers=2",
+    "test:omok:ui": "playwright test tests/ui/omok-live.pw.js tests/ui/omok-no-tables.pw.js tests/ui/omok-review.pw.js"
   },
   "engines": {
     "node": "^22.23.4 || ^24.22.1 || >=26.12.1"

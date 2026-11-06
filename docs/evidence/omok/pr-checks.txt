@@ -1,0 +1,468 @@
+
+> sg-bridge@1.0.0 test:pr
+> node tests/run-pr-checks.cjs
+
+
+ RUN  v4.1.12 C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral
+
+
+ Test Files  45 passed (45)
+      Tests  469 passed (469)
+   Start at  19:42:38
+   Duration  44.64s (transform 571ms, setup 0ms, import 6.60s, tests 77.13s, environment 2ms)
+
+
+Running 261 tests using 1 worker
+
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   1 tests\ui\bridge-seasons.pw.js:46:1 ΓÇ║ Season 2 is fresh with provisional players; Season 1 stays viewable as the final board (2.7s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   2 tests\ui\bridge-sync.pw.js:15:1 ΓÇ║ two tabs with the same identity do not repeatedly replace each other (1.3s)
+  ok   3 tests\ui\bridge-sync.pw.js:75:3 ΓÇ║ missed live card broadcasts recover on the same OPEN socket (classic) (9.2s)
+  ok   4 tests\ui\bridge-sync.pw.js:130:3 ΓÇ║ half-open connection recovers automatically and rejects late frames (classic) (1.1s)
+  ok   5 tests\ui\bridge-sync.pw.js:75:3 ΓÇ║ missed live card broadcasts recover on the same OPEN socket (25d) (9.3s)
+  ok   6 tests\ui\bridge-sync.pw.js:130:3 ΓÇ║ half-open connection recovers automatically and rejects late frames (25d) (1.1s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   7 tests\ui\bridge-ux.pw.js:55:1 ΓÇ║ the contract strip shows the bid, a secret partner, trumps and trick progress; the partner is named once revealed (331ms)
+  ok   8 tests\ui\bridge-ux.pw.js:82:1 ΓÇ║ the lobby shows open seats without disturbing the player rows (290ms)
+  ok   9 tests\ui\bridge-ux.pw.js:96:1 ΓÇ║ errors are toasts, not browser dialogs, and the abandon vote is a styled dialog (683ms)
+  ok  10 tests\ui\bridge-ux.pw.js:118:3 ΓÇ║ Classic seat plates clear the trick, the last trick and each other at 320├ù740 (255ms)
+  ok  11 tests\ui\bridge-ux.pw.js:118:3 ΓÇ║ Classic seat plates clear the trick, the last trick and each other at 390├ù844 (266ms)
+  ok  12 tests\ui\bridge-ux.pw.js:118:3 ΓÇ║ Classic seat plates clear the trick, the last trick and each other at 844├ù390 (249ms)
+  ok  13 tests\ui\bridge-ux.pw.js:118:3 ΓÇ║ Classic seat plates clear the trick, the last trick and each other at 1366├ù900 (254ms)
+  ok  14 tests\ui\bridge-ux.pw.js:140:1 ΓÇ║ the hub links each game once, offers the Telegram group link and greets a signed-in player (315ms)
+  ok  15 tests\ui\card-drag.pw.js:60:3 ΓÇ║ card follows its grab point and table release plays once classic (617ms)
+  ok  16 tests\ui\card-drag.pw.js:84:3 ΓÇ║ table hover then hand/elsewhere release returns without play classic (1.8s)
+  ok  17 tests\ui\card-drag.pw.js:105:3 ΓÇ║ unrelated states preserve the drag and original card typography classic (439ms)
+  ok  18 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop classic {"turn":1} (612ms)
+  ok  19 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop classic {"currentSuit":"ΓÖª"} (628ms)
+  ok  20 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop classic {"isSpectator":true} (613ms)
+  ok  21 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop classic {"trickComplete":true} (599ms)
+  ok  22 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on pointercancel classic (615ms)
+  ok  23 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on lostcapture classic (730ms)
+  ok  24 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on second-pointer classic (655ms)
+  ok  25 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on turn classic (616ms)
+  ok  26 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on hand classic (343ms)
+  ok  27 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on phase classic (343ms)
+  ok  28 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on view classic (688ms)
+  ok  29 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on escape classic (657ms)
+  ok  30 tests\ui\card-drag.pw.js:173:3 ΓÇ║ reduced motion keeps direct tracking and instant return classic (420ms)
+  ok  31 tests\ui\card-drag.pw.js:185:3 ΓÇ║ tilt stays bounded and settles while the grab point stays attached classic (2.4s)
+  ok  32 tests\ui\card-drag.pw.js:60:3 ΓÇ║ card follows its grab point and table release plays once 25d (594ms)
+  ok  33 tests\ui\card-drag.pw.js:84:3 ΓÇ║ table hover then hand/elsewhere release returns without play 25d (1.7s)
+  ok  34 tests\ui\card-drag.pw.js:105:3 ΓÇ║ unrelated states preserve the drag and original card typography 25d (403ms)
+  ok  35 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop 25d {"turn":1} (647ms)
+  ok  36 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop 25d {"currentSuit":"ΓÖª"} (611ms)
+  ok  37 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop 25d {"isSpectator":true} (611ms)
+  ok  38 tests\ui\card-drag.pw.js:134:5 ΓÇ║ invalid card/turn cannot enable a table drop 25d {"trickComplete":true} (630ms)
+  ok  39 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on pointercancel 25d (614ms)
+  ok  40 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on lostcapture 25d (623ms)
+  ok  41 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on second-pointer 25d (630ms)
+  ok  42 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on turn 25d (666ms)
+  ok  43 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on hand 25d (375ms)
+  ok  44 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on phase 25d (377ms)
+  ok  45 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on view 25d (624ms)
+  ok  46 tests\ui\card-drag.pw.js:147:5 ΓÇ║ eligible drag cancels safely on escape 25d (653ms)
+  ok  47 tests\ui\card-drag.pw.js:173:3 ΓÇ║ reduced motion keeps direct tracking and instant return 25d (376ms)
+  ok  48 tests\ui\card-drag.pw.js:185:3 ΓÇ║ tilt stays bounded and settles while the grab point stays attached 25d (2.4s)
+  -   49 tests\ui\card-drag.pw.js:208:1 ΓÇ║ capture synthetic drag, return and table drop in both views
+  ok  50 tests\ui\chat-hand.pw.js:59:3 ΓÇ║ chat screenshots classic (669ms)
+  ok  51 tests\ui\chat-hand.pw.js:79:3 ΓÇ║ unchanged hand retains nodes, hover, focus and settled geometry classic (755ms)
+  ok  52 tests\ui\chat-hand.pw.js:115:3 ΓÇ║ chat replay races, readable scroll anchors, wrapping and composer guards classic (664ms)
+  ok  53 tests\ui\chat-hand.pw.js:167:3 ΓÇ║ real touch owns cards during metadata updates, outside still scrolls classic (939ms)
+  ok  54 tests\ui\chat-hand.pw.js:59:3 ΓÇ║ chat screenshots 25d (695ms)
+  ok  55 tests\ui\chat-hand.pw.js:79:3 ΓÇ║ unchanged hand retains nodes, hover, focus and settled geometry 25d (756ms)
+  ok  56 tests\ui\chat-hand.pw.js:115:3 ΓÇ║ chat replay races, readable scroll anchors, wrapping and composer guards 25d (669ms)
+  ok  57 tests\ui\chat-hand.pw.js:167:3 ΓÇ║ real touch owns cards during metadata updates, outside still scrolls 25d (935ms)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  58 tests\ui\chat-live.pw.js:52:3 ΓÇ║ live two-client history, refresh/reconnect, cap and room isolation classic (1.9s)
+  ok  59 tests\ui\chat-live.pw.js:52:3 ΓÇ║ live two-client history, refresh/reconnect, cap and room isolation 25d (1.8s)
+{"liveGame":"classic","acceptedCards":32,"completedTricks":8,"illegalGuardChecks":17}
+  ok  60 tests\ui\chat-live.pw.js:139:3 ΓÇ║ live full four-player game, stable bidding, legal mouse/touch play and results classic (30.7s)
+{"liveGame":"25d","acceptedCards":28,"completedTricks":7,"illegalGuardChecks":15}
+  ok  61 tests\ui\chat-live.pw.js:139:3 ΓÇ║ live full four-player game, stable bidding, legal mouse/touch play and results 25d (29.0s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  62 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 320├ù740 (3.6s)
+  ok  63 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 360├ù640 (3.7s)
+  ok  64 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 390├ù844 (3.5s)
+  ok  65 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 520├ù740 (3.6s)
+  ok  66 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 768├ù1024 (3.8s)
+  ok  67 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 844├ù390 (3.6s)
+  ok  68 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 979├ù900 (3.8s)
+  ok  69 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 980├ù900 (3.8s)
+  ok  70 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 1024├ù768 (3.8s)
+  ok  71 tests\ui\connect4-layout.pw.js:62:3 ΓÇ║ board, open log and player plates fit at 1366├ù900 (3.6s)
+  ok  72 tests\ui\connect4-layout.pw.js:109:1 ΓÇ║ narrow home and lobby controls align; rules and results stay inside the viewport (8.6s)
+  ok  73 tests\ui\connect4-layout.pw.js:153:3 ΓÇ║ bot and host badges match without highlighting at 320px (1.1s)
+  ok  74 tests\ui\connect4-layout.pw.js:153:3 ΓÇ║ bot and host badges match without highlighting at 1366px (1.1s)
+  ok  75 tests\ui\connect4-layout.pw.js:174:3 ΓÇ║ separate three-colour palettes stay synced from lobby to results at 320px (7.1s)
+  ok  76 tests\ui\connect4-layout.pw.js:174:3 ΓÇ║ separate three-colour palettes stay synced from lobby to results at 1366px (7.4s)
+  ok  77 tests\ui\connect4-layout.pw.js:243:3 ΓÇ║ opening border reveals the real starter at 390px with motion no-preference (3.3s)
+  ok  78 tests\ui\connect4-layout.pw.js:243:3 ΓÇ║ opening border reveals the real starter at 1366px with motion no-preference (3.2s)
+  ok  79 tests\ui\connect4-layout.pw.js:243:3 ΓÇ║ opening border reveals the real starter at 390px with motion reduce (3.3s)
+  ok  80 tests\ui\connect4-layout.pw.js:302:3 ΓÇ║ opening shuffle audio respects muted (3.1s)
+  ok  81 tests\ui\connect4-layout.pw.js:302:3 ΓÇ║ opening shuffle audio respects enabled (3.1s)
+  ok  82 tests\ui\connect4-layout.pw.js:302:3 ΓÇ║ opening shuffle audio respects mute during shuffle (3.1s)
+  ok  83 tests\ui\connect4-layout.pw.js:351:1 ΓÇ║ no early-end control exists, forged resets fail, and leaving preserves the active round (1.4s)
+  ok  84 tests\ui\connect4-layout.pw.js:379:1 ΓÇ║ four complete rated rematches apply protection to both players on the fourth loss (19.6s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  85 tests\ui\connect4-modal-stack.pw.js:9:1 ΓÇ║ a winning result above an open rules modal traps focus and restores each layer (5.0s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  86 tests\ui\connect4-review.pw.js:86:3 ΓÇ║ same player and both humans can dismiss results, reconnect and rematch (desktop) (12.0s)
+  ok  87 tests\ui\connect4-review.pw.js:86:3 ΓÇ║ same player and both humans can dismiss results, reconnect and rematch (mobile) (12.7s)
+  ok  88 tests\ui\connect4-review.pw.js:122:3 ΓÇ║ accessible board exposes empty cells and chosen Red/Yellow contents, without 42 tab stops (3.7s)
+  ok  89 tests\ui\connect4-review.pw.js:122:3 ΓÇ║ accessible board exposes empty cells and chosen Rose/Cyan contents, without 42 tab stops (3.6s)
+  ok  90 tests\ui\connect4-review.pw.js:122:3 ΓÇ║ accessible board exposes empty cells and chosen Violet/Mint contents, without 42 tab stops (3.7s)
+  ok  91 tests\ui\connect4-review.pw.js:152:61 ΓÇ║ practice bot: complete a real game, then rematch with no other human (14.0s)
+  ok  92 tests\ui\connect4-review.pw.js:152:61 ΓÇ║ practice bot: complete a real game, then leave after completion with no other human (11.9s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  93 tests\ui\connect4-splash.pw.js:45:3 ΓÇ║ updated hub and Connect 4 splash fit with gravity-valid art at 320px (596ms)
+  ok  94 tests\ui\connect4-splash.pw.js:45:3 ΓÇ║ updated hub and Connect 4 splash fit with gravity-valid art at 390px (578ms)
+  ok  95 tests\ui\connect4-splash.pw.js:45:3 ΓÇ║ updated hub and Connect 4 splash fit with gravity-valid art at 490px (643ms)
+  ok  96 tests\ui\connect4-splash.pw.js:45:3 ΓÇ║ updated hub and Connect 4 splash fit with gravity-valid art at 768px (659ms)
+  ok  97 tests\ui\connect4-splash.pw.js:45:3 ΓÇ║ updated hub and Connect 4 splash fit with gravity-valid art at 1366px (717ms)
+  ok  98 tests\ui\connect4-splash.pw.js:73:3 ΓÇ║ signed-in splash keeps create/join and all leaderboard tabs usable at 320px (727ms)
+  ok  99 tests\ui\connect4-splash.pw.js:73:3 ΓÇ║ signed-in splash keeps create/join and all leaderboard tabs usable at 1366px (752ms)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 100 tests\ui\create-room.pw.js:33:1 ΓÇ║ creating a game seats the creator even when the tab remembers a spectator role (738ms)
+  ok 101 tests\ui\create-room.pw.js:45:1 ΓÇ║ spectating one room then leaving does not make the next created room spectate (2.0s)
+  ok 102 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 320px (904ms)
+  ok 103 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 390px (901ms)
+  ok 104 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 768px (924ms)
+  ok 105 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1024px (947ms)
+  ok 106 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1366px (964ms)
+  ok 107 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1920px (966ms)
+  ok 108 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 320px (878ms)
+  ok 109 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 390px (830ms)
+  ok 110 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 768px (858ms)
+  ok 111 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1024px (874ms)
+  ok 112 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1366px (864ms)
+  ok 113 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1920px (836ms)
+  ok 114 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 320px (863ms)
+  ok 115 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 390px (853ms)
+  ok 116 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 768px (857ms)
+  ok 117 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1024px (887ms)
+  ok 118 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1366px (856ms)
+  ok 119 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1920px (853ms)
+  ok 120 tests\ui\hand-layout.pw.js:152:1 ΓÇ║ overlap increases with hand size and adjusts on resize (776ms)
+  ok 121 tests\ui\hand-layout.pw.js:168:1 ΓÇ║ full hands follow a curved arc with progressive rotations (1.2s)
+  ok 122 tests\ui\hand-layout.pw.js:184:1 ΓÇ║ card typography inherits the original proportional font and suit proportions (598ms)
+  ok 123 tests\ui\hand-layout.pw.js:201:1 ΓÇ║ keyboard focus keeps every neighboring rank and suit exposed (2.2s)
+  ok 124 tests\ui\hand-layout.pw.js:212:1 ΓÇ║ nested narrow panels preserve full-hand indices without smaller cards (2.9s)
+  ok 125 tests\ui\hand-layout.pw.js:228:1 ΓÇ║ in-place lifts keep screen headings and instructions clear in every phase (2.2s)
+  -  126 tests\ui\hand-layout.pw.js:246:1 ΓÇ║ capture rendered font audit
+  ok 127 tests\ui\hand-layout.pw.js:268:1 ΓÇ║ spectator full-board fans fit and cannot play (1.8s)
+  ok 128 tests\ui\hand-layout.pw.js:281:34 ΓÇ║ desktop hover lifts in place and each exposed card clicks once at 768px (4.6s)
+  ok 129 tests\ui\hand-layout.pw.js:281:34 ΓÇ║ desktop hover lifts in place and each exposed card clicks once at 1024px (4.6s)
+  ok 130 tests\ui\hand-layout.pw.js:301:1 ΓÇ║ mouse drags, right clicks and invalid cards do not play (646ms)
+  ok 131 tests\ui\hand-layout.pw.js:311:1 ΓÇ║ keyboard arrows, Home/End, Escape and Enter/Space are accessible (623ms)
+  ok 132 tests\ui\hand-layout.pw.js:323:1 ΓÇ║ authoritative guards cover pending, unrelated states, errors, turn, membership and connection (889ms)
+  ok 133 tests\ui\hand-layout.pw.js:346:1 ΓÇ║ reduced motion disables hand transitions (561ms)
+  ok 134 tests\ui\hand-layout.pw.js:356:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ tap selects and lifts in place; release and compatibility clicks never play (724ms)
+  ok 135 tests\ui\hand-layout.pw.js:363:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ touch compatibility clicks stay blocked across a server rerender (568ms)
+  ok 136 tests\ui\hand-layout.pw.js:371:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ switching view cancels an eligible table drag without replacing game state (625ms)
+  ok 137 tests\ui\hand-layout.pw.js:387:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ dragging across other cards keeps the grabbed card and table drop plays it once (863ms)
+  ok 138 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 0px outside the table does not play (611ms)
+  ok 139 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 12px outside the table does not play (605ms)
+  ok 140 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 40px outside the table does not play (601ms)
+  ok 141 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 55px outside the table does not play (576ms)
+  ok 142 tests\ui\hand-layout.pw.js:398:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ releasing over the table plays once (795ms)
+  ok 143 tests\ui\hand-layout.pw.js:402:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ hand, downward, outside-table and returned drags do not play (1.1s)
+  ok 144 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"currentSuit":"ΓÖª"} (758ms)
+  ok 145 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"turn":1} (1.3s)
+  ok 146 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"isSpectator":true} (1.3s)
+  ok 147 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"trickComplete":true} (767ms)
+  ok 148 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ pointercancel cancels an armed gesture (1.1s)
+  ok 149 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lostcapture cancels an armed gesture (642ms)
+  ok 150 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ resize cancels an armed gesture (1.1s)
+  ok 151 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ scroll cancels an armed gesture (606ms)
+  ok 152 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ blur cancels an armed gesture (585ms)
+  ok 153 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ new-state cancels an armed gesture (588ms)
+  ok 154 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ second-pointer cancels an armed gesture (1.1s)
+  ok 155 tests\ui\hand-layout.pw.js:437:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ mouse clicks still work immediately after touch on a hybrid device (557ms)
+  ok 156 tests\ui\hand-layout.pw.js:443:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lift stays on screen without covering corners at 320├ù740 (1.1s)
+  ok 157 tests\ui\hand-layout.pw.js:467:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ last card can be dragged onto the visible table at 320├ù740 (788ms)
+  ok 158 tests\ui\hand-layout.pw.js:443:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lift stays on screen without covering corners at 844├ù390 (1.2s)
+  ok 159 tests\ui\hand-layout.pw.js:467:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ last card can be dragged onto the visible table at 844├ù390 (846ms)
+  -  160 tests\ui\hand-layout.pw.js:487:1 ΓÇ║ capture review screenshots
+  -  161 tests\ui\hand-layout.pw.js:516:1 ΓÇ║ record synthetic touch interaction
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 162 tests\ui\identity-live.pw.js:41:40 ΓÇ║ profile resolves before deep-link join and survives reload/reconnect classic (1.5s)
+  ok 163 tests\ui\identity-live.pw.js:41:40 ΓÇ║ profile resolves before deep-link join and survives reload/reconnect 25d (1.6s)
+  ok 164 tests\ui\identity-live.pw.js:67:1 ΓÇ║ temporary profile failure retains the login and offers retry before a nameless join (647ms)
+  ok 165 tests\ui\identity-live.pw.js:79:1 ΓÇ║ verified Telegram response with no usable name requires manual name, preserves ID and persists it (870ms)
+  ok 166 tests\ui\identity-live.pw.js:94:1 ΓÇ║ missing/late unsafe SDK data is never treated as verified login (227ms)
+  ok 167 tests\ui\identity-live.pw.js:104:1 ΓÇ║ actual room rejects malformed joins and never blanks an existing player (510ms)
+  ok 168 tests\ui\identity-live.pw.js:127:1 ΓÇ║ signed malformed/nameless profiles use safe name recovery without weakening signature checks (21ms)
+  ok 169 tests\ui\identity-live.pw.js:138:1 ΓÇ║ two verified clients retain names and seats across reload and socket replacement (972ms)
+  ok 170 tests\ui\identity-live.pw.js:159:1 ΓÇ║ invalid saved credential stops auto-join and preserves the room for sign-in (240ms)
+  ok 171 tests\ui\identity-live.pw.js:165:1 ΓÇ║ profile recovery repairs a legacy blank account name from verified claims (360ms)
+  ok 172 tests\ui\identity-live.pw.js:174:1 ΓÇ║ a late profile response cannot replace a newer verified login (604ms)
+  ok 173 tests\ui\identity-live.pw.js:186:1 ΓÇ║ bidding/partner browser fixture keeps seat identity through duplicate and repaired names (243ms)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 174 tests\ui\omok-live.pw.js:63:35 ΓÇ║ played game, spectator, reload, results and alternating rematch (desktop) (14.1s)
+  ok 175 tests\ui\omok-live.pw.js:63:35 ΓÇ║ played game, spectator, reload, results and alternating rematch (touch mobile) (13.3s)
+  ok 176 tests\ui\omok-live.pw.js:107:1 ΓÇ║ keyboard grid, precise preview, modal focus and accessibility tree (3.6s)
+  ok 177 tests\ui\omok-live.pw.js:135:1 ΓÇ║ 320px touch board enlarges without page overflow and can place at the far corner (3.9s)
+  ok 178 tests\ui\omok-live.pw.js:149:1 ΓÇ║ replacement socket pauses until explicit reconnect and preserves the seat (6.1s)
+  ok 179 tests\ui\omok-live.pw.js:164:1 ΓÇ║ practice bot responds to a real placement; resignation, result and rematch remain unrated (6.5s)
+  ok 180 tests\ui\omok-live.pw.js:183:35 ΓÇ║ lobby entry, shared auth and independent leaderboard (desktop) (2.2s)
+  ok 181 tests\ui\omok-live.pw.js:183:35 ΓÇ║ lobby entry, shared auth and independent leaderboard (mobile) (2.1s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 182 tests\ui\omok-no-tables.pw.js:6:1 ΓÇ║ unmigrated Omok endpoints stay empty while real gameplay, practice and Bridge remain available (5.6s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 183 tests\ui\regicide-live.pw.js:89:1 ΓÇ║ hub and Bridge share the leaderboard entry point; old bridge links redirect (428ms)
+  ok 184 tests\ui\regicide-live.pw.js:101:1 ΓÇ║ signed-out visitors watch the lobby as guests and sign in to take a seat (1.0s)
+  ok 185 tests\ui\regicide-live.pw.js:124:1 ΓÇ║ spectators: invite links open a running game to watch; the table sees who is watching (3.9s)
+  ok 186 tests\ui\regicide-live.pw.js:171:1 ΓÇ║ solo: companion pair resolves both suits; yield is not offered (1.3s)
+  ok 187 tests\ui\regicide-live.pw.js:192:1 ΓÇ║ solo: an empty hand at Step 4 must flip a Jester to survive (1.9s)
+  ok 188 tests\ui\regicide-live.pw.js:210:1 ΓÇ║ solo: no flips left and a hand that cannot cover the hit is a defeat (3.4s)
+  ok 189 tests\ui\regicide-live.pw.js:226:1 ΓÇ║ solo: exact kill joins the tavern; beating the last King is a rated Gold victory (4.1s)
+  ok 190 tests\ui\regicide-live.pw.js:256:1 ΓÇ║ 2 players: after one yields the other cannot; hearts are blocked by a Hearts enemy (3.0s)
+  ok 191 tests\ui\regicide-live.pw.js:290:1 ΓÇ║ 3 players: Jester cancels immunity, retro-activates spades, and its player picks who goes next (3.7s)
+  ok 192 tests\ui\regicide-live.pw.js:314:1 ΓÇ║ 4 players: diamonds draw round-robin skipping full hands; combo rules enforced in the UI (4.1s)
+  ok 193 tests\ui\regicide-live.pw.js:345:1 ΓÇ║ spectators watch without a hand; a reload keeps your seat (1.5s)
+  ok 194 tests\ui\regicide-live.pw.js:360:1 ΓÇ║ lobby: a kicked player stays out after a reload; a new invite link switches rooms (2.0s)
+  ok 195 tests\ui\regicide-live.pw.js:384:1 ΓÇ║ desktop keyboard plays; reduced motion skips the animation layer (417ms)
+  ok 196 tests\ui\regicide-live.pw.js:406:1 ΓÇ║ Regicide stats: ranking with Bridge-style min-games filter and sorting; linked from the leaderboard card (1.0s)
+1p: lost with 6/12 royals; saw companion, damage, defeat, discard, exact, flip, lost, play, reveal
+  ok 197 tests\ui\regicide-live.pw.js:528:3 ΓÇ║ full 1-player game through the UI ends cleanly and is rated (13.2s)
+2p: lost with 2/12 royals; saw companion, damage, defeat, discard, exact, lost, play, reveal
+  ok 198 tests\ui\regicide-live.pw.js:528:3 ΓÇ║ full 2-player game through the UI ends cleanly and is rated (7.8s)
+3p: lost with 5/12 royals; saw choose, companion, damage, defeat, discard, exact, jester, lost, nodamage, play, reveal, yield
+  ok 199 tests\ui\regicide-live.pw.js:528:3 ΓÇ║ full 3-player game through the UI ends cleanly and is rated (15.9s)
+4p: lost with 8/12 royals; saw companion, damage, defeat, discard, exact, lost, nodamage, play, reveal, set
+  ok 200 tests\ui\regicide-live.pw.js:528:3 ΓÇ║ full 4-player game through the UI ends cleanly and is rated (29.6s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Regicide group board unavailable Error: D1_ERROR: no such table: regicide_group_stats: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 3 lines matching cause stack trace ...
+    at async Object.fetch (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8708:16) {
+  [cause]: Error: no such table: regicide_group_stats: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async getRegicideGroupLeaderboard (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1751:16)
+      at async Promise.all (index 1)
+      at async handleTelegramCommand (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8376:57)
+      at async Object.fetch (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8708:16)
+}
+Regicide rating failed; will retry Error: D1_ERROR: no such table: regicide_ratings: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 2 lines matching cause stack trace ...
+    at async RegicideRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6187:7) {
+  [cause]: Error: no such table: regicide_ratings: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async recordRegicideGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1649:29)
+      at async RegicideRoom.drainRatings (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6206:23)
+      at async RegicideRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6187:7)
+}
+Regicide rating failed; will retry Error: D1_ERROR: no such table: regicide_ratings: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 2 lines matching cause stack trace ...
+    at async RegicideRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6187:7) {
+  [cause]: Error: no such table: regicide_ratings: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async recordRegicideGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1649:29)
+      at async RegicideRoom.drainRatings (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6206:23)
+      at async RegicideRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6187:7)
+}
+  ok 201 tests\ui\regicide-no-tables.pw.js:23:1 ΓÇ║ without the Regicide tables: Regicide still plays, boards are empty, Bridge is untouched (3.4s)
+  ok 202 tests\ui\table-view.pw.js:102:1 ΓÇ║ default, keyboard toggle, persistence, invalid preference and unavailable storage (1.2s)
+  ok 203 tests\ui\table-view.pw.js:124:1 ΓÇ║ mid-trick switches retain exact state, socket, cards, scroll, input and legality (584ms)
+  ok 204 tests\ui\table-view.pw.js:144:3 ΓÇ║ all phases in both views fit at 320px and actions remain single (2.7s)
+  ok 205 tests\ui\table-view.pw.js:144:3 ΓÇ║ all phases in both views fit at 390px and actions remain single (2.7s)
+  ok 206 tests\ui\table-view.pw.js:144:3 ΓÇ║ all phases in both views fit at 768px and actions remain single (2.7s)
+  ok 207 tests\ui\table-view.pw.js:144:3 ΓÇ║ all phases in both views fit at 1366px and actions remain single (2.7s)
+  ok 208 tests\ui\table-view.pw.js:181:1 ΓÇ║ Classic game pixels match master and restore exactly after a switch (774ms)
+  ok 209 tests\ui\table-view.pw.js:208:1 ΓÇ║ 2.5D legal cards are keyboard accessible without duplicate or illegal moves (357ms)
+  ok 210 tests\ui\table-view.pw.js:227:1 ΓÇ║ production WebSocket handlers continue receiving states and send one play across view switches (713ms)
+  ok 211 tests\ui\table-view.pw.js:256:1 ΓÇ║ native card controls keep their own labels, roving focus and single keyboard action (382ms)
+  ok 212 tests\ui\table-view.pw.js:280:3 ΓÇ║ touch ΓÇ║ scroll and toggle mid-game preserve cards and touch activation sends once (972ms)
+  ok 213 tests\ui\table-view.pw.js:296:1 ΓÇ║ reduced motion, practice, full-board spectators and out-of-turn play (660ms)
+  ok 214 tests\ui\table-view.pw.js:312:1 ΓÇ║ last trick, completed trick and long seat names do not cover the hand on narrow screens (989ms)
+  -  215 tests\ui\table-view.pw.js:335:1 ΓÇ║ capture actual synthetic browser screenshots for review
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 216 tests\ui\taidi-live.pw.js:99:1 ΓÇ║ hub lists Tai Di and the lobby needs two players (946ms)
+  ok 217 tests\ui\taidi-live.pw.js:118:1 ΓÇ║ signed-out visitors see the login and can only watch (645ms)
+  ok 218 tests\ui\taidi-live.pw.js:132:1 ΓÇ║ two players: opening card, tapping cards, play and pass by hand (3.7s)
+  ok 219 tests\ui\taidi-live.pw.js:198:5 ΓÇ║ full games ΓÇ║ 2 players: hidden hands, spectator, reload, play to a finish and rate (5.1s)
+  ok 220 tests\ui\taidi-live.pw.js:198:5 ΓÇ║ full games ΓÇ║ 3 players: hidden hands, spectator, reload, play to a finish and rate (7.3s)
+  ok 221 tests\ui\taidi-live.pw.js:198:5 ΓÇ║ full games ΓÇ║ 4 players: hidden hands, spectator, reload, play to a finish and rate (8.4s)
+  ok 222 tests\ui\taidi-live.pw.js:250:1 ΓÇ║ a game ended early by the host is not rated (1.9s)
+  ok 223 tests\ui\taidi-live.pw.js:264:1 ΓÇ║ rooms are full at four and late joiners can watch (2.4s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 224 tests\ui\taidi-lobby-fixes.pw.js:57:1 ΓÇ║ kicked player stays out after a reload, and is not auto-seated (1.3s)
+  ok 225 tests\ui\taidi-lobby-fixes.pw.js:80:1 ΓÇ║ full-lobby visitor gets Take a Seat when a seat opens, instead of stuck Joining (2.9s)
+  ok 226 tests\ui\taidi-lobby-fixes.pw.js:106:1 ΓÇ║ mid-game spectator stays a spectator when the room returns to the lobby (3.3s)
+  ok 227 tests\ui\taidi-lobby-fixes.pw.js:133:3 ΓÇ║ leaderboard: tied player cut off by the top-five limit still sees their own row (1.2s)
+  ok 228 tests\ui\taidi-lobby-fixes.pw.js:133:3 ΓÇ║ leaderboard: tied player cut off by the top-five limit still sees their own row with the same display name (1.2s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Tai Di group board unavailable Error: D1_ERROR: no such table: taidi_group_stats: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 3 lines matching cause stack trace ...
+    at async Object.fetch (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8708:16) {
+  [cause]: Error: no such table: taidi_group_stats: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async getTaiDiGroupLeaderboard (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1893:16)
+      at async Promise.all (index 2)
+      at async handleTelegramCommand (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8376:57)
+      at async Object.fetch (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:8708:16)
+}
+Tai Di rating failed; will retry Error: D1_ERROR: no such table: taidi_ratings: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 2 lines matching cause stack trace ...
+    at async TaiDiRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6801:7) {
+  [cause]: Error: no such table: taidi_ratings: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async recordTaiDiGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1795:29)
+      at async TaiDiRoom.drainRatings (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6821:23)
+      at async TaiDiRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6801:7)
+}
+Tai Di rating failed; will retry Error: D1_ERROR: no such table: taidi_ratings: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:193:19)
+    at async cloudflare-internal:d1-api:474:19
+    ... 2 lines matching cause stack trace ...
+    at async TaiDiRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6801:7) {
+  [cause]: Error: no such table: taidi_ratings: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:194:24)
+      at async cloudflare-internal:d1-api:474:19
+      at async recordTaiDiGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:1795:29)
+      at async TaiDiRoom.drainRatings (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6821:23)
+      at async TaiDiRoom.rateFinishedGame (file:///C:/Users/vocs/Documents/Codex/2026-11-06/task-2/funCentral/script-0.mjs:6801:7)
+}
+  ok 229 tests\ui\taidi-no-tables.pw.js:23:1 ΓÇ║ without the Tai Di tables: Tai Di still plays, boards are empty, Bridge is untouched (3.1s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 230 tests\ui\taidi-ux.pw.js:60:1 ΓÇ║ hint cycles legal answers, and a hand that cannot answer is told to pass (1.9s)
+  ok 231 tests\ui\taidi-ux.pw.js:97:1 ΓÇ║ sort by suit, slide to select, and line up a play while waiting (2.4s)
+  ok 232 tests\ui\taidi-ux.pw.js:143:1 ΓÇ║ the log is a sheet on phones and a column on desktop; results reveal what was left (3.6s)
+  ok 233 tests\ui\taidi-ux.pw.js:166:1 ΓÇ║ several plays replayed from one update leave nothing behind on the animation layer (2.4s)
+  ok 234 tests\ui\taidi-ux.pw.js:196:3 ΓÇ║ layout holds on a small phone 360├ù640: no overlap, no side scroll, every index visible (1.1s)
+  ok 235 tests\ui\taidi-ux.pw.js:196:3 ΓÇ║ layout holds on a phone 390├ù844: no overlap, no side scroll, every index visible (1.1s)
+  ok 236 tests\ui\taidi-ux.pw.js:196:3 ΓÇ║ layout holds on a landscape phone 844├ù390: no overlap, no side scroll, every index visible (1.1s)
+  ok 237 tests\ui\taidi-ux.pw.js:196:3 ΓÇ║ layout holds on a tablet 820├ù1180: no overlap, no side scroll, every index visible (1.1s)
+  ok 238 tests\ui\taidi-ux.pw.js:196:3 ΓÇ║ layout holds on a desktop 1366├ù900: no overlap, no side scroll, every index visible (1.1s)
+(node:75028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 239 tests\ui\telegram-live.pw.js:68:1 ΓÇ║ help, aliases and the command menu are all handled in code (16ms)
+  ok 240 tests\ui\telegram-live.pw.js:89:1 ΓÇ║ /newgame offers games first, then each choice creates the selected group room (270ms)
+  ok 241 tests\ui\telegram-live.pw.js:127:1 ΓÇ║ unsupported or private-chat buttons are acknowledged without creating a game (8ms)
+  ok 242 tests\ui\telegram-live.pw.js:138:1 ΓÇ║ /newregicide: group room, membership-aware lobby, start and result posts, group leaderboard (3.9s)
+  -  243 tests\ui\ui-polish.pw.js:53:1 ΓÇ║ capture synthetic before/after UI evidence
+  ok 244 tests\ui\ui-polish.pw.js:131:3 ΓÇ║ lobby labels safely preserve quoted player names classic (573ms)
+  ok 245 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable classic 320 (1.9s)
+  ok 246 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable classic 390 (2.0s)
+  ok 247 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable classic 1366 (911ms)
+  ok 248 tests\ui\ui-polish.pw.js:165:3 ΓÇ║ keyboard focus follows the nearest remaining card classic (1.1s)
+  ok 249 tests\ui\ui-polish.pw.js:178:3 ΓÇ║ touch reversal swings visibly around an attached grip classic (2.2s)
+  ok 250 tests\ui\ui-polish.pw.js:201:5 ΓÇ║ drop highlight and native hit area follow the felt classic 390 (1.2s)
+  ok 251 tests\ui\ui-polish.pw.js:201:5 ΓÇ║ drop highlight and native hit area follow the felt classic 1366 (1.1s)
+  ok 252 tests\ui\ui-polish.pw.js:237:3 ΓÇ║ desktop play retains remaining nodes and a settled fan classic (827ms)
+  ok 253 tests\ui\ui-polish.pw.js:131:3 ΓÇ║ lobby labels safely preserve quoted player names 25d (554ms)
+  ok 254 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable 25d 320 (1.9s)
+  ok 255 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable 25d 390 (1.4s)
+  ok 256 tests\ui\ui-polish.pw.js:140:5 ΓÇ║ lobby columns align and actions stay usable 25d 1366 (1.4s)
+  ok 257 tests\ui\ui-polish.pw.js:165:3 ΓÇ║ keyboard focus follows the nearest remaining card 25d (1.1s)
+  ok 258 tests\ui\ui-polish.pw.js:178:3 ΓÇ║ touch reversal swings visibly around an attached grip 25d (2.2s)
+  ok 259 tests\ui\ui-polish.pw.js:201:5 ΓÇ║ drop highlight and native hit area follow the felt 25d 390 (1.1s)
+  ok 260 tests\ui\ui-polish.pw.js:201:5 ΓÇ║ drop highlight and native hit area follow the felt 25d 1366 (1.2s)
+  ok 261 tests\ui\ui-polish.pw.js:237:3 ΓÇ║ desktop play retains remaining nodes and a settled fan 25d (934ms)
+
+  6 skipped
+  255 passed (11.0m)
+
+Running 60 tests using 1 worker
+
+(node:37384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 320px (1.2s)
+  ok  2 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 390px (902ms)
+  ok  3 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 768px (1.4s)
+  ok  4 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1024px (956ms)
+  ok  5 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1366px (926ms)
+  ok  6 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ bidding: exposed corners and all cards fit at 1920px (901ms)
+  ok  7 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 320px (864ms)
+  ok  8 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 390px (877ms)
+  ok  9 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 768px (1.4s)
+  ok 10 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1024px (868ms)
+  ok 11 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1366px (874ms)
+  ok 12 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ partner: exposed corners and all cards fit at 1920px (852ms)
+  ok 13 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 320px (937ms)
+  ok 14 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 390px (856ms)
+  ok 15 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 768px (832ms)
+  ok 16 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1024px (843ms)
+  ok 17 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1366px (842ms)
+  ok 18 tests\ui\hand-layout.pw.js:143:3 ΓÇ║ play: exposed corners and all cards fit at 1920px (812ms)
+  ok 19 tests\ui\hand-layout.pw.js:152:1 ΓÇ║ overlap increases with hand size and adjusts on resize (754ms)
+  ok 20 tests\ui\hand-layout.pw.js:168:1 ΓÇ║ full hands follow a curved arc with progressive rotations (716ms)
+  ok 21 tests\ui\hand-layout.pw.js:184:1 ΓÇ║ card typography inherits the original proportional font and suit proportions (588ms)
+  ok 22 tests\ui\hand-layout.pw.js:201:1 ΓÇ║ keyboard focus keeps every neighboring rank and suit exposed (2.2s)
+  ok 23 tests\ui\hand-layout.pw.js:212:1 ΓÇ║ nested narrow panels preserve full-hand indices without smaller cards (3.5s)
+  ok 24 tests\ui\hand-layout.pw.js:228:1 ΓÇ║ in-place lifts keep screen headings and instructions clear in every phase (2.2s)
+  -  25 tests\ui\hand-layout.pw.js:246:1 ΓÇ║ capture rendered font audit
+  ok 26 tests\ui\hand-layout.pw.js:268:1 ΓÇ║ spectator full-board fans fit and cannot play (1.7s)
+  ok 27 tests\ui\hand-layout.pw.js:281:34 ΓÇ║ desktop hover lifts in place and each exposed card clicks once at 768px (4.6s)
+  ok 28 tests\ui\hand-layout.pw.js:281:34 ΓÇ║ desktop hover lifts in place and each exposed card clicks once at 1024px (4.6s)
+  ok 29 tests\ui\hand-layout.pw.js:301:1 ΓÇ║ mouse drags, right clicks and invalid cards do not play (592ms)
+  ok 30 tests\ui\hand-layout.pw.js:311:1 ΓÇ║ keyboard arrows, Home/End, Escape and Enter/Space are accessible (605ms)
+  ok 31 tests\ui\hand-layout.pw.js:323:1 ΓÇ║ authoritative guards cover pending, unrelated states, errors, turn, membership and connection (1.1s)
+  ok 32 tests\ui\hand-layout.pw.js:346:1 ΓÇ║ reduced motion disables hand transitions (273ms)
+  ok 33 tests\ui\hand-layout.pw.js:356:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ tap selects and lifts in place; release and compatibility clicks never play (1.2s)
+  ok 34 tests\ui\hand-layout.pw.js:363:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ touch compatibility clicks stay blocked across a server rerender (555ms)
+  ok 35 tests\ui\hand-layout.pw.js:371:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ switching view cancels an eligible table drag without replacing game state (665ms)
+  ok 36 tests\ui\hand-layout.pw.js:387:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ dragging across other cards keeps the grabbed card and table drop plays it once (910ms)
+  ok 37 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 0px outside the table does not play (595ms)
+  ok 38 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 12px outside the table does not play (574ms)
+  ok 39 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 40px outside the table does not play (1.1s)
+  ok 40 tests\ui\hand-layout.pw.js:394:43 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ movement of 55px outside the table does not play (641ms)
+  ok 41 tests\ui\hand-layout.pw.js:398:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ releasing over the table plays once (766ms)
+  ok 42 tests\ui\hand-layout.pw.js:402:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ hand, downward, outside-table and returned drags do not play (1.1s)
+  ok 43 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"currentSuit":"ΓÖª"} (766ms)
+  ok 44 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"turn":1} (794ms)
+  ok 45 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"isSpectator":true} (754ms)
+  ok 46 tests\ui\hand-layout.pw.js:412:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ table drop respects {"trickComplete":true} (785ms)
+  ok 47 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ pointercancel cancels an armed gesture (595ms)
+  ok 48 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lostcapture cancels an armed gesture (1.1s)
+  ok 49 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ resize cancels an armed gesture (593ms)
+  ok 50 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ scroll cancels an armed gesture (578ms)
+  ok 51 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ blur cancels an armed gesture (587ms)
+  ok 52 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ new-state cancels an armed gesture (655ms)
+  ok 53 tests\ui\hand-layout.pw.js:418:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ second-pointer cancels an armed gesture (569ms)
+  ok 54 tests\ui\hand-layout.pw.js:437:3 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ mouse clicks still work immediately after touch on a hybrid device (589ms)
+  ok 55 tests\ui\hand-layout.pw.js:443:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lift stays on screen without covering corners at 320├ù740 (1.7s)
+  ok 56 tests\ui\hand-layout.pw.js:467:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ last card can be dragged onto the visible table at 320├ù740 (1.3s)
+  ok 57 tests\ui\hand-layout.pw.js:443:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ lift stays on screen without covering corners at 844├ù390 (1.1s)
+  ok 58 tests\ui\hand-layout.pw.js:467:5 ΓÇ║ real touch and hybrid pointer flows ΓÇ║ last card can be dragged onto the visible table at 844├ù390 (806ms)
+  -  59 tests\ui\hand-layout.pw.js:487:1 ΓÇ║ capture review screenshots
+  -  60 tests\ui\hand-layout.pw.js:516:1 ΓÇ║ record synthetic touch interaction
+
+  3 skipped
+  57 passed (1.1m)

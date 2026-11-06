@@ -92,10 +92,10 @@ test('/newgame offers games first, then each choice creates the selected group r
   const menu = sent.filter((c) => c.method === 'sendMessage' && c.body.reply_markup).at(-1).body;
   expect(menu.text).toContain('Which game');
   expect(menu.text).not.toMatch(/\/#/);
-  expect(menu.reply_markup.inline_keyboard.flat().map((b) => b.callback_data)).toEqual(['newgame:bridge', 'newgame:regicide', 'newgame:taidi', 'newgame:connect4']);
+  expect(menu.reply_markup.inline_keyboard.flat().map((b) => b.callback_data)).toEqual(['newgame:bridge', 'newgame:regicide', 'newgame:taidi', 'newgame:connect4', 'newgame:omok']);
   expect(await worker.db.prepare('SELECT COUNT(*) AS n FROM groups').first('n')).toBe(0);
 
-  for (const game of ['bridge', 'regicide', 'taidi', 'connect4']) {
+  for (const game of ['bridge', 'regicide', 'taidi', 'connect4', 'omok']) {
     const at = sent.length;
     await chooseGame(`newgame:${game}`);
     const calls = sent.slice(at);
@@ -109,7 +109,7 @@ test('/newgame offers games first, then each choice creates the selected group r
       const phase = await roomState.get(roomState.idFromName(room)).fetch('https://internal/phase');
       expect((await phase.json()).phase).toBe('lobby');
     } else {
-      const rooms = await worker.mf.getDurableObjectNamespace(game === 'taidi' ? 'TAIDI_ROOM' : game === 'connect4' ? 'CONNECT4_ROOM' : 'REGICIDE_ROOM');
+      const rooms = await worker.mf.getDurableObjectNamespace(game === 'taidi' ? 'TAIDI_ROOM' : game === 'connect4' ? 'CONNECT4_ROOM' : game === 'omok' ? 'OMOK_ROOM' : 'REGICIDE_ROOM');
       const response = await rooms.get(rooms.idFromName(room)).fetch('https://internal/?playerId=guest_observer', { headers: { Upgrade: 'websocket' } });
       expect(response.status).toBe(101);
       const socket = response.webSocket;

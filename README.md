@@ -1,6 +1,6 @@
 # funCentral
 
-A multiplayer card-game hub built with Cloudflare Workers, Durable Objects,
+A multiplayer game hub built with Cloudflare Workers, Durable Objects,
 D1 and a vanilla JavaScript frontend.
 
 **Play:** <https://funcentral.vocs.io> ·
@@ -14,6 +14,7 @@ D1 and a vanilla JavaScript frontend.
 | Regicide | [/regicide/](https://funcentral.vocs.io/regicide/) | Cooperative play for 1–4 players: use suit powers to defeat all 12 royals. Includes solo mode, spectators and separate ratings/stats. |
 | Tai Di | [/taidi/](https://funcentral.vocs.io/taidi/) | Big Two for 2–4 players: be first to empty your hand, with the 2 as the highest card. Includes spectators and a separate rating/stats. |
 | Connect 4 | [/connect4/](https://funcentral.vocs.io/connect4/) | Two-player 1v1: drop discs and be first to connect four in a row. Includes a practice bot, spectators and a separate rating/stats. |
+| Omok | `/omok/` | Two-player freestyle five in a row on a 15×15 board. Includes a practice bot, spectators, precise touch placement, keyboard navigation and separate ratings. See [Omok](docs/omok.md). |
 
 Choose a game from the hub, sign in with Telegram, create a room and share its
 four-character code or invite link. All games use the same account and saved
@@ -21,9 +22,9 @@ sign-in, but their ratings and leaderboards stay separate. Old Bridge invites
 such as `/#ABCD` still redirect to `/bridge/#ABCD`.
 
 In Telegram groups, **[@funCentral_bot](https://t.me/funCentral_bot)** shows
-an inline **Bridge | Regicide | Tai Di | Connect 4** choice for `/newgame`; choosing a game creates
+an inline **Bridge | Regicide | Tai Di | Connect 4 | Omok** choice for `/newgame`; choosing a game creates
 a room in that same group. `/newbridge`, `/newregicide`, `/newtaidi` and `/newconnect4` remain typed
-shortcuts (`/newregicidegame`, `/newtaidigame` and `/newconnect4game` are also supported). The registered command menu
+shortcuts; Omok adds `/newomok`. Aliases `/newregicidegame`, `/newtaidigame`, `/newconnect4game` and `/newomokgame` are also supported. The registered command menu
 contains `/newgame`, `/leaderboard` and `/help` (`/start` also shows help).
 Group boards count eligible group members.
 
@@ -76,6 +77,8 @@ Before a PR, run `npm run test:pr` with an available Chromium browser. See
   `/api/taidi/*` routes and `taidi_*` database tables.
 - Connect 4 lives in `src/connect4/` and `static/connect4/`, with namespaced
   `/api/connect4/*` routes and `connect4_*` database tables.
+- Omok lives in `src/omok/` and `static/omok/`, with namespaced
+  `/api/omok/*` routes and `omok_*` database tables.
 - Future games should follow `src/<game>/`, `static/<game>/` and
   `/api/<game>/*`, with their own room class and game-specific statistics.
   No broad reorganization of Bridge is required.

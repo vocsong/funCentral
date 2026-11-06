@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1626">
+  <title>Omok · funCentral</title>
+  <script src="/fc-host.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Bridge's stylesheet is the funCentral design system; omok.css adds the board theme on top. -->
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/omok/omok.css">
+</head>
+<body class="om-body">
+
+  <!-- Top bar (visible when in a room) -->
+  <div id="top-bar" class="top-bar hidden">
+    <button id="tb-room" type="button" class="top-bar-room" aria-label="Copy invite link"></button>
+    <span id="tb-name" class="top-bar-name"></span>
+    <button id="btn-sound" type="button" class="om-icon-btn" aria-pressed="false" aria-label="Sound effects" title="Sound effects"></button>
+    <button id="btn-rules" type="button" class="om-icon-btn" aria-label="How to play" title="How to play">?</button>
+    <button id="btn-results" type="button" class="om-icon-btn hidden" aria-label="View results" title="View results and play again">🏆</button>
+    <button id="btn-leave" type="button" class="btn-leave-global">Leave</button>
+  </div>
+
+  <div id="fx" class="om-fx" aria-hidden="true"></div>
+  <div id="toasts" class="om-toasts" role="status" aria-live="polite"></div>
+
+  <!-- Reconnecting overlay -->
+  <div id="overlay-reconnect" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <p id="reconnect-message" role="status">Reconnecting…</p>
+      <button id="btn-reconnect" type="button" class="btn btn-primary hidden">Reconnect here</button>
+    </div>
+  </div>
+
+  <!-- Home -->
+  <div id="screen-home" class="screen active">
+    <div class="om-home-wrap">
+    <div class="home-container om-home">
+      <a href="/" class="fc-back-link">← funCentral</a>
+      <div class="om-hero" aria-hidden="true"><div class="om-mini-board">
+        <i class="black" style="--r:3;--c:2"></i><i class="black" style="--r:4;--c:3"></i><i class="black" style="--r:5;--c:4"></i><i class="black" style="--r:6;--c:5"></i><i class="black" style="--r:7;--c:6"></i>
+        <i class="white" style="--r:3;--c:3"></i><i class="white" style="--r:4;--c:4"></i><i class="white" style="--r:5;--c:5"></i><i class="white" style="--r:5;--c:6"></i>
+      </div></div>
+      <h1 class="om-title">Omok</h1>
+      <p class="om-tagline">A quiet board. A clever move. Five in a row.</p>
+      <ul class="om-feature-chips" aria-label="At a glance">
+        <li>👥 2 players</li><li>🤖 Practice bot</li><li>🏆 Rated</li>
+      </ul>
+
+      <p id="identity-status" class="subtitle hidden" role="status" aria-live="polite"></p>
+
+      <!-- Telegram login (shown when not signed in) -->
+      <div id="login-section" class="hidden">
+        <p class="subtitle">Sign in with Telegram to play and get on the Omok leaderboard.</p>
+        <div data-telegram id="telegram-widget-container"></div>
+        <div data-dev-login class="hidden om-dev-login">
+          <div class="om-dev-note">Localhost dev login (not available in production)</div>
+          <div class="form-group">
+            <label for="input-dev-name">Dev display name</label>
+            <input type="text" id="input-dev-name" placeholder="e.g. Alice" maxlength="20" autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-secondary">Dev Login</button>
+        </div>
+      </div>
+
+      <!-- Game section (shown after sign-in) -->
+      <div id="game-section" class="hidden">
+        <div class="form-group">
+          <label for="input-name">Your Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name" maxlength="64" autocomplete="off" enterkeyhint="done">
+        </div>
+        <button id="btn-create" type="button" class="btn btn-primary">＋ Create a table</button>
+
+        <div class="divider"><span>or join with a code</span></div>
+
+        <div class="om-join-row">
+          <input type="text" id="input-code" placeholder="CODE" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Room code">
+          <button id="btn-join" type="button" class="btn btn-secondary">Join</button>
+        </div>
+        <div id="auth-status" class="auth-status"></div>
+      </div>
+
+      <div class="om-home-links">
+        <button id="btn-rules-home" type="button" class="btn btn-ghost">📖 How to Play</button>
+        <button id="btn-stats" type="button" class="btn btn-ghost">📊 Stats</button>
+      </div>
+
+    </div>
+      <div id="leaderboard-section" class="om-home-board"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-container">
+      <div class="stats-topbar">
+        <span class="stats-title">📊 Omok Stats</span>
+        <div class="stats-topbar-right">
+          <button id="btn-stats-home" type="button" class="btn-link">← Home</button>
+        </div>
+      </div>
+      <div class="stats-filter-bar">
+        <span class="stats-filter-label">Min games:</span>
+        <div class="min-games-filter" id="om-min-games">
+          <button class="min-games-btn active" data-value="3">3</button>
+          <button class="min-games-btn" data-value="10">10</button>
+          <button class="min-games-btn" data-value="20">20</button>
+        </div>
+      </div>
+      <div id="stats-content"></div>
+      <p class="stats-footer">Rating = two-player Elo · K = 16 for your first 30 rated games, then 8 · Separate from other games</p>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="screen-lobby" class="screen">
+    <div class="lobby-container om-lobby">
+      <h2>Find your opponent</h2>
+      <button id="lobby-code-btn" type="button" class="room-code-display" aria-label="Copy invite link">
+        <span class="label">Room code</span>
+        <span id="lobby-code" class="code">----</span>
+        <span class="om-code-hint">tap to copy invite</span>
+      </button>
+      <div class="lobby-invite-row">
+        <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
+      </div>
+      <div id="lobby-players" class="player-list om-seats"></div>
+      <div id="lobby-setup" class="om-setup"></div>
+      <p id="lobby-wait" class="status-text">Waiting for players...</p>
+      <button id="btn-take-seat" type="button" class="btn btn-secondary hidden">Take a Seat</button>
+      <button id="btn-start" type="button" class="btn btn-primary hidden">Start Game</button>
+      <button id="btn-add-bot" type="button" class="btn btn-secondary hidden">🤖 Add Bot</button>
+      <button id="btn-rules-lobby" type="button" class="btn btn-ghost">📖 How to Play</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="screen-game" class="screen">
+    <div class="om-game" id="om-game">
+      <section class="om-table" id="om-table">
+        <div id="om-players" class="om-players" aria-label="Players"></div>
+        <div class="om-board-meta"><span id="om-round"></span><button id="btn-zoom" type="button" aria-pressed="false">Enlarge board</button></div>
+        <h3 id="om-turn" class="om-turn" role="status" aria-live="polite" aria-atomic="true"></h3>
+        <p id="om-caption" class="om-caption"></p>
+        <div id="om-viewport" class="om-viewport">
+          <div class="om-frame">
+            <div class="om-axis om-axis-top" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span><span>M</span><span>N</span><span>O</span></div>
+            <div class="om-axis om-axis-left" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div>
+            <div id="om-cells" class="om-cells" role="grid" aria-label="Omok board, A1 to O15" aria-rowcount="15" aria-colcount="15" aria-describedby="om-keyboard"></div>
+          </div>
+        </div>
+        <div class="om-move-panel">
+          <p id="om-selection" role="status" aria-live="polite"></p>
+          <div class="om-place-actions"><button id="btn-place" type="button" class="btn btn-primary" disabled>Select an intersection</button><button id="btn-clear" type="button" class="btn btn-secondary" disabled>Clear</button></div>
+        </div>
+      </section>
+
+      <aside class="om-side">
+        <div class="om-guide"><p class="om-eyebrow">FIVE IN A ROW · 오목</p><h3>Find your line.</h3><p>Connect five stones horizontally, vertically or diagonally. Black moves first.</p><p id="om-keyboard">Keyboard: use arrow keys to explore, Enter or Space to select, then Tab to Place. Escape clears a preview.</p><button id="btn-resign" type="button" class="btn btn-ghost">Resign round</button></div>
+        <details id="log-details" class="om-log">
+          <summary>Game log</summary>
+          <ol id="log"></ol>
+        </details>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Game over -->
+  <div id="modal-over" class="overlay om-modal hidden" role="dialog" aria-modal="true" aria-labelledby="over-title">
+    <div class="gameover-container om-modal-box">
+      <h2 id="over-title"></h2>
+      <p id="over-sub" class="subtitle"></p>
+      <div id="over-results" class="om-results"></div>
+      <div id="over-rating" class="om-over-rating hidden"></div>
+      <div class="gameover-actions">
+        <button id="btn-again" type="button" class="btn btn-primary">Play Again</button>
+        <button id="btn-over-close" type="button" class="btn btn-ghost">View Board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div id="modal-confirm" class="overlay om-modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="lobby-container om-modal-box">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-body" class="subtitle"></p>
+      <div class="om-confirm-actions">
+        <button id="confirm-cancel" type="button" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div id="modal-rules" class="overlay om-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <div class="lobby-container om-modal-box om-rules">
+      <button type="button" class="kick-btn om-close" data-close aria-label="Close">✕</button>
+      <h2 id="rules-title">How to Play</h2>
+      <p><b>Omok (오목)</b>, also called Gomoku, is a game of five in a row. Two players take turns placing black and white stones on the intersections of a <b>15 × 15</b> board.</p>
+      <h3>Make a line of five</h3>
+      <p>The first unbroken line of <b>five or more</b> stones wins, horizontally, vertically or diagonally. A full board without a winner is a draw. This is freestyle Omok: overlines count, and there are no forbidden double-three or double-four moves.</p>
+      <h3>Your move</h3>
+      <ol><li>Black moves first. Colours are assigned randomly for the first round and swap every rematch.</li><li>Tap or click an empty intersection to preview your stone. You can change your selection freely.</li><li>Choose <b>Place</b> to commit. Stones stay where they are placed. The last move has a small centre dot.</li></ol>
+      <p>On a small screen, <b>Enlarge board</b> gives you more space. Scroll within the board to reach every point. With a keyboard, use the arrows, Home and End to explore; Enter or Space selects. Tab to Place and press Enter to commit. Escape clears your preview.</p>
+      <h3>Friends, practice &amp; rematches</h3>
+      <p>Share your room code or invite link. As host, you can add a practice bot instead. It takes immediate wins, blocks direct threats and builds open lines. Bot games are unrated. Anyone with the invite can watch.</p>
+      <p>Leaving mid-round keeps your seat so you can reconnect. <b>Resign round</b> concedes to your opponent; after a result, either player can choose <b>Play Again</b> to return to the lobby.</p>
+      <h3>Separate Omok ratings</h3>
+      <p>Human matches use two-player Elo, starting at 1000. K is 16 for your first 30 rated games, then 8. A draw scores 0.5 each. After three consecutive losses to the same opponent, further losses in that streak halve both players’ K again. A win, draw or different opponent breaks the streak. Practice does not affect it.</p>
+    </div>
+  </div>
+
+  <script src="/fc-auth.js"></script>
+  <script src="/leaderboard.js"></script>
+  <script src="/omok/omok.js"></script>
+</body>
+</html>

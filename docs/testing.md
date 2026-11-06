@@ -107,6 +107,9 @@ the `newgame`/`leaderboard`/`help` command menu. Static hub tiles and the typed
 | 4234 | Bridge live update recovery Worker |
 | 4242 | Connect 4 review smoke and reconnect cases |
 | 4243 | Connect 4 nested-modal live Worker |
+| 4245 | Omok live game, touch/keyboard, recovery and lobby integration |
+| 4246 | Omok live Worker without Omok tables |
+| 4247 | Omok review: isolated leaderboard timing and real production-like auth/debug gates |
 
 Keep these ports free and run one suite at a time. `tests/ui/live-worker.cjs`
 bundles the current checked-out Worker and assets, binds both room classes,

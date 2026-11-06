@@ -18,7 +18,7 @@ exports.startWorker = async function startWorker(port = 4210, testBindings = {},
   const mf = new Miniflare(convertV4MiniflareOptions({
     host: '127.0.0.1', port, modules: true, script: outputFiles[0].text,
     compatibilityDate: '2024-12-01', compatibilityFlags: ['nodejs_compat'],
-    durableObjects: { GAME_ROOM: { className: 'GameRoom', useSQLite: true }, REGICIDE_ROOM: { className: 'RegicideRoom', useSQLite: true }, TAIDI_ROOM: { className: 'TaiDiRoom', useSQLite: true }, CONNECT4_ROOM: { className: 'Connect4Room', useSQLite: true } },
+    durableObjects: { GAME_ROOM: { className: 'GameRoom', useSQLite: true }, REGICIDE_ROOM: { className: 'RegicideRoom', useSQLite: true }, TAIDI_ROOM: { className: 'TaiDiRoom', useSQLite: true }, CONNECT4_ROOM: { className: 'Connect4Room', useSQLite: true }, OMOK_ROOM: { className: 'OmokRoom', useSQLite: true } },
     resourcePersistencePath: state,
     d1Databases: ['DB'],
     bindings: { JWT_SECRET: 'local-chat-test-only', ALLOW_DEV_LOGIN: '1', TELEGRAM_BOT_USERNAME: 'local_test_only', ...testBindings },
