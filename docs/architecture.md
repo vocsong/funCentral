@@ -14,6 +14,7 @@ systems. [Development](development.md), [deployment](deployment.md) and
 | Regicide | `/regicide/` → `static/regicide/` | `RegicideRoom` via `REGICIDE_ROOM`; `/api/regicide/*`; `regicide_*` D1 tables |
 | Tai Di | `/taidi/` → `static/taidi/` | `TaiDiRoom` via `TAIDI_ROOM`; `/api/taidi/*`; `taidi_*` D1 tables |
 | Connect 4 | `/connect4/` → `static/connect4/` | `Connect4Room` via `CONNECT4_ROOM`; `/api/connect4/*`; `connect4_*` D1 tables |
+| Omok | `/omok/` → `static/omok/` | `OmokRoom` via `OMOK_ROOM`; `/api/omok/*`; `omok_*` D1 tables |
 | Shared services | Same-origin clients | Telegram auth, `/api/me`, `/api/config`, `/api/telegram`, shared users/groups in D1 |
 
 `src/index.ts` routes requests and exports the room classes. A room code names
@@ -85,7 +86,7 @@ The Python files, `bot/`, `game/`, `requirements.txt`, Docker files and
   buttons and layouts; layer game-specific CSS above them. Shared style or
   leaderboard changes need regression coverage on the hub and both games.
 - **Leaderboards:** `leaderboard.js` presents separate Bridge, Regicide, Tai Di and
-  Connect 4 boards. Sharing a card does not merge scores or rating algorithms.
+  Connect 4 and Omok boards. Sharing a card does not merge scores or rating algorithms.
 - **Telegram:** `/newgame` presents inline choices from `GAME_CATALOG` in
   `src/games.ts`. Entries carry `id`, `name`, `path`, `telegramCommand`,
   `players` and `emoji`; button data is `newgame:<id>`. Selection callbacks
@@ -174,7 +175,7 @@ D1 SQL migrations and Durable Object class migrations are separate. Existing
 bindings are `GAME_ROOM`/`GameRoom` (`v1`),
 `REGICIDE_ROOM`/`RegicideRoom` (`v2`),
 `TAIDI_ROOM`/`TaiDiRoom` (`v3`) and
-`CONNECT4_ROOM`/`Connect4Room` (`v4`). Keep those identities and add incremental
+`CONNECT4_ROOM`/`Connect4Room` (`v4`) and `OMOK_ROOM`/`OmokRoom` (`v5`). Keep those identities and add incremental
 migrations for future classes. See [deployment](deployment.md).
 
 ## Adding another game

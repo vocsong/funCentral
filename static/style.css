@@ -1734,7 +1734,7 @@ body:not([data-table-view="25d"]) .trick-card-bot .card-mini { rotate: -2deg; }
 }
 
 /* Bridge | Regicide switch on the shared leaderboard card (static/leaderboard.js). */
-.lb-tabs { display: flex; justify-content: center; gap: 4px; margin: -0.25rem 0 0.6rem; }
+.lb-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: -0.25rem 0 0.6rem; }
 .lb-tab {
   padding: 0.2rem 0.7rem; border-radius: 6px; cursor: pointer;
   background: transparent; border: 1px solid rgba(255,255,255,0.1);

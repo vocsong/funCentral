@@ -142,6 +142,7 @@ export interface Env {
   REGICIDE_ROOM: DurableObjectNamespace;
   TAIDI_ROOM: DurableObjectNamespace;
   CONNECT4_ROOM: DurableObjectNamespace;
+  OMOK_ROOM: DurableObjectNamespace;
   DB: D1Database;
   JWT_SECRET: string;
   TELEGRAM_BOT_TOKEN: string;

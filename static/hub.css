@@ -3,6 +3,7 @@
    felt green and gold, Connect 4 blue and red. */
 
 .hub-body {
+  height: auto;
   --hub-gold: #f5c451;
   --hub-line: rgba(255, 255, 255, 0.08);
   background:
@@ -121,6 +122,12 @@
 
 /* Connect 4: blue rack with the two classic disc colours. */
 .tile-connect4 { --tile-accent: #d92b3a; --tile-accent-2: #ff9aa5; --tile-felt-1: #244b75; --tile-felt-2: #0a1626; }
+.tile-omok { --tile-accent: #287a70; --tile-accent-2: #98d9bb; --tile-felt-1: #28493f; --tile-felt-2: #101e1d; }
+.tile-omok-board { position: relative; width: 136px; height: 136px; border: 10px solid #d5ad78; border-radius: 12px; background: repeating-linear-gradient(to right, #624a3166 0 1px, transparent 1px 12.5%), repeating-linear-gradient(to bottom, #624a3166 0 1px, transparent 1px 12.5%), #dfbc87; box-shadow: 0 12px 24px #0006; transform: rotate(-7deg); transition: transform 220ms; }
+.tile-omok-board i { position: absolute; width: 11%; height: 11%; border-radius: 50%; top: calc(var(--r) * 12.5%); left: calc(var(--c) * 12.5%); transform: translate(-50%, -50%); box-shadow: 1px 2px 3px #0006; }
+.tile-omok-board .black { background: radial-gradient(circle at 30% 25%, #586273, #1b2430 70%); }
+.tile-omok-board .white { background: radial-gradient(circle at 30% 25%, #fff, #e8e1d4 70%); }
+.tile-omok:hover .tile-omok-board, .tile-omok:focus-visible .tile-omok-board { transform: rotate(-2deg) translateY(-3px); }
 .tile-connect4-rack { display: grid; grid-template-columns: repeat(7, 14px); gap: 4px; padding: 10px; z-index: 1; border: 1px solid rgba(245, 196, 81, 0.3); border-radius: 12px; background: linear-gradient(145deg, #244b75, #101f36); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); transform: rotate(-6deg); transition: transform 220ms; }
 .tile-connect4-rack span { width: 14px; height: 14px; border-radius: 50%; background: #050b14; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7); }
 .tile-connect4-rack .red { background: radial-gradient(circle at 35% 30%, #ff8a8a, #ef3d4b 62%, #b11f2e); }
@@ -172,7 +179,9 @@
   .hub-lower:has(.lb-card) { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); align-items: start; }
 }
 @media (min-width: 1100px) {
-  .hub-games { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .hub-games { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .hub-games .game-tile { grid-column: span 2; }
+  .hub-games :is(.tile-connect4, .tile-omok) { grid-column: span 3; }
 }
 @media (max-width: 639px) {
   .hub-cta .btn { flex: 1 1 100%; }

@@ -12,11 +12,13 @@ import { normalizePlayerName, telegramDisplayName, UNNAMED_TELEGRAM_USER } from 
 import { getRegicideLeaderboard, getRegicideStats, getRegicideGroupLeaderboard } from './regicide/db';
 import { getTaiDiLeaderboard, getTaiDiStats, getTaiDiGroupLeaderboard } from './taidi/db';
 import { getConnect4Leaderboard, getConnect4Stats, getConnect4GroupLeaderboard } from './connect4/db';
+import { getOmokLeaderboard, getOmokStats, getOmokGroupLeaderboard } from './omok/db';
 
 export { GameRoom } from './game-room';
 export { RegicideRoom } from './regicide/room';
 export { TaiDiRoom } from './taidi/room';
 export { Connect4Room } from './connect4/room';
+export { OmokRoom } from './omok/room';
 
 function generateRoomCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -61,6 +63,18 @@ async function createConnect4Room(env: Env, extra: Record<string, unknown> = {})
   return null;
 }
 
+/** Creates an Omok room (retrying on the rare code collision). Returns null if none could be allocated. */
+async function createOmokRoom(env: Env, extra: Record<string, unknown> = {}): Promise<string | null> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const roomCode = generateRoomCode();
+    const res = await env.OMOK_ROOM.getByName(roomCode).fetch(
+      new Request('https://internal/create', { method: 'POST', body: JSON.stringify({ roomCode, ...extra }) }),
+    );
+    if (res.ok) return roomCode;
+  }
+  return null;
+}
+
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 /** Which Bridge season a response covers, and the seasons a client can switch to (newest first). */
@@ -81,11 +95,11 @@ function statsScope(season: BridgeSeason, now: number): StatsSeasonScope {
   };
 }
 const HELP_TEXT = [
-  '🎪 <b>funCentral</b> — card games for this group',
+  '🎪 <b>funCentral</b> — games for this group',
   '',
   '/newgame — choose a game to start',
   ...GAME_CATALOG.map((game) => `/${game.telegramCommand} — start ${game.name} (${game.players})`),
-  '/leaderboard — this group\'s Bridge, Regicide and Tai Di leaderboards',
+  '/leaderboard — this group\'s game leaderboards',
   '/help — this message',
   '',
   'Sign in with Telegram on the game page so your results count for this group.',
@@ -135,17 +149,26 @@ async function handleTelegramCommand(cmd: TelegramCommand, env: Env, origin: str
         : '🔴 Could not start a Connect 4 game right now — please try again.');
       return;
     }
+    case 'newomok': {
+      await upsertGroup(env.DB, cmd.chatId, cmd.groupName);
+      const roomCode = await createOmokRoom(env, { groupId: cmd.chatId, groupName: cmd.groupName, origin });
+      await sendMessage(token, cmd.chatId, roomCode
+        ? `⚫ ${who} started an Omok game — connect five in a row to win (2 players)!\nJoin → ${origin}/omok/#${roomCode}`
+        : '⚫ Could not start an Omok game right now — please try again.');
+      return;
+    }
     case 'leaderboard': {
       const bridgeSeason = seasonAt(bridgeNow(env));
       // A missing/broken Regicide, Tai Di or Connect 4 table must never take the Bridge board down with it.
-      const [bridge, regicide, taidi, connect4] = await Promise.all([
+      const [bridge, regicide, taidi, connect4, omok] = await Promise.all([
         getSeasonGroupLeaderboard(env.DB, bridgeSeason, cmd.chatId),
         getRegicideGroupLeaderboard(env.DB, cmd.chatId).catch((err) => { console.error('Regicide group board unavailable', err); return []; }),
         getTaiDiGroupLeaderboard(env.DB, cmd.chatId).catch((err) => { console.error('Tai Di group board unavailable', err); return []; }),
         getConnect4GroupLeaderboard(env.DB, cmd.chatId).catch((err) => { console.error('Connect 4 group board unavailable', err); return []; }),
+        getOmokGroupLeaderboard(env.DB, cmd.chatId).catch((err) => { console.error('Omok group board unavailable', err); return []; }),
       ]);
-      if (bridge.top.length === 0 && regicide.length === 0 && taidi.length === 0 && connect4.length === 0) {
-        await sendMessage(token, cmd.chatId, '🏆 No games played in this group yet! Try /newbridge, /newregicide, /newtaidi or /newconnect4.');
+      if (bridge.top.length === 0 && regicide.length === 0 && taidi.length === 0 && connect4.length === 0 && omok.length === 0) {
+        await sendMessage(token, cmd.chatId, '🏆 No games played in this group yet! Try /newbridge, /newregicide, /newtaidi, /newconnect4 or /newomok.');
         return;
       }
       const rank = (i: number) => MEDALS[i] ?? `${i + 1}.`;
@@ -161,9 +184,12 @@ async function handleTelegramCommand(cmd: TelegramCommand, env: Env, origin: str
       const connect4Rows = connect4.length
         ? connect4.map((e, i) => `${rank(i)} ${escapeHtml(e.displayName)} — ${e.rating} (${e.wins}W / ${e.draws}D / ${e.gamesPlayed}G)`).join('\n')
         : '<i>No games yet — /newconnect4</i>';
+      const omokRows = omok.length
+        ? omok.map((e, i) => `${rank(i)} ${escapeHtml(e.displayName)} — ${e.rating} (${e.wins}W / ${e.draws}D / ${e.gamesPlayed}G)`).join('\n')
+        : '<i>No games yet — /newomok</i>';
       // Name the season only once there is more than one.
       const bridgeTitle = startedSeasons(bridgeNow(env)).length > 1 ? `Bridge · ${bridgeSeason.name}` : 'Bridge';
-      await sendMessage(token, cmd.chatId, `🏆 <b>Group Leaderboard</b>\n\n🃏 <b>${bridgeTitle}</b>\n${bridgeRows}\n\n♛ <b>Regicide</b>\n${regicideRows}\n\n🎴 <b>Tai Di</b>\n${taidiRows}\n\n🔴 <b>Connect 4</b>\n${connect4Rows}`);
+      await sendMessage(token, cmd.chatId, `🏆 <b>Group Leaderboard</b>\n\n🃏 <b>${bridgeTitle}</b>\n${bridgeRows}\n\n♛ <b>Regicide</b>\n${regicideRows}\n\n🎴 <b>Tai Di</b>\n${taidiRows}\n\n🔴 <b>Connect 4</b>\n${connect4Rows}\n\n⚫ <b>Omok</b>\n${omokRows}`);
       return;
     }
     case 'help':
@@ -445,6 +471,51 @@ export default {
       const room = url.searchParams.get('room')?.toUpperCase();
       if (!room) return new Response('Missing room', { status: 400 });
       return env.CONNECT4_ROOM.getByName(room).fetch(new Request('https://internal/debug/patch', { method: 'POST', body: await request.text() }));
+    }
+
+    // --- Omok (1v1) ---
+    if (url.pathname === '/api/omok/create' && request.method === 'POST') {
+      const roomCode = await createOmokRoom(env, {});
+      return roomCode ? Response.json({ roomCode }) : Response.json({ error: 'Could not allocate a room' }, { status: 503 });
+    }
+
+    if (url.pathname === '/api/omok/ws') {
+      const roomCode = url.searchParams.get('room')?.toUpperCase();
+      if (!roomCode || !/^[A-Z0-9]{4}$/.test(roomCode)) return new Response('Missing room code', { status: 400 });
+      // Only a verified JWT yields a tg_ id (which the room requires to take a seat and be rated).
+      // Anyone else connects as a guest and can only watch.
+      const forward = new URL(request.url);
+      const token = forward.searchParams.get('token');
+      const claims = token ? await verifyJwt(token, env.JWT_SECRET) : null;
+      forward.searchParams.delete('token');
+      forward.searchParams.delete('name');
+      if (claims) {
+        forward.searchParams.set('playerId', `tg_${claims.sub}`);
+        const user = await getUser(env.DB, Number(claims.sub)).catch(() => null);
+        const name = normalizePlayerName(user?.display_name) || normalizePlayerName(claims.name);
+        if (name) forward.searchParams.set('name', name);
+      } else {
+        const guest = (forward.searchParams.get('playerId') ?? '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64);
+        forward.searchParams.set('playerId', `guest_${guest || crypto.randomUUID()}`);
+      }
+      return env.OMOK_ROOM.getByName(roomCode).fetch(new Request(forward.toString(), request));
+    }
+
+    if (url.pathname === '/api/omok/leaderboard' && request.method === 'GET') {
+      const claims = await getAuthClaims(request, env.JWT_SECRET).catch(() => null);
+      // Empty (not an error) if the Omok tables haven't been created yet.
+      return Response.json(await getOmokLeaderboard(env.DB, claims ? Number(claims.sub) : undefined).catch(() => ({ top: [], me: null })));
+    }
+
+    if (url.pathname === '/api/omok/stats' && request.method === 'GET') {
+      return Response.json(await getOmokStats(env.DB).catch(() => []));
+    }
+
+    // DEV ONLY: patch a live Omok game to set up an exact scenario in tests.
+    if (url.pathname === '/api/omok/debug/patch' && request.method === 'POST' && env.ALLOW_DEV_LOGIN === '1') {
+      const room = url.searchParams.get('room')?.toUpperCase();
+      if (!room) return new Response('Missing room', { status: 400 });
+      return env.OMOK_ROOM.getByName(room).fetch(new Request('https://internal/debug/patch', { method: 'POST', body: await request.text() }));
     }
 
     if (url.pathname === '/api/ws') {

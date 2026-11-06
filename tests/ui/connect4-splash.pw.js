@@ -46,13 +46,17 @@ for (const viewport of [
     const { page, context, errors } = await pageFor(browser, viewport);
     try {
       await page.goto(worker.origin);
-      await expect(page.locator('.hub-lede')).toContainText('Four games');
-      await expect(page.locator('.hub-games .game-tile')).toHaveCount(4);
+      await expect(page.locator('.hub-lede')).toContainText('Five games');
+      await expect(page.locator('.hub-games .game-tile')).toHaveCount(5);
       await expect(page.locator('.hub-games a[href="/connect4/"]')).toHaveCount(1);
       await artIsValid(page, '.tile-connect4-rack');
       await fits(page, '.hub, .hub-hero, .hub-games, .game-tile, .tile-art, .tile-connect4-rack, .tile-btn');
       const cards = await page.locator('.game-tile').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().top));
-      if (viewport.width >= 1100) expect(new Set(cards).size).toBe(1);
+      if (viewport.width >= 1100) {
+        expect(new Set(cards.slice(0,3)).size).toBe(1);
+        expect(cards[3]).toBe(cards[4]);
+        expect(cards[3]).toBeGreaterThan(cards[0]);
+      }
       await page.screenshot({ path: test.info().outputPath('hub.png'), fullPage: true });
       await page.locator('.hub-games a[href="/connect4/"]').click();
       await expect(page.locator('#login-section')).toBeVisible();
@@ -66,7 +70,7 @@ for (const viewport of [
 }
 
 for (const viewport of [{ width: 320, height: 740 }, { width: 1366, height: 900 }]) {
-  test(`signed-in splash keeps create/join and four leaderboard tabs usable at ${viewport.width}px`, async ({ browser }) => {
+  test(`signed-in splash keeps create/join and all leaderboard tabs usable at ${viewport.width}px`, async ({ browser }) => {
     const response = await fetch(`${worker.origin}/api/auth/dev`, { method: 'POST', body: JSON.stringify({ displayName: `Splash Tester ${viewport.width}` }) });
     const { token, telegramId } = await response.json();
     await worker.db.prepare('INSERT OR REPLACE INTO connect4_ratings (telegram_id, rating, games_played, wins, updated_at) VALUES (?, 1000, 1, 1, 0)').bind(telegramId).run();
@@ -75,7 +79,7 @@ for (const viewport of [{ width: 320, height: 740 }, { width: 1366, height: 900 
       await page.goto(`${worker.origin}/connect4/`);
       await expect(page.locator('#game-section')).toBeVisible();
       await expect(page.locator('#input-name')).toHaveValue(`Splash Tester ${viewport.width}`);
-      await expect(page.locator('#leaderboard-section .lb-tab')).toHaveCount(4);
+      await expect(page.locator('#leaderboard-section .lb-tab')).toHaveCount(5);
       await expect(page.locator('.lb-tab[data-game="connect4"]')).toHaveAttribute('aria-pressed', 'true');
       await fits(page, '.c4-home-wrap, .c4-home, .c4-join-row, .c4-home-board, .lb-card, .lb-tabs');
       await page.locator('.lb-tab[data-game="bridge"]').click();
