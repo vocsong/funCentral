@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0b0d14">
-  <meta name="description" content="funCentral — Floating Bridge, Regicide and Tai Di for your group. Play in the browser or from Telegram, with one sign-in and rated leaderboards.">
+  <meta name="description" content="funCentral — Floating Bridge, Regicide, Tai Di and Connect 4 for your group. Play in the browser or from Telegram, with one sign-in and rated leaderboards.">
   <title>funCentral</title>
   <script src="/fc-host.js"></script>
   <script>
@@ -37,9 +37,9 @@
   <main class="hub">
     <section class="hub-hero" aria-labelledby="hub-title">
       <div class="hub-hero-copy">
-        <p class="hub-eyebrow">Card games for your group</p>
+        <p class="hub-eyebrow">Games for your group</p>
         <h1 id="hub-title">Deal in your friends.</h1>
-        <p class="hub-lede">Three card games in the browser or straight from your Telegram group — one sign-in, invite links that drop friends into your table, and rated leaderboards.</p>
+        <p class="hub-lede">Four games in the browser or straight from your Telegram group — one sign-in, invite links that drop friends into your table, and rated leaderboards.</p>
         <div class="hub-cta">
           <a class="btn btn-primary hub-cta-main" href="#games">Choose a game</a>
           <a id="hub-telegram" class="btn btn-secondary hub-cta-tg hidden" target="_blank" rel="noopener">
@@ -92,6 +92,25 @@
           <span class="tile-btn">Play Tai Di <b aria-hidden="true">→</b></span>
         </div>
       </a>
+
+      <a class="game-tile tile-connect4" href="/connect4/">
+        <div class="tile-art" aria-hidden="true">
+          <div class="tile-connect4-rack">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span class="red"></span><span></span><span></span><span></span>
+            <span></span><span></span><span class="red"></span><span class="yellow"></span><span></span><span></span><span></span>
+            <span></span><span class="red"></span><span class="yellow"></span><span class="red"></span><span class="yellow"></span><span></span><span></span>
+            <span class="red"></span><span class="yellow"></span><span class="red"></span><span class="yellow"></span><span class="yellow"></span><span class="red"></span><span class="yellow"></span>
+          </div>
+        </div>
+        <div class="tile-body">
+          <h2>Connect 4</h2>
+          <p>Drop your discs and be first to connect four in a row — horizontally, vertically or diagonally.</p>
+          <ul class="tile-meta"><li>👥 2 players</li><li>🤖 Practice bot</li><li>🏆 Rated</li></ul>
+          <span class="tile-btn">Play Connect 4 <b aria-hidden="true">→</b></span>
+        </div>
+      </a>
     </section>
 
     <section class="hub-lower">
@@ -109,7 +128,7 @@
   </main>
 
   <footer class="hub-foot">
-    <span>funCentral</span><span aria-hidden="true">·</span><span>Floating Bridge · Regicide · Tai Di</span>
+    <span>funCentral</span><span aria-hidden="true">·</span><span>Floating Bridge · Regicide · Tai Di · Connect 4</span>
   </footer>
 
   <script src="/fc-auth.js"></script>

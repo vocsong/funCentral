@@ -8,9 +8,9 @@ sentence. Hostnames stay lowercase (`funcentral.vocs.io`).
 - `src/index.ts` is the shared Cloudflare Worker router; `src/games.ts` is the
   typed available-games catalog used by Telegram choices.
 - Bridge retains `src/bridge.ts`, `src/game-room.ts` and related root modules.
-  Regicide is namespaced under `src/regicide/` and Tai Di under `src/taidi/`, each with its own room class.
-- `static/index.html` is the hub at `/`; pages live in `static/bridge/` and
-  `static/regicide/` and `static/taidi/`. Bridge's established client assets remain at the root
+  Regicide is namespaced under `src/regicide/`, Tai Di under `src/taidi/` and Connect 4 under `src/connect4/`, each with its own room class.
+- `static/index.html` is the hub at `/`; pages live in `static/bridge/`,
+  `static/regicide/`, `static/taidi/` and `static/connect4/`. Bridge's established client assets remain at the root
   of `static/`; `/style.css` is shared across the hub and games.
 - Shared auth/profile storage does not merge game ratings. Keep existing
   Bridge API URLs and `/#ROOM` redirects compatible.
@@ -18,7 +18,8 @@ sentence. Hostnames stay lowercase (`funcentral.vocs.io`).
   Durable Object binding/class + incremental migration, and game-prefixed
   stats tables. Update the catalog, static hub tiles and local test harnesses.
 - `/newgame` is an inline game chooser, not a Bridge alias. Typed
-  `/newbridge`, `/newregicide`, `/newregicidegame`, `/newtaidi` and `/newtaidigame` remain supported;
+  `/newbridge`, `/newregicide`, `/newregicidegame`, `/newtaidi`, `/newtaidigame`,
+  `/newconnect4` and `/newconnect4game` remain supported;
   the registered command menu is `newgame`, `leaderboard`, `help`.
 - See `docs/architecture.md` for the extension checklist, `docs/README.md`
   for current guides and historical evidence, and `CLAUDE.md` for code notes.

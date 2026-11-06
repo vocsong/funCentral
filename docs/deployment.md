@@ -41,9 +41,10 @@ version; do not treat a successful build alone as application verification.
 | `GAME_ROOM` | `GameRoom` | `v1` creates the existing SQLite-backed Bridge class |
 | `REGICIDE_ROOM` | `RegicideRoom` | `v2` adds the separate SQLite-backed Regicide class |
 | `TAIDI_ROOM` | `TaiDiRoom` | `v3` adds the separate SQLite-backed Tai Di class |
+| `CONNECT4_ROOM` | `Connect4Room` | `v4` adds the separate SQLite-backed Connect 4 class |
 
 Workers deployment applies the configured class migration. Keep `v1` and
-`GAME_ROOM` intact; `v2` and `v3` do not replace Bridge. Future games append a new
+`GAME_ROOM` intact; `v2`, `v3` and `v4` do not replace Bridge. Future games append a new
 migration tag, binding and exported class. These are **not D1 SQL migrations**.
 
 ## D1 migrations are a separate controlled step
@@ -159,7 +160,33 @@ update. Typed game shortcuts remain supported. See
 [architecture](architecture.md#shared-services-and-game-boundaries) for the
 catalog and static hub responsibilities.
 
-### Tai Di migration (pending)
+### Connect 4 (`0015` SQL and `v4` Durable Object)
+
+`0015_connect4.sql` creates `connect4_ratings`, `connect4_games`,
+`connect4_rating_history`, `connect4_group_stats` and two indexes. It uses only
+`CREATE … IF NOT EXISTS`, touches no Bridge ratings or existing game data, and
+requires the existing `groups` table for group-stat foreign keys. `0013` and
+`0014` belong to Bridge on this branch; do not use the older feature branch's
+`0013_connect4.sql` name or replay old migrations to reconcile the ledger.
+
+The `CONNECT4_ROOM` binding and exported `Connect4Room` class are created by the
+separate `v4` SQLite DO migration during normal Workers deployment. D1 SQL is
+NOT automatically applied by that class migration. Inspect the remote schema,
+ledger and pending list with the read-only commands above, reconcile any manual
+changes, then have an authorized maintainer apply the reviewed pending SQL in
+ledger order before enabling rated Connect 4. Never replay `0006_stats_reset.sql`.
+The earlier `0014` production checkpoint is historical, not evidence that `0015`
+is applied in the current environment.
+
+The host-repair, optimistic Elo concurrency, results-route and accessibility
+review fixes add **no further D1 or DO migrations**. Existing stored rooms repair
+on load; rating snapshots are validated inside the existing D1 batch. Missing
+Connect 4 tables leave results in the durable outbox for retry; empty boards are
+not a substitute for migrating. After rollout, verify schema/ledger, a human
+and practice room, reconnect/rematch, separate Connect 4 ratings and group stats.
+Do not deploy as part of test verification.
+
+### Tai Di migration (inspect current pending list)
 
 `0012_taidi.sql` creates four Tai Di tables (`taidi_ratings`, `taidi_games`,
 `taidi_rating_history`, `taidi_group_stats`) and two indexes, using

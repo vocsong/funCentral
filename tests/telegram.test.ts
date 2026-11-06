@@ -91,7 +91,7 @@ describe('Telegram game selection', () => {
     expect(new Set(GAME_CATALOG.map((game) => game.id)).size).toBe(GAME_CATALOG.length);
     for (const game of GAME_CATALOG) {
       expect(new TextEncoder().encode(`newgame:${game.id}`).length).toBeLessThanOrEqual(64);
-      expect(game.path).toMatch(/^\/[a-z]+\/$/);
+      expect(game.path).toMatch(/^\/[a-z0-9]+\/$/);
     }
   });
 

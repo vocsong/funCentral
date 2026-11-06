@@ -26,6 +26,10 @@ class_name = "RegicideRoom"
 name = "TAIDI_ROOM"
 class_name = "TaiDiRoom"
 
+[[durable_objects.bindings]]
+name = "CONNECT4_ROOM"
+class_name = "Connect4Room"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["GameRoom"]
@@ -37,6 +41,10 @@ new_sqlite_classes = ["RegicideRoom"]
 [[migrations]]
 tag = "v3"
 new_sqlite_classes = ["TaiDiRoom"]
+
+[[migrations]]
+tag = "v4"
+new_sqlite_classes = ["Connect4Room"]
 
 [[d1_databases]]
 binding = "DB"

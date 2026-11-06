@@ -7,11 +7,13 @@ window.FunLeaderboard = (() => {
     bridge: { label: 'Bridge', url: '/api/leaderboard', stats: (e) => `${e.wins}W / ${e.gamesPlayed}G` },
     regicide: { label: 'Regicide', url: '/api/regicide/leaderboard', stats: (e) => `${e.bestDefeated}/12 · ${e.gamesPlayed}G` },
     taidi: { label: 'Tai Di', url: '/api/taidi/leaderboard', stats: (e) => `${e.wins}W / ${e.gamesPlayed}G` },
+    connect4: { label: 'Connect 4', url: '/api/connect4/leaderboard', stats: (e) => `${e.wins}W / ${e.draws ?? 0}D / ${e.gamesPlayed}G` },
   };
   const medals = ['🥇', '🥈', '🥉'];
   // On the Regicide page this opens its stats screen in place; elsewhere it navigates there.
   const REGICIDE_FOOTER = '<div class="lb-footer"><a class="btn-link" href="/regicide/?view=stats" onclick="if (window.showStats && location.pathname.startsWith(\'/regicide\')) { event.preventDefault(); showStats(); }">📊 Full stats →</a></div>';
   const TAIDI_FOOTER = '<div class="lb-footer"><a class="btn-link" href="/taidi/?view=stats" onclick="if (window.showStats && location.pathname.startsWith(\'/taidi\')) { event.preventDefault(); showStats(); }">📊 Full stats →</a></div>';
+  const CONNECT4_FOOTER = '<div class="lb-footer"><a class="btn-link" href="/connect4/?view=stats" onclick="if (window.showStats && location.pathname.startsWith(\'/connect4\')) { event.preventDefault(); showStats(); }">📊 Full stats →</a></div>';
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const token = () => { try { return localStorage.getItem('authToken'); } catch { return null; } };
 
@@ -59,6 +61,7 @@ window.FunLeaderboard = (() => {
       bridge: bridgeData !== undefined ? bridgeData : await fetchBoard('bridge'),
       regicide: await fetchBoard('regicide'),
       taidi: await fetchBoard('taidi'),
+      connect4: await fetchBoard('connect4'),
     };
     // A new Bridge season starts empty; keep the card so the last season stays reachable.
     const hasSeasons = boards.bridge?.seasons?.length > 1;
@@ -68,7 +71,8 @@ window.FunLeaderboard = (() => {
       const tabs = Object.entries(GAMES).map(([key, g]) =>
         `<button type="button" class="lb-tab${key === current ? ' active' : ''}" data-game="${key}" aria-pressed="${key === current}">${g.label}</button>`).join('');
       const seasons = current === 'bridge' ? seasonSwitch(boards.bridge) : '';
-      el.innerHTML = `<div class="lb-card"><div class="lb-header">🏆 Leaderboard</div><div class="lb-tabs" role="group" aria-label="Leaderboard game">${tabs}</div>${seasons}${rows(current, boards[current])}${current === 'bridge' ? (footer ? `<div class="lb-footer">${footer}</div>` : '') : current === 'taidi' ? TAIDI_FOOTER : REGICIDE_FOOTER}</div>`;
+      const foot = current === 'bridge' ? (footer ? `<div class="lb-footer">${footer}</div>` : '') : current === 'taidi' ? TAIDI_FOOTER : current === 'connect4' ? CONNECT4_FOOTER : REGICIDE_FOOTER;
+      el.innerHTML = `<div class="lb-card"><div class="lb-header">🏆 Leaderboard</div><div class="lb-tabs" role="group" aria-label="Leaderboard game">${tabs}</div>${seasons}${rows(current, boards[current])}${foot}</div>`;
       for (const b of el.querySelectorAll('.lb-tab')) b.addEventListener('click', () => { current = b.dataset.game; draw(); });
       for (const b of el.querySelectorAll('.lb-season')) {
         b.addEventListener('click', async () => {

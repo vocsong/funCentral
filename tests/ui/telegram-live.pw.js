@@ -86,16 +86,16 @@ test('help, aliases and the command menu are all handled in code', async () => {
   expect(messages().length).toBe(before);
 });
 
-test('/newgame offers games first, then either button creates the selected group room', async () => {
+test('/newgame offers games first, then each choice creates the selected group room', async () => {
   const before = await command('/newgame@funCentral_bot');
   await expect.poll(() => messages().length).toBe(before + 1);
   const menu = sent.filter((c) => c.method === 'sendMessage' && c.body.reply_markup).at(-1).body;
   expect(menu.text).toContain('Which game');
   expect(menu.text).not.toMatch(/\/#/);
-  expect(menu.reply_markup.inline_keyboard.flat().map((b) => b.callback_data)).toEqual(['newgame:bridge', 'newgame:regicide', 'newgame:taidi']);
+  expect(menu.reply_markup.inline_keyboard.flat().map((b) => b.callback_data)).toEqual(['newgame:bridge', 'newgame:regicide', 'newgame:taidi', 'newgame:connect4']);
   expect(await worker.db.prepare('SELECT COUNT(*) AS n FROM groups').first('n')).toBe(0);
 
-  for (const game of ['bridge', 'regicide', 'taidi']) {
+  for (const game of ['bridge', 'regicide', 'taidi', 'connect4']) {
     const at = sent.length;
     await chooseGame(`newgame:${game}`);
     const calls = sent.slice(at);
@@ -109,7 +109,7 @@ test('/newgame offers games first, then either button creates the selected group
       const phase = await roomState.get(roomState.idFromName(room)).fetch('https://internal/phase');
       expect((await phase.json()).phase).toBe('lobby');
     } else {
-      const rooms = await worker.mf.getDurableObjectNamespace(game === 'taidi' ? 'TAIDI_ROOM' : 'REGICIDE_ROOM');
+      const rooms = await worker.mf.getDurableObjectNamespace(game === 'taidi' ? 'TAIDI_ROOM' : game === 'connect4' ? 'CONNECT4_ROOM' : 'REGICIDE_ROOM');
       const response = await rooms.get(rooms.idFromName(room)).fetch('https://internal/?playerId=guest_observer', { headers: { Upgrade: 'websocket' } });
       expect(response.status).toBe(101);
       const socket = response.webSocket;

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1626">
+  <title>Connect 4 · funCentral</title>
+  <script src="/fc-host.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Bridge's stylesheet is the funCentral design system; connect4.css adds the board theme on top. -->
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/connect4/connect4.css">
+</head>
+<body class="c4-body">
+
+  <!-- Top bar (visible when in a room) -->
+  <div id="top-bar" class="top-bar hidden">
+    <button id="tb-room" type="button" class="top-bar-room" aria-label="Copy invite link"></button>
+    <span id="tb-name" class="top-bar-name"></span>
+    <button id="btn-sound" type="button" class="c4-icon-btn" aria-pressed="false" aria-label="Sound effects" title="Sound effects"></button>
+    <button id="btn-rules" type="button" class="c4-icon-btn" aria-label="How to play" title="How to play">?</button>
+    <button id="btn-results" type="button" class="c4-icon-btn hidden" aria-label="View results" title="View results and play again">🏆</button>
+    <button id="btn-leave" type="button" class="btn-leave-global">Leave</button>
+  </div>
+
+  <div id="fx" class="c4-fx" aria-hidden="true"></div>
+  <div id="toasts" class="c4-toasts" role="status" aria-live="polite"></div>
+
+  <!-- Reconnecting overlay -->
+  <div id="overlay-reconnect" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <p>Reconnecting...</p>
+    </div>
+  </div>
+
+  <!-- Home -->
+  <div id="screen-home" class="screen active">
+    <div class="c4-home-wrap">
+    <div class="home-container c4-home">
+      <a href="/" class="fc-back-link">← funCentral</a>
+      <div class="c4-hero" aria-hidden="true">
+        <div class="c4-hero-board">
+          <span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span>
+          <span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span>
+          <span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span>
+          <span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span>
+          <span class="c4-hero-cell"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell"></span><span class="c4-hero-cell"></span>
+          <span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell yellow"></span><span class="c4-hero-cell red"></span><span class="c4-hero-cell yellow"></span>
+        </div>
+      </div>
+      <h1 class="c4-title">Connect 4</h1>
+      <p class="c4-tagline">Drop a disc. Connect four. Claim the board.</p>
+      <ul class="c4-feature-chips" aria-label="At a glance">
+        <li>👥 2 players</li><li>🤖 Practice bot</li><li>🏆 Rated</li>
+      </ul>
+
+      <p id="identity-status" class="subtitle hidden" role="status" aria-live="polite"></p>
+
+      <!-- Telegram login (shown when not signed in) -->
+      <div id="login-section" class="hidden">
+        <p class="subtitle">Sign in with Telegram to play and get on the Connect 4 leaderboard.</p>
+        <div data-telegram id="telegram-widget-container"></div>
+        <div data-dev-login class="hidden c4-dev-login">
+          <div class="c4-dev-note">Localhost dev login (not available in production)</div>
+          <div class="form-group">
+            <label for="input-dev-name">Dev display name</label>
+            <input type="text" id="input-dev-name" placeholder="e.g. Alice" maxlength="20" autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-secondary">Dev Login</button>
+        </div>
+      </div>
+
+      <!-- Game section (shown after sign-in) -->
+      <div id="game-section" class="hidden">
+        <div class="form-group">
+          <label for="input-name">Your Name</label>
+          <input type="text" id="input-name" placeholder="Enter your name" maxlength="64" autocomplete="off" enterkeyhint="done">
+        </div>
+        <button id="btn-create" type="button" class="btn btn-primary">＋ Create a table</button>
+
+        <div class="divider"><span>or join with a code</span></div>
+
+        <div class="c4-join-row">
+          <input type="text" id="input-code" placeholder="CODE" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Room code">
+          <button id="btn-join" type="button" class="btn btn-secondary">Join</button>
+        </div>
+        <div id="auth-status" class="auth-status"></div>
+      </div>
+
+      <div class="c4-home-links">
+        <button id="btn-rules-home" type="button" class="btn btn-ghost">📖 How to Play</button>
+        <button id="btn-stats" type="button" class="btn btn-ghost">📊 Stats</button>
+      </div>
+
+    </div>
+      <div id="leaderboard-section" class="c4-home-board"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-container">
+      <div class="stats-topbar">
+        <span class="stats-title">📊 Connect 4 Stats</span>
+        <div class="stats-topbar-right">
+          <button id="btn-stats-home" type="button" class="btn-link">← Home</button>
+        </div>
+      </div>
+      <div class="stats-filter-bar">
+        <span class="stats-filter-label">Min games:</span>
+        <div class="min-games-filter" id="c4-min-games">
+          <button class="min-games-btn active" data-value="3">3</button>
+          <button class="min-games-btn" data-value="10">10</button>
+          <button class="min-games-btn" data-value="20">20</button>
+        </div>
+      </div>
+      <div id="stats-content"></div>
+      <p class="stats-footer">Rating = two-player Elo · K = 16 for your first 30 rated games, then 8 · Separate from other games</p>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="screen-lobby" class="screen">
+    <div class="lobby-container c4-lobby">
+      <h2>Find your opponent</h2>
+      <button id="lobby-code-btn" type="button" class="room-code-display" aria-label="Copy invite link">
+        <span class="label">Room code</span>
+        <span id="lobby-code" class="code">----</span>
+        <span class="c4-code-hint">tap to copy invite</span>
+      </button>
+      <div class="lobby-invite-row">
+        <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
+      </div>
+      <div id="lobby-players" class="player-list c4-seats"></div>
+      <fieldset id="lobby-colours" class="c4-colour-picker hidden">
+        <legend>Your discs</legend>
+        <div id="lobby-colour-options" class="c4-colour-options"></div>
+        <p>Each side has its own palette, so colours stay distinct.</p>
+      </fieldset>
+      <div id="lobby-setup" class="c4-setup"></div>
+      <p id="lobby-wait" class="status-text">Waiting for players...</p>
+      <button id="btn-take-seat" type="button" class="btn btn-secondary hidden">Take a Seat</button>
+      <button id="btn-start" type="button" class="btn btn-primary hidden">Start Game</button>
+      <button id="btn-add-bot" type="button" class="btn btn-secondary hidden">🤖 Add Bot</button>
+      <button id="btn-rules-lobby" type="button" class="btn btn-ghost">📖 How to Play</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="screen-game" class="screen">
+    <div class="c4-game" id="c4-game">
+      <section class="c4-table" id="c4-table">
+        <div id="c4-players" class="c4-players" aria-label="Players"></div>
+        <div class="c4-frame">
+          <div id="c4-drops" class="c4-drops" aria-label="Choose a column"></div>
+          <div id="c4-cells" class="c4-cells" role="group" aria-label="Connect 4 board; rows numbered from top to bottom"></div>
+        </div>
+        <h3 id="c4-turn" class="c4-turn" role="status" aria-live="polite" aria-atomic="true"></h3>
+        <p id="c4-caption" class="c4-caption"></p>
+      </section>
+
+      <aside class="c4-side">
+        <details id="log-details" class="c4-log">
+          <summary>Game log</summary>
+          <ol id="log"></ol>
+        </details>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Game over -->
+  <div id="modal-over" class="overlay c4-modal hidden" role="dialog" aria-modal="true" aria-labelledby="over-title">
+    <div class="gameover-container c4-modal-box">
+      <h2 id="over-title"></h2>
+      <p id="over-sub" class="subtitle"></p>
+      <div id="over-results" class="c4-results"></div>
+      <div id="over-rating" class="c4-over-rating hidden"></div>
+      <div class="gameover-actions">
+        <button id="btn-again" type="button" class="btn btn-primary">Play Again</button>
+        <button id="btn-over-close" type="button" class="btn btn-ghost">View Board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div id="modal-confirm" class="overlay c4-modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <div class="lobby-container c4-modal-box">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-body" class="subtitle"></p>
+      <div class="c4-confirm-actions">
+        <button id="confirm-cancel" type="button" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div id="modal-rules" class="overlay c4-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <div class="lobby-container c4-modal-box c4-rules">
+      <button type="button" class="kick-btn c4-close" data-close aria-label="Close">✕</button>
+      <h2 id="rules-title">How to Play</h2>
+      <p>Two players take turns dropping a disc into one of seven columns. The disc falls to the lowest empty slot in that column.</p>
+
+      <h3>Objective</h3>
+      <p>Be the first to line up <b>four of your discs</b> in a row — horizontally, vertically or diagonally. If the board fills up with no winner, the game is a draw.</p>
+
+      <h3>Turns</h3>
+      <ol>
+        <li>Choose your disc colour in the lobby: the host gets <b>Red, Rose or Violet</b>; the second player gets <b>Yellow, Cyan or Mint</b>. The two palettes stay distinct. The first game's opener is chosen randomly, then players alternate opening each rematch. A short border shuffle reveals the opener before anyone can drop a disc.</li>
+        <li>Click or tap the column you want, and your disc drops into it.</li>
+        <li>You can't play into a column that is already full.</li>
+      </ol>
+
+      <h3>Winning &amp; rating</h3>
+      <p>A win is rated as a standard two-player Elo match; a full-board draw is a 0.5 result for both. The K-factor is 16 for your first 30 rated games, then 8, for gentler rating gains and losses. Games against the practice bot are not rated. Rounds must finish before returning to the lobby. Leaving mid-round keeps your seat and the current game.</p>
+
+      <p><b>Rematch protection:</b> after three consecutive rated losses to the same opponent, further losses in that streak halve <em>both</em> players' rating changes again, before rounding. A rated win, draw, or game against someone else breaks the streak. Practice games do not affect it.</p>
+
+      <h3>Playing solo</h3>
+      <p>As the host, tap <b>🤖 Add Bot</b> in the lobby to seat a practice opponent, then start the game. The practice bot looks ahead two plies: it takes immediate wins, blocks obvious threats, and prefers the centre columns. Longer traps can catch it out.</p>
+    </div>
+  </div>
+
+  <script src="/fc-auth.js"></script>
+  <script src="/leaderboard.js"></script>
+  <script src="/connect4/connect4.js"></script>
+</body>
+</html>

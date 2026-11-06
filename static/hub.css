@@ -1,6 +1,6 @@
 /* funCentral hub — built on Bridge's /style.css tokens and components. Each game tile
    carries its game's own theme: Bridge indigo, Regicide castle navy and crimson, Tai Di
-   felt green and gold. */
+   felt green and gold, Connect 4 blue and red. */
 
 .hub-body {
   --hub-gold: #f5c451;
@@ -119,6 +119,14 @@
 /* Bridge: indigo felt, the funCentral accent. */
 .tile-bridge { --tile-felt-1: #2b2a6b; --tile-felt-2: #13123a; }
 
+/* Connect 4: blue rack with the two classic disc colours. */
+.tile-connect4 { --tile-accent: #d92b3a; --tile-accent-2: #ff9aa5; --tile-felt-1: #244b75; --tile-felt-2: #0a1626; }
+.tile-connect4-rack { display: grid; grid-template-columns: repeat(7, 14px); gap: 4px; padding: 10px; z-index: 1; border: 1px solid rgba(245, 196, 81, 0.3); border-radius: 12px; background: linear-gradient(145deg, #244b75, #101f36); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); transform: rotate(-6deg); transition: transform 220ms; }
+.tile-connect4-rack span { width: 14px; height: 14px; border-radius: 50%; background: #050b14; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7); }
+.tile-connect4-rack .red { background: radial-gradient(circle at 35% 30%, #ff8a8a, #ef3d4b 62%, #b11f2e); }
+.tile-connect4-rack .yellow { background: radial-gradient(circle at 35% 30%, #ffe48a, #f5c451 62%, #c08a12); }
+.tile-connect4:hover .tile-connect4-rack, .tile-connect4:focus-visible .tile-connect4-rack { transform: rotate(-2deg) translateY(-3px); }
+
 /* Regicide: castle navy with crimson; a battlement silhouette behind the royals. */
 .tile-regicide { --tile-accent: #c8384a; --tile-accent-2: #ff9aa5; --tile-felt-1: #1b2d55; --tile-felt-2: #0b1324; }
 .tile-castle { position: absolute; left: 0; right: 0; bottom: 0; height: 46px; display: flex; justify-content: center; align-items: flex-end; gap: 0; opacity: 0.55; }
@@ -159,14 +167,18 @@
   .hub-hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); padding: 34px 0 40px; }
   .hub-hero-art { order: 0; height: 280px; margin: 0; }
   .hub-fan { margin-top: 0; transform: scale(1.3); }
-  .hub-games { grid-template-columns: repeat(3, 1fr); }
+  .hub-games { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hub-games .tile-taidi:last-child { grid-column: auto; }
   .hub-lower:has(.lb-card) { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); align-items: start; }
+}
+@media (min-width: 1100px) {
+  .hub-games { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 639px) {
   .hub-cta .btn { flex: 1 1 100%; }
 }
 @media (max-width: 380px) {
+  .hub-hero-art .hub-fan { transform: scale(0.84); }
   .hub-greeting { max-width: 120px; }
 }
 

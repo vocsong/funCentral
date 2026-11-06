@@ -51,6 +51,8 @@ The final repeat is the hand-layout suite, not every browser test in 2.5D.
 | Bridge live update recovery | `tests/bridge-sync.test.ts` checks timeouts, foreground/network wakeups, correlated snapshots, input locks, pending-card recovery and private read-only views. `tests/ui/bridge-sync.pw.js` runs real four-player deals in Classic/2.5D, suppresses selected incoming state broadcasts while a legal card is played, and verifies periodic recovery on the same open socket. It also blackholes an open connection, verifies automatic replacement and late-frame rejection, refreshes on page return, and checks intentional leave cancels recovery. Uses real local Worker/auth/SQLite/WebSockets with controlled browser transport faults and time; this is not production network or physical-device evidence. |
 | Bridge creator regression | A creator with stale spectator state is seated as a player; leaving spectator mode does not contaminate the next created room, including reload/reconnect |
 | Identity live E2E | Real profile endpoints, database, signed synthetic auth and WebSockets: name recovery, delayed/stale responses, invalid credentials, reconnect/session replacement |
+| Connect 4 review smoke | `tests/ui/connect4-review.pw.js` and `connect4-modal-stack.pw.js`: real legal human/bot games, both humans dismissing results, same-player rematch, explicit leave after a completed practice game and next-human management after reload; offline/reload/replacement during play; malformed frames; all six chosen-colour names exposed in Chromium's accessibility tree without 42 tab stops; rules/confirmation/results focus trapping, inert background and nested-modal restoration |
+| Connect 4 fault/concurrency chaos | `tests/connect4-concurrency.test.ts` compares actual D1 tables with a sequential oracle after forced overlapping input snapshots, at game 30, with a shared second-seat player and draws; bounded retry exhaustion, rollback at the last write, duplicates, reordered completions and lost acknowledgements. `tests/connect4-review-room.test.ts` uses real workerd rooms for two-object game-30 contention, host repair after restart, malformed/repeated messages, socket replacement, delayed rating acknowledgements across a new round/disconnect, durable retry after D1 failure/restart and no idle purge while results remain pending. Fixtures shorten opening timers and seed legacy/idle states; they are not browser E2E. |
 | Tai Di persistence | Eight regressions in `tests/taidi-persistence.test.ts` (harness `taidi-persistence-harness.ts`): real Miniflare D1 completion, idempotent repeats, rollback on late failures, overlapping duplicates, additive cross-game ratings, tied places and leaderboard/stats/group boards |
 | Tai Di live E2E | Hub tile; two-player minimum lobby; sign-in/watch-only guests; exact opening/pass/going-out scenarios via the dev patch hook; full seeded 2/3/4-player UI games with hidden hands, spectator, reload mid-game, results and rating changes; early end unrated; full-room spectators |
 | Bridge and hub refresh | `tests/ui/bridge-ux.pw.js` (live Worker, views injected through the page globals): the contract strip shows the bid, a secret partner, trumps and trick progress, and names the partner and both sides' progress once revealed (No trump spelled out); lobby open-seat rows appear without touching `.player-item` rows and the bot group hides when full; errors are toasts (any native dialog fails the test), the abandon vote is a focused alert dialog that sends one response, the partner notice is a banner; at 320×740, 390×844, 844×390 and 1366×900 Classic seat plates clear all four trick cards, the last-trick panel and each other; the hub links each game once, builds the Telegram group link from `/api/config` and greets a signed-in player |
@@ -103,6 +105,8 @@ the `newgame`/`leaderboard`/`help` command menu. Static hub tiles and the typed
 | 4230 | Telegram chooser/live webhook with outbound capture (replaces the earlier suite's 4220) |
 | 4232 | Bridge seasons live Worker (clock pinned inside Season 2) |
 | 4234 | Bridge live update recovery Worker |
+| 4242 | Connect 4 review smoke and reconnect cases |
+| 4243 | Connect 4 nested-modal live Worker |
 
 Keep these ports free and run one suite at a time. `tests/ui/live-worker.cjs`
 bundles the current checked-out Worker and assets, binds both room classes,
@@ -119,9 +123,20 @@ npm run typecheck
 npm test -- --maxWorkers=2
 npm run test:e2e
 npm run test:ui
+PLAYWRIGHT_CHANNEL=chrome npm run test:connect4:smoke
+npm run test:connect4:chaos
 ```
 
-`test:e2e` selects the live game/chat/identity/creator/Regicide/Tai Di/Telegram suites
+The Connect 4 chaos command is deterministic, local-only fault injection, not a
+production load or availability claim. Repeat it to detect lifecycle leaks; do
+not use `--retry` to hide failures. The smoke command includes existing layout
+and splash suites as well as the review cases; the complete PR runner discovers
+all these files too. For repeatability evidence, record the exact number of
+independent passes and attach the output. Accessibility-tree checks are not a
+substitute for manual screen-reader use; physical phones, Safari and real
+assistive technology remain release verification gaps until tested explicitly.
+
+`test:e2e` selects the live game/chat/identity/creator/Regicide/Tai Di/Connect 4/Telegram suites
 plus related input checks; `test:ui` runs all Playwright files. Neither replaces
 the complete PR runner. Add focused rule/persistence checks alongside E2E for
 the affected game and shared paths. A new room class must also be registered

@@ -13,6 +13,7 @@ systems. [Development](development.md), [deployment](deployment.md) and
 | Bridge | `/bridge/` → `static/bridge/index.html` | `GameRoom` via `GAME_ROOM`; existing `/api/create`, `/api/ws`, history/stats APIs |
 | Regicide | `/regicide/` → `static/regicide/` | `RegicideRoom` via `REGICIDE_ROOM`; `/api/regicide/*`; `regicide_*` D1 tables |
 | Tai Di | `/taidi/` → `static/taidi/` | `TaiDiRoom` via `TAIDI_ROOM`; `/api/taidi/*`; `taidi_*` D1 tables |
+| Connect 4 | `/connect4/` → `static/connect4/` | `Connect4Room` via `CONNECT4_ROOM`; `/api/connect4/*`; `connect4_*` D1 tables |
 | Shared services | Same-origin clients | Telegram auth, `/api/me`, `/api/config`, `/api/telegram`, shared users/groups in D1 |
 
 `src/index.ts` routes requests and exports the room classes. A room code names
@@ -49,6 +50,10 @@ src/
     engine.ts            Pure Tai Di (Big Two) rules
     room.ts              Tai Di room and durable completion outbox
     rating.ts, db.ts      Separate pairwise-Elo rating/statistics persistence
+  connect4/
+    engine.ts            Pure Connect 4 rules (7×6 board, 1v1)
+    room.ts              Connect 4 room and durable completion outbox
+    rating.ts, db.ts      Separate two-player-Elo rating/statistics persistence
 static/
   index.html, hub.css    Hub tiles
   bridge/index.html     Bridge page
@@ -59,6 +64,7 @@ static/
   leaderboard.js        Shared leaderboard card with separate game boards
   regicide/             Regicide page, client and game-specific styles
   taidi/                Tai Di page, client and game-specific styles
+  connect4/             Connect 4 page, client and game-specific styles
 migrations/             Ordered D1 schema/data migrations
 tests/                  Unit/runtime regressions and tests/ui browser suites
 ```
@@ -78,8 +84,8 @@ The Python files, `bot/`, `game/`, `requirements.txt`, Docker files and
 - **Presentation:** reuse `/style.css` components for cards, felt, seats,
   buttons and layouts; layer game-specific CSS above them. Shared style or
   leaderboard changes need regression coverage on the hub and both games.
-- **Leaderboards:** `leaderboard.js` presents separate Bridge, Regicide and Tai Di
-  boards. Sharing a card does not merge scores or rating algorithms.
+- **Leaderboards:** `leaderboard.js` presents separate Bridge, Regicide, Tai Di and
+  Connect 4 boards. Sharing a card does not merge scores or rating algorithms.
 - **Telegram:** `/newgame` presents inline choices from `GAME_CATALOG` in
   `src/games.ts`. Entries carry `id`, `name`, `path`, `telegramCommand`,
   `players` and `emoji`; button data is `newgame:<id>`. Selection callbacks
@@ -146,10 +152,29 @@ holds shared profiles/groups and persistent game statistics/history.
   batch and 30-minute cleanup rule as Regicide, and missing Tai Di tables
   leave boards/stats empty while gameplay and Bridge remain available.
 
+- Connect 4 owns `connect4_ratings`, `connect4_games`,
+  `connect4_rating_history` and `connect4_group_stats`. A finished game is a
+  standard two-player Elo match (a full-board draw is a 0.5 result for both).
+  Connect 4 uses a gentler K-factor: 16 for each player's first 30 rated games,
+  then 8, with integer changes rounded after applying K. Existing ratings and
+  historical results are not rescaled. After a player's three consecutive rated
+  losses to the same opponent, the fourth and later losses halve both players'
+  K-factors again before rounding. A rated win, draw, or match against another
+  opponent breaks that player's streak; the winner's other matches do not.
+  Eligibility is derived from the loser's latest three rating-history entries
+  inside the completion batch in rowid/insertion order, excluding the current
+  game. This is independent of timestamp ties or wall-clock adjustments. Retries cannot duplicate a streak result and concurrent completions see
+  prior committed results. Rounds cannot be ended early; practice bot games are
+  not rated and neither extend nor break the streak. Its room reuses the
+  durable pending-result outbox, idempotent completion batch and 30-minute
+  cleanup rule, and missing Connect 4 tables leave boards/stats empty while
+  gameplay and Bridge remain available.
+
 D1 SQL migrations and Durable Object class migrations are separate. Existing
-bindings are `GAME_ROOM`/`GameRoom` (`v1`) and
-`REGICIDE_ROOM`/`RegicideRoom` (`v2`) and
-`TAIDI_ROOM`/`TaiDiRoom` (`v3`). Keep those identities and add incremental
+bindings are `GAME_ROOM`/`GameRoom` (`v1`),
+`REGICIDE_ROOM`/`RegicideRoom` (`v2`),
+`TAIDI_ROOM`/`TaiDiRoom` (`v3`) and
+`CONNECT4_ROOM`/`Connect4Room` (`v4`). Keep those identities and add incremental
 migrations for future classes. See [deployment](deployment.md).
 
 ## Adding another game
