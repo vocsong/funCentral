@@ -22,13 +22,10 @@ function parseHash() {
 
 const hashInfo = parseHash();
 
-// Prefer playerId from URL (cross-browser handoff), then localStorage, then generate new
+// Prefer playerId from URL (cross-browser handoff), then localStorage, then generate new.
+// The server only grants a registered tg_ identity from a verified token, never from this value.
 let playerId = hashInfo.pid || localStorage.getItem('playerId');
-if (!playerId) {
-  // On localhost, prefix with tg_ to bypass the Telegram auth check on the server
-  const prefix = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'tg_dev_' : '';
-  playerId = prefix + crypto.randomUUID();
-}
+if (!playerId) playerId = crypto.randomUUID();
 localStorage.setItem('playerId', playerId);
 
 let playerName = localStorage.getItem('playerName') || '';

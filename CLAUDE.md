@@ -74,6 +74,9 @@ Domain in `wrangler.toml`); keep `workers_dev = true` so the legacy
 forward to the public URL (`static/fc-host.js`).
 Required existing secrets are `JWT_SECRET` and `TELEGRAM_BOT_TOKEN`; the public
 username is `funCentral_bot`. Production `ALLOW_DEV_LOGIN` must be absent.
+`/api/telegram` fails closed unless `TELEGRAM_WEBHOOK_SECRET` matches the
+webhook's `secret_token` header; follow the ordered rollout in
+[deployment](docs/deployment.md#webhook-authentication).
 
 DO migrations retain `GAME_ROOM`/`GameRoom` at `v1` and add
 `REGICIDE_ROOM`/`RegicideRoom` at `v2` and `TAIDI_ROOM`/`TaiDiRoom` at `v3` automatically during deployment.

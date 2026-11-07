@@ -147,6 +147,7 @@ export interface Env {
   JWT_SECRET: string;
   TELEGRAM_BOT_TOKEN: string;
   TELEGRAM_BOT_USERNAME: string;
+  TELEGRAM_WEBHOOK_SECRET?: string; // must match Telegram setWebhook secret_token; webhook fails closed without it
   ALLOW_DEV_LOGIN?: string;
   TEST_NOW_MS?: string; // local tests only: pins the Bridge season clock (ignored without ALLOW_DEV_LOGIN)
 }

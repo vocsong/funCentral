@@ -4,6 +4,11 @@ const { build } = require('esbuild');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
+// Synthetic local-only webhook secret; local /api/telegram callers send it as
+// X-Telegram-Bot-Api-Secret-Token. Never a production value.
+const WEBHOOK_SECRET = 'local-webhook-test-only';
+exports.webhookHeaders = { 'X-Telegram-Bot-Api-Secret-Token': WEBHOOK_SECRET };
+
 // `outboundService` (optional) intercepts the Worker's outbound fetches, e.g. to capture Telegram API calls.
 // `skipMigrations` (optional) leaves named migration files unapplied, e.g. to test a not-yet-migrated database.
 exports.startWorker = async function startWorker(port = 4210, testBindings = {}, { outboundService, skipMigrations = [] } = {}) {
@@ -21,7 +26,7 @@ exports.startWorker = async function startWorker(port = 4210, testBindings = {},
     durableObjects: { GAME_ROOM: { className: 'GameRoom', useSQLite: true }, REGICIDE_ROOM: { className: 'RegicideRoom', useSQLite: true }, TAIDI_ROOM: { className: 'TaiDiRoom', useSQLite: true }, CONNECT4_ROOM: { className: 'Connect4Room', useSQLite: true }, OMOK_ROOM: { className: 'OmokRoom', useSQLite: true } },
     resourcePersistencePath: state,
     d1Databases: ['DB'],
-    bindings: { JWT_SECRET: 'local-chat-test-only', ALLOW_DEV_LOGIN: '1', TELEGRAM_BOT_USERNAME: 'local_test_only', ...testBindings },
+    bindings: { JWT_SECRET: 'local-chat-test-only', ALLOW_DEV_LOGIN: '1', TELEGRAM_BOT_USERNAME: 'local_test_only', TELEGRAM_WEBHOOK_SECRET: WEBHOOK_SECRET, ...testBindings },
     assets: { directory: path.join(root, 'static'), routerConfig: { has_user_worker: true, static_routing: { user_worker: ['/api/*'] } } },
     ...(outboundService ? { outboundService } : {}),
   }));
