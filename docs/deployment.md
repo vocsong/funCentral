@@ -16,6 +16,10 @@
   forward to the public URL with path and `#ROOM` intact (`static/fc-host.js`).
 - Existing D1 database: **`sg-bridge-users`**, binding **`DB`**.
 - Existing secrets: **`JWT_SECRET`** and **`TELEGRAM_BOT_TOKEN`**.
+- Webhook secret: **`TELEGRAM_WEBHOOK_SECRET`**, equal to the webhook's
+  Telegram `secret_token`. Without it the bot stops answering; see
+  [webhook authentication](#webhook-authentication) before deploying code
+  that enforces it.
 - Public variable: **`TELEGRAM_BOT_USERNAME=funCentral_bot`**.
 - **`ALLOW_DEV_LOGIN` must be absent in production.** It also gates Regicide
   seed/debug conveniences; it is not just a UI switch.
@@ -159,6 +163,46 @@ the same group. The registered command menu (`newgame`, `leaderboard`,
 update. Typed game shortcuts remain supported. See
 [architecture](architecture.md#shared-services-and-game-boundaries) for the
 catalog and static hub responsibilities.
+
+### Webhook authentication
+
+`/api/telegram` authenticates each delivery before reading it: the
+`X-Telegram-Bot-Api-Secret-Token` header must equal the Worker secret
+`TELEGRAM_WEBHOOK_SECRET`. It fails closed — **503** when the secret is absent
+or empty, **401** when the header is missing or different — with no
+localhost, dev-login or test bypass. This is Telegram's shared-secret header,
+not a signature over the body, and it adds no replay protection.
+
+The first rollout must configure both sides **before** the enforcing code is
+merged; otherwise every bot command is rejected. Each step is a separate,
+owner-authorized production operation:
+
+1. Generate a new random value used for nothing else (Telegram allows 1–256
+   characters from `A-Z`, `a-z`, `0-9`, `_` and `-`; 64 random hex characters
+   is suitable). Keep it only in the owner's secret store — never in chat,
+   shell arguments/history, logs, screenshots, commits or PRs.
+2. With the previous code still deployed (it ignores the header), call the
+   Bot API `setWebhook` for the **existing** webhook URL with `secret_token`
+   set to that value. Preserve the current settings (for example
+   `allowed_updates`) and do not pass `drop_pending_updates`. Use an
+   owner-controlled client that redacts the bot-token-bearing request URL.
+3. Add the identical value as Worker secret `TELEGRAM_WEBHOOK_SECRET` on
+   `sgbridgegame` (for example `npx wrangler secret put TELEGRAM_WEBHOOK_SECRET`,
+   which prompts for the value). This creates a new Worker version on the
+   current code; confirm it is a secret binding on the deployed version.
+4. Confirm normal bot commands still work, then merge the reviewed PR and let
+   Workers Builds deploy it. Verify the deployed version answers a command and
+   a `/newgame` choice, and that Telegram reports no new delivery errors or
+   growing pending-update count (`getWebhookInfo`, which never returns the
+   secret).
+
+If deliveries fail afterwards, **503** means the deployed Worker lacks the
+secret and **401** means Telegram holds a different value or URL. Correct the
+configuration; do not disable the check, enable dev login, delete the webhook
+or drop queued updates. Rolling back the code reintroduces the
+unauthenticated webhook and is an explicit owner decision. A later rotation
+uses the same two settings, but the single-value check rejects deliveries
+between the two updates, so schedule it deliberately.
 
 ### Connect 4 (`0015` SQL and `v4` Durable Object)
 

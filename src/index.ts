@@ -522,25 +522,31 @@ export default {
       const roomCode = url.searchParams.get('room');
       if (!roomCode) return new Response('Missing room code', { status: 400 });
 
-      // If a JWT token is present and valid, override playerId with the stable tg_ id
-      const token = url.searchParams.get('token');
-      let forwardRequest = request;
-      if (token) {
-        const claims = await verifyJwt(token, env.JWT_SECRET);
-        if (claims) {
-          const newUrl = new URL(request.url);
-          newUrl.searchParams.set('playerId', `tg_${claims.sub}`);
-          newUrl.searchParams.delete('token'); // don't forward the token to the DO
-          forwardRequest = new Request(newUrl.toString(), request);
-        }
+      // Only a verified JWT yields a tg_ id (which the room requires to take a seat and be rated).
+      // A caller-supplied playerId is confined to the guest_ namespace.
+      const forward = new URL(request.url);
+      const token = forward.searchParams.get('token');
+      const claims = token ? await verifyJwt(token, env.JWT_SECRET) : null;
+      forward.searchParams.delete('token'); // never forward credentials to the room
+      if (claims) {
+        forward.searchParams.set('playerId', `tg_${claims.sub}`);
+      } else {
+        const guest = (forward.searchParams.get('playerId') ?? '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64);
+        forward.searchParams.set('playerId', `guest_${guest || crypto.randomUUID()}`);
       }
 
       const stub = env.GAME_ROOM.getByName(roomCode);
-      return stub.fetch(forwardRequest);
+      return stub.fetch(new Request(forward.toString(), request));
     }
 
     if (url.pathname === '/api/telegram' && request.method === 'POST') {
-      // Always respond 200 — Telegram retries on non-200
+      // Authenticate before reading or acting on the update: Telegram sends the
+      // setWebhook secret_token in this header. Fail closed when unconfigured.
+      if (!env.TELEGRAM_WEBHOOK_SECRET) return new Response('Webhook unavailable', { status: 503 });
+      if (request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.TELEGRAM_WEBHOOK_SECRET) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+      // Authenticated updates always get 200 — Telegram retries on non-200
       const body = await request.json().catch(() => null);
       const selection = parseGameSelection(body);
       const cmd = selection ? selection.command : parseUpdate(body);

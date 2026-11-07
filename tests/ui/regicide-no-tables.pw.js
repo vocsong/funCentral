@@ -2,7 +2,7 @@
 // Regicide tables missing, games still play to the end and Bridge (incl. the bot) is unaffected.
 const { test, expect } = require('@playwright/test');
 const { Response: MfResponse } = require('miniflare');
-const { startWorker } = require('./live-worker.cjs');
+const { startWorker, webhookHeaders } = require('./live-worker.cjs');
 test.setTimeout(120000);
 
 const sent = [];
@@ -29,7 +29,7 @@ test('without the Regicide tables: Regicide still plays, boards are empty, Bridg
   expect(await (await fetch(`${worker.origin}/api/regicide/stats`)).json()).toEqual([]);
 
   // The bot's /leaderboard still posts Bridge's board.
-  await fetch(`${worker.origin}/api/telegram`, { method: 'POST', body: JSON.stringify({ message: { chat: { id: -1009, type: 'group', title: 'G' }, from: { id: 5, username: 'ana' }, text: '/leaderboard' } }) });
+  await fetch(`${worker.origin}/api/telegram`, { method: 'POST', headers: webhookHeaders, body: JSON.stringify({ message: { chat: { id: -1009, type: 'group', title: 'G' }, from: { id: 5, username: 'ana' }, text: '/leaderboard' } }) });
   await expect.poll(() => sent.filter((c) => c.method === 'sendMessage').length).toBe(1);
   expect(sent.find((c) => c.method === 'sendMessage').body.text).toContain('No games played in this group yet');
 

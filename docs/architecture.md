@@ -82,6 +82,9 @@ The Python files, `bot/`, `game/`, `requirements.txt`, Docker files and
   `localStorage.authToken` and the saved `playerName` work across this origin.
   Bridge keeps its client login flow in `app.js`; Regicide and Tai Di use `fc-auth.js`.
   A URL/player name, bot link or unverified Mini App data is not authentication.
+  Each `/api/…/ws` route sets `playerId=tg_<id>` only from a verified JWT,
+  strips the token, and confines any caller-supplied ID to `guest_…`. The
+  `/api/telegram` webhook requires the `TELEGRAM_WEBHOOK_SECRET` header.
 - **Presentation:** reuse `/style.css` components for cards, felt, seats,
   buttons and layouts; layer game-specific CSS above them. Shared style or
   leaderboard changes need regression coverage on the hub and both games.

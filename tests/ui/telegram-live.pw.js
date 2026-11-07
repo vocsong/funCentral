@@ -2,7 +2,7 @@
 // outbound Bot API call is captured (nothing reaches Telegram). Covers both games in one group.
 const { test, expect } = require('@playwright/test');
 const { Response: MfResponse } = require('miniflare');
-const { startWorker } = require('./live-worker.cjs');
+const { startWorker, webhookHeaders } = require('./live-worker.cjs');
 test.setTimeout(120000);
 
 const GROUP = -100777;
@@ -32,6 +32,7 @@ async function command(text, chatType = 'supergroup') {
   const before = messages().length;
   const res = await fetch(`${worker.origin}/api/telegram`, {
     method: 'POST',
+    headers: webhookHeaders,
     body: JSON.stringify({ message: { chat: { id: GROUP, type: chatType, title: 'Card <Club>' }, from: { id: 5, username: 'ana' }, text } }),
   });
   expect(res.status).toBe(200);
@@ -42,6 +43,7 @@ async function chooseGame(data, chatType = 'supergroup') {
   const id = `choice-${++callbackSequence}`;
   const res = await fetch(`${worker.origin}/api/telegram`, {
     method: 'POST',
+    headers: webhookHeaders,
     body: JSON.stringify({ callback_query: {
       id, data, from: { id: 6, username: 'chooser' },
       message: { message_id: 123, chat: { id: GROUP, type: chatType, title: 'Card <Club>' } },
@@ -64,6 +66,16 @@ async function player(browser, auth, room) {
   await page.goto(`${worker.origin}/regicide/#${room}`);
   return { page, context };
 }
+
+test('updates without the matching webhook secret are rejected before any Bot API call', async () => {
+  const before = sent.length;
+  const body = JSON.stringify({ message: { chat: { id: GROUP, type: 'supergroup', title: 'Card <Club>' }, from: { id: 5, username: 'ana' }, text: '/newbridge' } });
+  for (const headers of [{}, { 'X-Telegram-Bot-Api-Secret-Token': 'not-the-secret' }]) {
+    const res = await fetch(`${worker.origin}/api/telegram`, { method: 'POST', headers, body });
+    expect(res.status).toBe(401);
+  }
+  expect(sent.length).toBe(before);
+});
 
 test('help, aliases and the command menu are all handled in code', async () => {
   let before = await command('/help@funCentral_bot');
