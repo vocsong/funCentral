@@ -22,7 +22,7 @@ async function client(browser, name, room, mobile = false) {
 }
 const press = (c, locator) => (c.mobile ? locator.tap() : locator.click());
 
-test('four players shuffle, clue, mark, reveal, reconnect and rematch while a guest watches', async ({ browser }) => {
+test('four players start without picking roles, reconnect and rematch while a guest watches', async ({ browser }) => {
   test.setTimeout(120000);
   const alice = await client(browser, 'Alice Agent');
   await alice.page.locator('#btn-create').click();
@@ -36,10 +36,11 @@ test('four players shuffle, clue, mark, reveal, reconnect and rematch while a gu
     await expect(alice.page.locator('#tb-watchers')).toHaveText('👁 1');
     await expect(guest.page.locator('#lobby-wait')).toContainText('Sign in');
     await expect(others[0].page.locator('#btn-start')).toBeHidden();
-    await expect(alice.page.locator('#btn-start')).toBeDisabled();
-
-    await alice.page.locator('#btn-shuffle').click();
-    await expect.poll(async () => (await state(alice.page)).players.every((p) => p.team && p.role)).toBe(true);
+    await expect(alice.page.locator('#btn-start')).toBeEnabled();
+    await expect(alice.page.locator('#lobby-roster .wa-member')).toHaveCount(4);
+    await expect(alice.page.locator('.wa-lobby-note')).toContainText('assigned randomly');
+    await expect(alice.page.getByRole('button', { name: /spymaster|operatives|shuffle teams/i })).toHaveCount(0);
+    expect((await state(alice.page)).players.every((p) => p.team === null && p.role === null)).toBe(true);
     await expect(alice.page.locator('#lobby-checklist li:not(.ok)')).toHaveCount(0);
     await alice.page.locator('#btn-start').click();
     for (const c of [...all, guest]) await expect(c.page.locator('#screen-game')).toHaveClass(/active/);
@@ -77,7 +78,7 @@ test('four players shuffle, clue, mark, reveal, reconnect and rematch while a gu
 
     // Reload mid-round: the role and board survive, and the operative can keep guessing.
     await op.page.reload();
-    await expect.poll(async () => (await state(op.page))?.you.role).toBe('operative');
+    await expect.poll(async () => { const current = await state(op.page); return current?.you; }).toMatchObject({ team: first, role: 'operative' });
     await expect(op.page.locator(`.wa-card[data-index="${own[0]}"]`)).toHaveClass(/revealed/);
     if (op.mobile) expect(await op.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
@@ -95,7 +96,13 @@ test('four players shuffle, clue, mark, reveal, reconnect and rematch while a gu
     await alice.page.locator('#btn-again').click();
     await expect.poll(async () => (await state(guest.page)).game?.id).not.toBe(finished.game.id);
     for (const c of all) await expect(c.page.locator('#modal-over')).toBeHidden();
-    expect((await state(alice.page)).players.map((p) => [p.id, p.team, p.role])).toEqual(finished.players.map((p) => [p.id, p.team, p.role]));
+    const rematch = await state(alice.page);
+    expect(rematch.players.map((p) => p.id).sort()).toEqual(finished.players.map((p) => p.id).sort());
+    for (const team of ['red', 'blue']) {
+      const members = rematch.players.filter((p) => p.team === team);
+      expect(members.map((p) => p.role).sort()).toEqual(['operative', 'spymaster']);
+    }
+    expect((await state(guest.page)).game.cards.every((c) => c.color === null)).toBe(true);
     expect((await state(alice.page)).game.phase).toBe('clue');
     for (const c of [...all, guest]) expect(c.errors).toEqual([]);
   } finally {

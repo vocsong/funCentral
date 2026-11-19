@@ -15,7 +15,7 @@ const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 (async () => {
   fs.mkdirSync(out, { recursive: true });
   const worker = await startWorker(4252);
-  const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+  const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
   const contexts = [];
   const touch = new WeakSet();
   const token = async (name) => (await (await fetch(`${worker.origin}/api/auth/dev`, { method: 'POST', body: JSON.stringify({ displayName: name }) })).json()).token;
@@ -39,6 +39,15 @@ const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
     await page.screenshot({ path: path.join(out, `${name}.png`), fullPage, animations: 'disabled' });
     console.log('captured', name);
   };
+  const shotAtSize = async (page, viewport, ...images) => {
+    const original = page.viewportSize();
+    try {
+      await page.setViewportSize(viewport);
+      for (const image of images) await shot(page, ...image);
+    } finally {
+      await page.setViewportSize(original);
+    }
+  };
   const state = (page) => page.evaluate(() => view);
   const tap = (page, locator) => (touch.has(page) ? locator.tap() : locator.click());
 
@@ -57,25 +66,23 @@ const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
     const cara = await client('Cara Agent', DESKTOP, `#${room}`);
     const dan = await client('Dan Agent', PHONE, `#${room}`);
     await alice.waitForFunction(() => view?.players?.length === 4);
-    await alice.getByRole('button', { name: 'Take spymaster' }).first().click();
-    await alice.waitForFunction(() => view.you.role === 'spymaster');
-    await bob.getByRole('button', { name: 'Join red operatives' }).click();
-    await cara.getByRole('button', { name: 'Take spymaster' }).click();
-    await dan.getByRole('button', { name: 'Join blue operatives' }).tap();
-    await alice.waitForFunction(() => view.players.every((p) => p.role));
     await shot(alice, 'desktop-lobby');
     await shot(dan, 'phone-lobby');
 
     await alice.click('#btn-start');
-    await alice.waitForFunction(() => view.game?.phase === 'clue');
-    const teams = { red: { spy: alice, op: bob }, blue: { spy: cara, op: dan } };
+    const teams = { red: {}, blue: {} };
+    for (const page of [alice, bob, cara, dan]) {
+      await page.waitForFunction(() => view.you?.role && view.game?.phase === 'clue');
+      const { team, role } = (await state(page)).you;
+      teams[team][role === 'spymaster' ? 'spy' : 'op'] = page;
+    }
     const firstTeam = (await state(alice)).game.turn;
     const order = firstTeam === 'red' ? ['red', 'blue'] : ['blue', 'red'];
     // Each team plays one turn: clue, one correct reveal, a shared mark and a pending selection.
     for (const [turnNo, team] of order.entries()) {
       const { spy, op } = teams[team];
       await spy.waitForFunction(() => view.game.phase === 'clue' && view.you.team === view.game.turn);
-      if (turnNo === 0) await shot(spy, 'desktop-spymaster-clue');
+      if (turnNo === 0) await shotAtSize(spy, DESKTOP.viewport, ['desktop-spymaster-clue']);
       await spy.fill('#clue-input', turnNo === 0 ? 'Voyage' : 'Garden');
       await spy.click('#count-up');
       await spy.click('#btn-clue');
@@ -89,15 +96,11 @@ const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
       await op.waitForFunction(() => view.game.marks.length === 1);
       await tap(op, op.locator(`.wa-card[data-index="${own[2]}"]`));
       await op.waitForTimeout(3200); // let event toasts clear
-      if (op === dan) {
-        await shot(dan, 'phone-operative', false);
-        await shot(dan, 'phone-operative-fullpage');
-        await dan.setViewportSize({ width: 320, height: 740 });
-        await shot(dan, 'compact-operative-fullpage');
-        await dan.setViewportSize(PHONE.viewport);
-      } else await shot(bob, 'desktop-operative');
-      if (spy === alice) await shot(alice, 'desktop-spymaster-guessing');
       if (turnNo === 0) {
+        await shotAtSize(op, DESKTOP.viewport, ['desktop-operative']);
+        await shotAtSize(op, PHONE.viewport, ['phone-operative', false], ['phone-operative-fullpage']);
+        await shotAtSize(op, { width: 320, height: 740 }, ['compact-operative-fullpage']);
+        await shotAtSize(spy, DESKTOP.viewport, ['desktop-spymaster-guessing']);
         await tap(op, op.locator('#btn-end'));
         await tap(op, op.locator('#confirm-ok'));
       } else {

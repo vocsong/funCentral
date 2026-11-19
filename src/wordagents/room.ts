@@ -21,7 +21,6 @@ interface Session { id: string; name: string }
 export const MAX_PLAYERS = 12;
 const EMPTY_ROOM_TTL_MS = 30 * 60_000;
 const TEAMS: Team[] = ['red', 'blue'];
-const ROLES: Role[] = ['spymaster', 'operative'];
 
 /** The stored host while connected, otherwise the first connected player, so a refresh never costs the host the room. */
 function effectiveHost(state: State): string | null {
@@ -118,40 +117,23 @@ export class WordAgentsRoom extends DurableObject {
             if (!/^tg_\d+$/.test(session.id)) throw new Error('Sign in with Telegram to join.');
             if (player) return;
             if (state.removed?.includes(session.id)) throw new Error('The host removed you from this room. You can still watch.');
-            // Joining mid-round (or between a result and a same-teams rematch) would block the next start.
+            // Joining during a round or its results is reserved for the next lobby.
             if (state.game) throw new Error('A round is on the board. You can join when the host returns to the lobby.');
             if (state.players.length >= MAX_PLAYERS) throw new Error(`Room is full (${MAX_PLAYERS} players).`);
             state.players.push({ id: session.id, name: session.name, team: null, role: null, connected: true });
             state.hostId ??= session.id;
             break;
-          case 'choose':
-            if (!player) throw new Error('Join the room first.');
-            if (state.game) throw new Error('Return to the lobby before changing roles.');
-            if (!TEAMS.includes(msg.team as Team) || !ROLES.includes(msg.role as Role)) throw new Error('Choose a team and role.');
-            if (msg.role === 'spymaster' && state.players.some(p => p.id !== player.id && p.team === msg.team && p.role === 'spymaster')) {
-              throw new Error('That team already has a spymaster.');
-            }
-            player.team = msg.team as Team;
-            player.role = msg.role as Role;
-            break;
-          case 'randomize':
-            if (!host) throw new Error('Only the host can shuffle teams.');
-            if (state.game) throw new Error('Return to the lobby before shuffling teams.');
-            if (state.players.length < 4) throw new Error('At least four players are needed to shuffle teams.');
-            randomizeTeams(state.players);
-            break;
+          case 'choose': case 'randomize':
+            // An older tab may still send a lobby selection after deployment.
+            throw new Error('Teams and roles are assigned when a round starts. Refresh for the new lobby.');
           case 'start':
             if (!host) throw new Error('Only the host can start.');
             if (active) throw new Error('Finish the round first.');
-            for (const team of TEAMS) for (const role of ROLES) {
-              if (!state.players.some(p => p.team === team && p.role === role && p.connected)) {
-                throw new Error('Each team needs a connected spymaster and operative.');
-              }
+            if (state.players.length < 4) throw new Error('At least four players are needed to start.');
+            if (state.players.some(p => !p.connected)) {
+              throw new Error('Everyone in the room must be connected. Remove offline players or wait for them.');
             }
-            // Players still on the bench (no team) simply watch the round.
-            if (state.players.some(p => p.team && !p.connected)) {
-              throw new Error('Everyone on a team must be connected. Remove offline players or wait for them.');
-            }
+            randomizeTeams(state.players);
             state.game = newGame();
             break;
           case 'clue': case 'guess': case 'endTurn': {
@@ -228,11 +210,12 @@ export class WordAgentsRoom extends DurableObject {
   }
 
   private send(ws: WebSocket, state: State, id: string, watchers = this.watchers(state)) {
-    const player = state.players.find(p => p.id === id);
+    const players = state.game ? state.players : state.players.map(p => ({ ...p, team: null, role: null }));
+    const player = players.find(p => p.id === id);
     try {
       ws.send(JSON.stringify({
         type: 'state', roomCode: state.roomCode, revision: state.revision, hostId: effectiveHost(state),
-        players: state.players, watchers, maxPlayers: MAX_PLAYERS,
+        players, watchers, maxPlayers: MAX_PLAYERS,
         you: { id, team: player?.team ?? null, role: player?.role ?? null, removed: !player && !!state.removed?.includes(id) },
         game: state.game ? gameView(state.game, player?.role === 'spymaster') : null,
       }));

@@ -81,7 +81,7 @@
         <p class="wa-eyebrow">Mission briefing</p>
         <h2 id="brief-title">How a round works</h2>
         <ol class="wa-steps">
-          <li><b>Pick sides</b><span>Two teams. Each has one spymaster who sees the secret key, and operatives who guess.</span></li>
+          <li><b>Get your role</b><span>Each round randomly assigns two balanced teams. Spymasters see the secret key; operatives guess.</span></li>
           <li><b>Give one clue</b><span>The spymaster says one word and a number linking that many of their agents.</span></li>
           <li><b>Reveal together</b><span>Operatives mark ideas for teammates, then reveal. Wrong colour ends the turn.</span></li>
           <li><b>Find them all</b><span>First team to uncover every agent wins. The assassin loses instantly.</span></li>
@@ -95,7 +95,7 @@
   <div id="screen-lobby" class="screen">
     <div class="lobby-container wa-lobby">
       <p class="wa-eyebrow">Mission room</p>
-      <h2>Assemble your teams</h2>
+      <h2>Mission lobby</h2>
       <button id="lobby-code-btn" type="button" class="room-code-display" aria-label="Copy invite link">
         <span class="label">Room code</span>
         <span id="lobby-code" class="code">----</span>
@@ -105,8 +105,8 @@
         <button id="btn-share" type="button" class="btn btn-secondary">Share Invite Link</button>
       </div>
 
-      <div id="lobby-teams" class="wa-teams"></div>
-      <div id="lobby-bench" class="wa-bench hidden"></div>
+      <p class="wa-lobby-note">Teams and roles are assigned randomly at the start of every round.</p>
+      <div id="lobby-roster" class="wa-roster"></div>
 
       <ul id="lobby-checklist" class="wa-checklist" aria-label="Ready to start"></ul>
       <p id="lobby-wait" class="status-text"></p>
@@ -114,7 +114,6 @@
       <div class="wa-lobby-actions">
         <button id="btn-take-seat" type="button" class="btn btn-primary hidden">Join this room</button>
         <button id="btn-start" type="button" class="btn btn-primary hidden">Start mission</button>
-        <button id="btn-shuffle" type="button" class="btn btn-secondary hidden">🔀 Shuffle teams</button>
         <button id="btn-rules-lobby" type="button" class="btn btn-ghost">📖 How to Play</button>
       </div>
     </div>
@@ -205,9 +204,10 @@
       <p id="over-sub" class="subtitle"></p>
       <div id="over-results" class="wa-results"></div>
       <div class="gameover-actions">
-        <button id="btn-again" type="button" class="btn btn-primary">New round · same teams</button>
+        <button id="btn-again" type="button" class="btn btn-primary">New round · random teams</button>
         <button id="btn-to-lobby" type="button" class="btn btn-secondary">Back to lobby</button>
         <p id="over-wait" class="status-text hidden">Waiting for the host to start the next round…</p>
+        <p id="over-blocked" class="status-text hidden"></p>
         <button id="btn-over-close" type="button" class="btn btn-ghost">View board</button>
       </div>
     </div>
@@ -232,7 +232,7 @@
       <h2 id="rules-title">How to Play</h2>
       <p>Two teams race to find their secret agents hidden among <b>25 words</b>. The starting team has <b>nine</b> agents, the other <b>eight</b>. There are also seven civilians and one assassin.</p>
       <h3>Teams and roles</h3>
-      <p>Each team has one <b>spymaster</b> and at least one <b>operative</b>. Only spymasters see the key: which words belong to which team. Four to twelve players can join; the host can shuffle teams.</p>
+      <p>Each team has one <b>spymaster</b> and at least one <b>operative</b>. Only spymasters see the key: which words belong to which team. Four to twelve players can join. Teams and roles are assigned randomly every round.</p>
       <h3>Your turn</h3>
       <ol>
         <li>The spymaster gives <b>one word and a number</b>, e.g. <i>TIDE · 3</i>, linking that many of their team’s agents.</li>

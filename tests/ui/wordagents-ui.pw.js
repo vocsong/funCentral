@@ -185,21 +185,22 @@ test('disconnects pause input, another tab offers to reconnect here, and rules c
   await expect(page.locator('#modal-rules')).toBeHidden();
 });
 
-test('lobby shows team slots and readiness, and a signed-in watcher auto-joins once', async ({ page }) => {
+test('lobby shows the player roster instead of role choices, and a signed-in watcher auto-joins once', async ({ page }) => {
   const lobby = initial(); lobby.game = null; lobby.you = { id: 'me', team: null, role: null, removed: false }; lobby.hostId = 'p2';
-  lobby.players = lobby.players.slice(1);
+  lobby.players = lobby.players.slice(1).map((p) => ({ ...p, team: null, role: null }));
   await setup(page, lobby);
   await expect(page.locator('#screen-lobby')).toHaveClass(/active/);
   expect((await frames(page)).filter((m) => m.type === 'join')).toEqual([{ type: 'join' }]);
-  await expect(page.locator('#lobby-checklist li.ok')).toHaveText(['Red spymaster', 'Blue spymaster', 'Blue operative', 'Teams online']);
-  await expect(page.getByRole('button', { name: 'Join red operatives' })).toBeDisabled();
+  await expect(page.locator('#lobby-checklist li.ok')).toHaveText(['All players online']);
+  await expect(page.locator('#lobby-roster .wa-member')).toHaveCount(3);
+  await expect(page.getByRole('button', { name: /spymaster|operatives|shuffle teams/i })).toHaveCount(0);
   await expect(page.locator('#btn-take-seat')).toBeVisible();
   const seated = JSON.parse(JSON.stringify(lobby)); seated.revision = 2;
   seated.players.push({ id: 'me', name: 'Alex', team: null, role: null, connected: true });
   await push(page, seated);
   await expect(page.locator('#btn-take-seat')).toBeHidden();
-  await page.getByRole('button', { name: 'Join red operatives' }).click();
-  expect((await frames(page)).filter((m) => m.type === 'choose')).toEqual([{ type: 'choose', team: 'red', role: 'operative' }]);
+  await expect(page.locator('#lobby-roster .wa-member')).toHaveCount(4);
+  await expect(page.locator('#lobby-checklist li.ok')).toHaveText(['4/4+ players', 'All players online']);
   await expect(page.locator('#btn-start')).toBeHidden();
   // Removed players are told so and are not auto-joined again.
   const removed = JSON.parse(JSON.stringify(lobby)); removed.revision = 3; removed.you.removed = true;
@@ -207,6 +208,25 @@ test('lobby shows team slots and readiness, and a signed-in watcher auto-joins o
   await expect(page.locator('#lobby-wait')).toContainText('removed you');
   await expect(page.locator('#btn-take-seat')).toBeHidden();
   expect((await frames(page)).filter((m) => m.type === 'join')).toHaveLength(1);
+});
+
+test('lobby start and rematch wait for the roster to be ready', async ({ page }) => {
+  const lobby = initial(); lobby.game = null;
+  lobby.you.team = lobby.you.role = null;
+  lobby.players = lobby.players.map((p) => ({ ...p, team: null, role: null, connected: p.id !== 'p4' }));
+  await setup(page, lobby);
+  await expect(page.locator('#btn-start')).toBeDisabled();
+  await expect(page.locator('#lobby-wait')).toContainText('offline players');
+
+  const done = initial(); done.revision = 2; done.game.phase = 'finished'; done.game.winner = 'red';
+  done.players[3].connected = false;
+  await push(page, done);
+  await expect(page.locator('#btn-again')).toBeDisabled();
+  await expect(page.locator('#over-blocked')).toContainText('go back to the lobby');
+  done.players[3].connected = true;
+  await push(page, done);
+  await expect(page.locator('#btn-again')).toBeEnabled();
+  await expect(page.locator('#over-blocked')).toBeHidden();
 });
 
 test('finished round opens a results dialog with the host rematch and the full key', async ({ page }) => {

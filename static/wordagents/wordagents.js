@@ -375,11 +375,10 @@ function renderTopBar() {
 // ---------- Lobby ----------
 function renderLobbyLoading() {
   $('lobby-code').textContent = room;
-  $('lobby-teams').replaceChildren(el('div', 'wa-open-slot', 'Connecting to the room…'));
-  $('lobby-bench').classList.add('hidden');
+  $('lobby-roster').replaceChildren(el('div', 'wa-open-slot', 'Connecting to the room…'));
   $('lobby-checklist').replaceChildren();
   $('lobby-wait').textContent = '';
-  for (const id of ['btn-start', 'btn-shuffle', 'btn-take-seat']) $(id).classList.add('hidden');
+  for (const id of ['btn-start', 'btn-take-seat']) $(id).classList.add('hidden');
 }
 
 function avatar(p, team) {
@@ -394,11 +393,11 @@ function avatar(p, team) {
 
 function memberRow(p) {
   const row = el('div', 'wa-member');
-  row.append(avatar(p, p.team));
+  row.append(avatar(p));
   const name = el('div', 'wa-member-name', p.name);
   if (p.id === view.you?.id) name.append(el('span', 'wa-badge', 'you'));
   if (p.id === view.hostId) name.append(el('span', 'wa-badge host', '👑 host'));
-  name.append(el('span', 'wa-member-meta', `${p.role ? ROLE[p.role] : 'Choosing a side'}${p.connected ? '' : ' · offline'}`));
+  name.append(el('span', 'wa-member-meta', p.connected ? 'Online' : 'Offline'));
   row.append(name);
   if (isHost() && p.id !== view.you?.id) {
     const kick = el('button', 'kick-btn', '✕');
@@ -416,76 +415,41 @@ function memberRow(p) {
 
 function lobbyReadiness() {
   const players = view.players;
-  const has = (team, role) => players.some((p) => p.team === team && p.role === role && p.connected);
+  const enough = players.length >= 4;
+  const allOnline = players.length > 0 && players.every((p) => p.connected);
   const items = [
-    { ok: players.length >= 4, text: `${players.length}/4+ players` },
-    ...TEAMS.map((team) => ({ ok: has(team, 'spymaster'), text: `${teamName(team)} spymaster` })),
-    ...TEAMS.map((team) => ({ ok: has(team, 'operative'), text: `${teamName(team)} operative` })),
-    { ok: players.filter((p) => p.team).every((p) => p.connected), text: 'Teams online' },
+    { ok: enough, text: `${players.length}/4+ players` },
+    { ok: allOnline, text: 'All players online' },
   ];
-  return { items, valid: items.every((item) => item.ok) };
+  return { items, valid: enough && allOnline, enough };
 }
 
 function renderLobby() {
   const you = view.you || {};
   const seated = !!me();
-  const canAct = connected() && !pending && seated;
   $('lobby-code').textContent = view.roomCode;
-  const teams = TEAMS.map((team) => {
-    const players = view.players.filter((p) => p.team === team);
-    const spy = players.find((p) => p.role === 'spymaster');
-    const ops = players.filter((p) => p.role === 'operative');
-    const section = el('section', `wa-team ${team}`);
-    section.setAttribute('aria-label', `${teamName(team)} team`);
-    const head = el('div', 'wa-team-head');
-    head.append(el('h3', '', `${GLYPH[team]} ${teamName(team)} team`), el('small', '', `${players.length} ${players.length === 1 ? 'player' : 'players'}`));
-    section.append(head, el('p', 'wa-slot-label', '🔑 Spymaster'));
-    if (spy) section.append(memberRow(spy));
-    else {
-      const take = el('button', 'wa-slot-btn', seated ? 'Take spymaster' : 'Open seat');
-      take.type = 'button';
-      take.disabled = !canAct;
-      take.onclick = () => send('choose', { team, role: 'spymaster' });
-      section.append(take);
-    }
-    section.append(el('p', 'wa-slot-label', 'Operatives'));
-    for (const p of ops) section.append(memberRow(p));
-    if (!(you.team === team && you.role === 'operative')) {
-      const join = el('button', 'wa-slot-btn', `Join ${teamName(team).toLowerCase()} operatives`);
-      join.type = 'button';
-      join.disabled = !canAct;
-      join.onclick = () => send('choose', { team, role: 'operative' });
-      section.append(join);
-    } else if (!ops.length) section.append(el('div', 'wa-open-slot', 'Needs an operative'));
-    return section;
-  });
-  $('lobby-teams').replaceChildren(...teams);
+  const list = el('div', 'wa-roster-list');
+  list.append(...view.players.map(memberRow));
+  $('lobby-roster').replaceChildren(
+    el('h3', 'wa-slot-label', `Players · ${view.players.length}/${view.maxPlayers || 12}`),
+    view.players.length ? list : el('div', 'wa-open-slot', 'No players have joined yet'),
+  );
 
-  const bench = view.players.filter((p) => !p.team || !p.role);
-  $('lobby-bench').classList.toggle('hidden', !bench.length);
-  if (bench.length) {
-    const list = el('div', 'wa-bench-list');
-    list.append(...bench.map(memberRow));
-    $('lobby-bench').replaceChildren(el('p', 'wa-slot-label', 'On the bench · watching unless they pick a side'), list);
-  }
-
-  const { items, valid } = lobbyReadiness();
+  const { items, valid, enough } = lobbyReadiness();
   $('lobby-checklist').replaceChildren(...items.map((item) => el('li', item.ok ? 'ok' : '', item.text)));
   const host = isHost();
   $('btn-start').classList.toggle('hidden', !host);
   $('btn-start').disabled = !valid || !connected() || pending;
-  $('btn-shuffle').classList.toggle('hidden', !host);
-  $('btn-shuffle').disabled = view.players.length < 4 || !connected() || pending;
   $('btn-take-seat').classList.toggle('hidden', !profile || seated || !!you.removed);
   $('btn-take-seat').disabled = !connected() || pending || view.players.length >= (view.maxPlayers || 12);
   const hostName = view.players.find((p) => p.id === view.hostId)?.name;
   $('lobby-wait').textContent = !connected() ? 'Reconnecting… actions pause until the room is synced.'
     : you.removed ? 'The host removed you from this room. You can keep watching.'
     : !profile ? 'You are watching. Sign in with Telegram below to play.'
-    : !seated ? view.players.length >= (view.maxPlayers || 12) ? 'This room is full. You can watch.' : 'You are watching. Join to pick a team.'
-    : !you.team ? 'Pick a team and a role above.'
-    : valid ? host ? 'Both teams are ready. Start when you are.' : `Both teams are ready. Waiting for ${hostName || 'the host'} to start.`
-    : 'Waiting for players: each team needs a spymaster and an operative.';
+    : !seated ? view.players.length >= (view.maxPlayers || 12) ? 'This room is full. You can watch.' : 'You are watching. Join this room to play.'
+    : !enough ? 'Waiting for at least four players.'
+    : !valid ? host ? 'Wait for offline players or remove them to start.' : 'Waiting for everyone to be online.'
+    : host ? 'Everyone is ready. Start when you are.' : `Everyone is ready. Waiting for ${hostName || 'the host'} to start.`;
 }
 
 // ---------- Game ----------
@@ -754,7 +718,12 @@ function showOverModal(g) {
   $('btn-again').classList.toggle('hidden', !host);
   $('btn-to-lobby').classList.toggle('hidden', !host);
   $('over-wait').classList.toggle('hidden', host);
-  $('btn-again').disabled = !connected() || pending;
+  const { valid, enough } = lobbyReadiness();
+  $('btn-again').disabled = !valid || !connected() || pending;
+  $('over-blocked').classList.toggle('hidden', !host || valid);
+  $('over-blocked').textContent = enough
+    ? 'Wait for offline players or go back to the lobby to remove them.'
+    : 'Go back to the lobby to invite more players. Four are needed.';
   $('btn-to-lobby').disabled = !connected() || pending;
   showModal('modal-over');
 }
@@ -921,12 +890,11 @@ $('btn-leave').addEventListener('click', leave);
 $('btn-sound').addEventListener('click', () => { sfx.toggle(); renderTopBar(); });
 $('btn-take-seat').addEventListener('click', () => { if (connected()) send('join'); });
 $('btn-start').addEventListener('click', () => send('start'));
-$('btn-shuffle').addEventListener('click', () => send('randomize'));
 $('btn-again').addEventListener('click', () => { if (send('start')) hideModal('modal-over'); });
 $('btn-to-lobby').addEventListener('click', () => send('lobby'));
 $('btn-abandon').addEventListener('click', async () => {
   const id = view?.game?.id;
-  if (await askConfirm({ title: 'End this round for everyone?', body: 'Nobody wins. Everyone returns to the lobby, where you can change teams or remove players who left.', ok: 'End round', danger: true })) {
+  if (await askConfirm({ title: 'End this round for everyone?', body: 'Nobody wins. Everyone returns to the lobby, where you can invite players or remove players who left.', ok: 'End round', danger: true })) {
     if (view?.game?.id === id && view.game.phase !== 'finished') send('abandon');
   }
 });
