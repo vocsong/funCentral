@@ -59,6 +59,15 @@ games share the sign-in token and profile. Production must have
 Local dev login does not require a real Telegram bot token. Do not exercise
 real bot/webhook commands from local development unless intentionally
 configured; automated bot coverage captures outbound requests instead.
+`/api/telegram` rejects every update unless `TELEGRAM_WEBHOOK_SECRET` is set
+and sent back in the `X-Telegram-Bot-Api-Secret-Token` header (503 unset, 401
+mismatched), with no dev-login bypass. The live-Worker tests bind a synthetic
+value; to post updates to `npm run dev` by hand, add your own local placeholder
+to `.dev.vars` and send it in that header.
+
+Game WebSockets grant a registered `tg_` identity only from a valid token;
+any other supplied player ID becomes a `guest_` ID that can watch but not
+take a seat. Use Dev Login locally rather than a hand-made `tg_` ID.
 
 ## Initialize local D1 and run
 

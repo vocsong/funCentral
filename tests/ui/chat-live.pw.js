@@ -13,23 +13,24 @@ async function room() {
 }
 
 async function client(browser, code, name, mode, mobile = false) {
-  let hash = 0;
-  for (const character of name) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
-  const id = 900000000 + Math.abs(hash) % 90000000;
-  await worker.db.prepare('INSERT OR IGNORE INTO users (telegram_id, display_name, created_at) VALUES (?, ?, ?)').bind(id, name, Date.now()).run();
+  // Seats require a verified identity: a local dev-login JWT, never a bare tg_ id.
+  const login = await fetch(`${worker.origin}/api/auth/dev`, { method: 'POST', body: JSON.stringify({ displayName: name }) });
+  expect(login.ok).toBe(true);
+  const { token, telegramId: id } = await login.json();
   const context = await browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1366, height: 900 },
     isMobile: mobile, hasTouch: mobile });
   const page = await context.newPage();
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
     if (url.origin !== worker.origin) return route.abort();
-    // Auth/stats are unrelated to room chat. The room creation and every
+    // Stats are unrelated to room chat. Profile, room creation and every
     // WebSocket frame go through the actual local Worker and Durable Object.
-    if (url.pathname.startsWith('/api/') && !['/api/create', '/api/ws'].includes(url.pathname)) return route.fulfill({ json: {} });
+    if (url.pathname.startsWith('/api/') && !['/api/me', '/api/create', '/api/ws'].includes(url.pathname)) return route.fulfill({ json: {} });
     return route.continue();
   });
-  await page.addInitScript(({ code, name, mode, id }) => {
+  await page.addInitScript(({ code, name, mode, id, token }) => {
     localStorage.setItem('playerId', `tg_${id}`);
+    localStorage.setItem('authToken', token);
     localStorage.setItem('playerName', name);
     localStorage.setItem('bridge.tableView', mode);
     sessionStorage.setItem('roomCode', code);
@@ -41,7 +42,7 @@ async function client(browser, code, name, mode, mobile = false) {
       const message = JSON.parse(value); if (message.type === 'playCard') playFrames.push(message);
       return originalSend.call(this, value);
     };
-  }, { code, name, mode, id });
+  }, { code, name, mode, id, token });
   await page.goto(`${worker.origin}/bridge/`);
   await expect(page.locator('#screen-lobby')).toBeVisible();
   await expect.poll(() => page.evaluate(() => ws?.readyState === WebSocket.OPEN && chatEpoch !== null)).toBe(true);

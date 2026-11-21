@@ -124,6 +124,40 @@ test('actual room rejects malformed joins and never blanks an existing player', 
   await page.evaluate(() => rawSocket.close());
 });
 
+test('a registered id without a valid token cannot take over or claim a seat', async ({ page }) => {
+  const auth = await login('Seat Owner'); const code = await room(); await initialize(page); await page.goto(`${worker.origin}/bridge/`);
+  const owner = `tg_${auth.telegramId}`;
+  await page.evaluate(({ code, token }) => {
+    window.raw = {};
+    window.openRaw = (key, query) => new Promise(resolve => {
+      const socket = new WebSocket(`${location.origin.replace('http', 'ws')}/api/ws?room=${code}&${query}`);
+      raw[key] = { socket, messages: [], closed: false };
+      socket.addEventListener('message', e => raw[key].messages.push(JSON.parse(e.data)));
+      socket.addEventListener('close', () => { raw[key].closed = true; });
+      socket.addEventListener('open', resolve);
+    });
+    window.lastState = key => raw[key].messages.filter(m => m.type === 'state').at(-1)?.state;
+    return openRaw('owner', `playerId=ignored&token=${encodeURIComponent(token)}`).then(() => {
+      raw.owner.socket.send(JSON.stringify({ type: 'join', name: 'Owner' }));
+    });
+  }, { code, token: auth.token });
+  await expect.poll(() => page.evaluate(() => lastState('owner')?.players.length)).toBe(1);
+  const seat = await page.evaluate(() => lastState('owner').mySeat);
+  for (const [key, query] of [['bare', `playerId=${owner}`], ['invalid', `playerId=${owner}&token=invalid-synthetic-token`]]) {
+    await page.evaluate(({ key, query }) => openRaw(key, query), { key, query });
+    // The forged connection does not replace the owner's socket or see the owner's seat.
+    await expect.poll(() => page.evaluate(key => lastState(key)?.mySeat, key)).toBe(-1);
+    await page.evaluate(key => raw[key].socket.send(JSON.stringify({ type: 'join', name: 'Forged' })), key);
+    await expect.poll(() => page.evaluate(key => raw[key].messages.find(m => m.type === 'error')?.message, key)).toBe('You must log in with Telegram to play.');
+  }
+  // A read-only sync round-trip proves the owner's original socket is still the live session.
+  await page.evaluate(() => raw.owner.socket.send(JSON.stringify({ type: 'sync', requestId: 7 })));
+  await expect.poll(() => page.evaluate(() => raw.owner.messages.some(m => m.requestId === 7))).toBe(true);
+  expect(await page.evaluate(() => ({ closed: raw.owner.closed, seat: lastState('owner').mySeat, names: lastState('owner').players.map(p => p.name) })))
+    .toEqual({ closed: false, seat, names: ['Owner'] });
+  await page.evaluate(() => Object.values(raw).forEach(r => r.socket.close()));
+});
+
 test('signed malformed/nameless profiles use safe name recovery without weakening signature checks', async () => {
   for (const fields of [{ id: 991234502, first_name: '', username: '  user_name  ' }, { id: 991234503, last_name: ' Lee ' }]) {
     const res = await fetch(`${worker.origin}/api/auth/telegram`, { method: 'POST', body: JSON.stringify(signed(fields)) });

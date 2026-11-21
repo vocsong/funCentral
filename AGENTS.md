@@ -55,7 +55,9 @@ sentence. Hostnames stay lowercase (`funcentral.vocs.io`).
   Custom Domain `funcentral.vocs.io` and the legacy workers.dev URL
   (`workers_dev = true`).
 - Production requires existing `JWT_SECRET`/`TELEGRAM_BOT_TOKEN` secrets and
-  public username `funCentral_bot`; `ALLOW_DEV_LOGIN` must be absent.
+  public username `funCentral_bot`; `ALLOW_DEV_LOGIN` must be absent. The
+  webhook also needs `TELEGRAM_WEBHOOK_SECRET` matching Telegram's
+  `secret_token` (ordered rollout in `docs/deployment.md`).
 - Inspect remote D1 schema/ledger and list pending migrations before applying
   anything. Never replay destructive `0006_stats_reset.sql`; see
   `docs/deployment.md`. DO class migrations are separate from D1 SQL.

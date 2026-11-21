@@ -4,7 +4,7 @@
 // screen switches seasons and the bot's group board names the season.
 const { test, expect } = require('@playwright/test');
 const { Response: MfResponse } = require('miniflare');
-const { startWorker } = require('./live-worker.cjs');
+const { startWorker, webhookHeaders } = require('./live-worker.cjs');
 test.setTimeout(120000);
 
 const SEASON_2_START = Date.parse('2026-12-01T00:00:00+08:00');
@@ -53,7 +53,7 @@ test('Season 2 is fresh with provisional players; Season 1 stays viewable as the
   expect(finalBoard.season).toEqual({ id: 1, name: 'Season 1', current: false });
   expect(finalBoard.top.map((e) => [e.displayName, e.elo])).toEqual([['Legacy Lee', 1100], ['Season Sam', 990]]);
 
-  await fetch(`${origin}/api/telegram`, { method: 'POST', body: JSON.stringify({ message: { chat: { id: -1001, type: 'group', title: 'Card Club' }, from: { id: 5, username: 'ana' }, text: '/leaderboard' } }) });
+  await fetch(`${origin}/api/telegram`, { method: 'POST', headers: webhookHeaders, body: JSON.stringify({ message: { chat: { id: -1001, type: 'group', title: 'Card Club' }, from: { id: 5, username: 'ana' }, text: '/leaderboard' } }) });
   await expect.poll(() => sent.filter((c) => c.method === 'sendMessage').length).toBe(1);
   const post = sent.find((c) => c.method === 'sendMessage').body.text;
   expect(post).toContain('Bridge · Season 2');
