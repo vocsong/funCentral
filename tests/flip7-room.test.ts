@@ -1,13 +1,24 @@
 import { afterAll, beforeAll, expect, it } from 'vitest';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 import { build } from 'esbuild';
+import { newGame } from '../src/flip7/engine';
 
 let mf: Miniflare;
 type Namespace = Awaited<ReturnType<Miniflare['getDurableObjectNamespace']>>;
 let room: ReturnType<Namespace['get']>;
 beforeAll(async () => {
   const { outputFiles } = await build({
-    stdin: { contents: `export {Flip7Room} from './src/flip7/room'; export default {fetch(){return new Response('test')}}`, resolveDir: process.cwd() },
+    stdin: { contents: `import {Flip7Room as ProductionRoom} from './src/flip7/room';
+      export class Flip7Room extends ProductionRoom {
+        async fetch(request) {
+          if (new URL(request.url).pathname === '/__state') {
+            if (request.method === 'POST') await this.ctx.storage.put('state', await request.json());
+            return Response.json(await this.ctx.storage.get('state'));
+          }
+          return super.fetch(request);
+        }
+      }
+      export default {fetch(){return new Response('test')}}`, resolveDir: process.cwd() },
     bundle: true, write: false, format: 'esm', platform: 'neutral', external: ['cloudflare:*'],
   });
   mf = new Miniflare(convertV4MiniflareOptions({
@@ -90,5 +101,46 @@ it('authorizes seats and host, rejects stale actions, and replays authoritative 
     await expect.poll(() => guest.state()?.game).toBeNull();
   } finally {
     for (const c of sockets) { try { c.ws.close(); } catch { /* closed or replaced */ } }
+  }
+}, 30_000);
+
+
+it('broadcasts action sequences and exact forced bust evidence, persists them, and restores them on reconnect', async () => {
+  const ids = ['tg_11', 'tg_12', 'tg_13'];
+  const game = newGame(ids, [
+    { type: 'number', value: 1 }, { type: 'number', value: 2 }, { type: 'number', value: 3 },
+    { type: 'flipThree' }, { type: 'secondChance' }, { type: 'number', value: 2 },
+    { type: 'number', value: 2 }, { type: 'number', value: 12 },
+  ], 2);
+  await room.fetch('https://test/__state', { method: 'POST', body: JSON.stringify({
+    roomCode: 'F7OK', revision: 10, hostId: ids[0], removed: [], game,
+    players: ids.map(id => ({ id, name: id, connected: false })),
+  }) });
+  const sockets: Awaited<ReturnType<typeof connect>>[] = [];
+  try {
+    const host = await connect(ids[0]); sockets.push(host);
+    const watcher = await connect('guest_evidence'); sockets.push(watcher);
+    await expect.poll(() => host.state()?.game?.id).toBe(game.id);
+    expect(host.state().game.lastDraw).toEqual({ id: 3, actorId: ids[2], card: { type: 'number', value: 3 } });
+    host.send({ type: 'hit', gameId: game.id, revision: host.state().revision });
+    await expect.poll(() => watcher.state()?.game.pending?.type).toBe('flipThree');
+    expect(watcher.state().game.events.at(-1)).toMatchObject({ type: 'actionDrawn', card: { type: 'flipThree' } });
+    expect(watcher.state().game.lastDraw).toEqual({ id: 4, actorId: ids[0], card: { type: 'flipThree' } });
+    host.send({ type: 'target', playerId: ids[1], gameId: game.id, revision: host.state().revision });
+    await expect.poll(() => watcher.state()?.game.players[1].status).toBe('busted');
+    const view = watcher.state().game;
+    expect(view.events.map((e: any) => e.type)).toEqual(['actionDrawn', 'actionResolved', 'actionDrawn', 'secondChanceUsed', 'bust']);
+    expect(view.players[1]).toMatchObject({ numbers: [2], bustCard: { type: 'number', value: 2 }, roundScore: 0 });
+    expect(JSON.stringify(view)).not.toContain('"value":12');
+    const saved: any = await (await room.fetch('https://test/__state')).json();
+    expect(saved.game.events).toEqual(view.events);
+    expect(view.lastDraw).toEqual({ id: 7, actorId: ids[1], card: { type: 'number', value: 2 } });
+    expect(saved.game.lastDraw).toEqual(view.lastDraw);
+    expect(saved.game.players[1].bustCard).toEqual(view.players[1].bustCard);
+    const rejoined = await connect(ids[1]); sockets.push(rejoined);
+    await expect.poll(() => rejoined.state()?.game).toEqual(view);
+    expect(host.state().game).toEqual(view);
+  } finally {
+    for (const c of sockets) { try { c.ws.close(); } catch { /* closed */ } }
   }
 }, 30_000);

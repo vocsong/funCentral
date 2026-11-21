@@ -2,6 +2,21 @@
 export type ActionType = 'freeze' | 'flipThree' | 'secondChance';
 export type Card = { type: 'number'; value: number } | { type: 'bonus'; value: number }
   | { type: ActionType | 'double' };
+export interface PublicEvent {
+  id: number;
+  round: number;
+  /** Optional on events saved before move grouping was added. */
+  batchId?: number;
+  /** The Flip Three resolution that forced this duplicate draw, if any. */
+  sourceActionId?: number;
+  type: 'actionDrawn' | 'actionResolved' | 'secondChanceUsed' | 'bust';
+  actorId: string;
+  card: Card;
+  targetId?: string;
+  disposition?: 'discarded';
+}
+const PUBLIC_EVENT_LIMIT = 32;
+
 type Status = 'active' | 'stayed' | 'busted' | 'frozen';
 type Phase = 'dealing' | 'playing' | 'roundEnd' | 'finished';
 interface Player {
@@ -13,10 +28,12 @@ interface Player {
   doubled: boolean;
   secondChance: boolean;
   held: Card[];
+  /** Optional for rooms persisted before public presentation evidence existed. */
+  bustCard?: Extract<Card, { type: 'number' }> | null;
 }
 interface Choice { type: ActionType; actorId: string; targets: string[] }
 type Task = { kind: 'draw'; playerId: string } | { kind: 'choose'; type: ActionType; actorId: string }
-  | { kind: 'three'; playerId: string; remaining: number; deferred: ActionType[] };
+  | { kind: 'three'; playerId: string; remaining: number; deferred: ActionType[]; sourceActionId?: number };
 export interface Game {
   id: string;
   phase: Phase;
@@ -33,6 +50,11 @@ export interface Game {
   spent: Card[];
   queue: Task[];
   pending: Choice | null;
+  events?: PublicEvent[];
+  eventSequence?: number;
+  /** Public reveal only. Missing in older persisted games. */
+  lastDraw?: { id: number; actorId: string; card: Card } | null;
+  drawSequence?: number;
 }
 export type Move = { type: 'hit' | 'stay' | 'target' | 'nextRound'; playerId?: string };
 
@@ -81,19 +103,23 @@ function endRound(game: Game): void {
 }
 
 function startRound(game: Game): void {
+  const previousEventId = game.eventSequence ?? 0;
   game.round++;
+  game.events = [];
+  game.lastDraw = null;
   game.phase = 'dealing';
   game.cursor = game.dealer;
   game.flippedBy = null;
   game.turnId = null;
   game.pending = null;
   game.players = game.players.map(({ id, total }) => ({
-    id, total, status: 'active', numbers: [], bonuses: [], doubled: false, secondChance: false, held: [],
+    id, total, status: 'active', numbers: [], bonuses: [], doubled: false, secondChance: false, held: [], bustCard: null,
   }));
   game.queue = game.players.map((_, i) => ({
     kind: 'draw', playerId: game.players[seatAfter(game, game.dealer, i + 1)].id,
   }));
   advance(game);
+  tagEventBatch(game, previousEventId);
 }
 
 export function newGame(ids: string[], drawOrder?: Card[], dealer = Math.floor(Math.random() * ids.length)): Game {
@@ -102,7 +128,7 @@ export function newGame(ids: string[], drawOrder?: Card[], dealer = Math.floor(M
   const game: Game = {
     id: crypto.randomUUID(), phase: 'dealing', round: 0, dealer, cursor: dealer, turnId: null, winnerId: null, flippedBy: null,
     players: ids.map(id => ({ id, total: 0, status: 'active', numbers: [], bonuses: [], doubled: false, secondChance: false, held: [] })),
-    deck: drawOrder ? drawOrder.slice() : shuffle(buildDeck()), discard: [], spent: [], queue: [], pending: null,
+    deck: drawOrder ? drawOrder.slice() : shuffle(buildDeck()), discard: [], spent: [], queue: [], pending: null, events: [], eventSequence: 0,
   };
   startRound(game);
   return game;
@@ -114,8 +140,37 @@ function findPlayer(game: Game, id: string): Player {
   return player;
 }
 
+/** Presentation only: records revealed outcomes, never queued or future cards. */
+function recordEvent(game: Game, event: Omit<PublicEvent, 'id' | 'round' | 'batchId'>): number {
+  game.eventSequence = (game.eventSequence ?? 0) + 1;
+  game.events = [...(game.events ?? []), {
+    ...event, card: { ...event.card }, id: game.eventSequence, round: game.round,
+  }].slice(-PUBLIC_EVENT_LIMIT);
+  return game.eventSequence;
+}
+
+function tagEventBatch(game: Game, previousEventId: number): void {
+  // The first event ID in this move remains unique even when a move records no events.
+  for (const event of game.events ?? []) {
+    if (event.id > previousEventId) event.batchId = previousEventId + 1;
+  }
+}
+
+/** Older rooms already retain the duplicate in held; infer without changing rules/state. */
+function bustEvidence(player: Player): Extract<Card, { type: 'number' }> | null {
+  if (player.status !== 'busted') return null;
+  if (player.bustCard) return { ...player.bustCard };
+  const seen = new Set<number>();
+  for (const card of player.held) {
+    if (card.type !== 'number') continue;
+    if (seen.has(card.value)) return { ...card };
+    seen.add(card.value);
+  }
+  return null;
+}
+
 /** Returns an action to resolve; forced draws defer Freeze and Flip Three until the batch ends. */
-function draw(game: Game, player: Player): ActionType | undefined {
+function draw(game: Game, player: Player, sourceActionId?: number): ActionType | undefined {
   if (!game.deck.length && game.discard.length) {
     game.deck = shuffle(game.discard);
     game.discard = [];
@@ -125,14 +180,24 @@ function draw(game: Game, player: Player): ActionType | undefined {
     endRound(game);
     return;
   }
+  game.drawSequence = (game.drawSequence ?? game.lastDraw?.id ?? 0) + 1;
+  game.lastDraw = { id: game.drawSequence, actorId: player.id, card: { ...card } };
+  if (card.type === 'freeze' || card.type === 'flipThree' || card.type === 'secondChance') {
+    recordEvent(game, { type: 'actionDrawn', actorId: player.id, card });
+  }
   switch (card.type) {
     case 'number':
       if (player.numbers.includes(card.value)) {
         if (player.secondChance) {
+          recordEvent(game, { type: 'secondChanceUsed', actorId: player.id, card });
           player.secondChance = false;
           const protectedIndex = player.held.findIndex(c => c.type === 'secondChance');
           game.discard.push(card, ...player.held.splice(protectedIndex, 1));
         } else {
+          player.bustCard = { ...card };
+          recordEvent(game, { type: 'bust', actorId: player.id, card,
+            ...(sourceActionId === undefined ? {} : { sourceActionId }),
+          });
           player.status = 'busted';
           player.held.push(card);
         }
@@ -171,7 +236,10 @@ function setChoice(game: Game, type: ActionType, actorId: string): void {
   const targets = game.players.filter(p => p.status === 'active'
     && (type !== 'secondChance' || (p.id !== actorId && !p.secondChance))).map(p => p.id);
   if (!targets.length) {
-    if (type === 'secondChance') game.discard.push({ type });
+    if (type === 'secondChance') {
+      game.discard.push({ type });
+      recordEvent(game, { type: 'actionResolved', actorId, card: { type }, disposition: 'discarded' });
+    }
     return;
   }
   game.pending = { type, actorId, targets };
@@ -192,7 +260,7 @@ function advance(game: Game): void {
     }
     const player = findPlayer(game, task.playerId);
     if (player.status !== 'active') continue;
-    const action = draw(game, player);
+    const action = draw(game, player, task.kind === 'three' ? task.sourceActionId : undefined);
     if (!isRoundActive(game)) return;
     if (task.kind === 'draw') {
       if (action) setChoice(game, action, player.id);
@@ -219,6 +287,7 @@ function advance(game: Game): void {
 export function applyMove(current: Game, actorId: string, move: Move): Game {
   // Do not mutate authoritative state on a rejected or interrupted move.
   const game = structuredClone(current);
+  const previousEventId = game.eventSequence ?? 0;
   const player = findPlayer(game, actorId);
   switch (move.type) {
     case 'nextRound':
@@ -235,11 +304,12 @@ export function applyMove(current: Game, actorId: string, move: Move): Game {
       if (!move.playerId || !pending.targets.includes(move.playerId)) throw new Error('Choose an eligible player.');
       const target = findPlayer(game, move.playerId);
       game.pending = null;
+      const resolvedId = recordEvent(game, { type: 'actionResolved', actorId, targetId: target.id, card: { type: pending.type } });
       if (pending.type === 'freeze') target.status = 'frozen';
       else if (pending.type === 'secondChance') {
         target.secondChance = true;
         target.held.push({ type: 'secondChance' });
-      } else game.queue.unshift({ kind: 'three', playerId: target.id, remaining: 3, deferred: [] });
+      } else game.queue.unshift({ kind: 'three', playerId: target.id, remaining: 3, deferred: [], sourceActionId: resolvedId });
       break;
     }
     case 'hit':
@@ -255,6 +325,7 @@ export function applyMove(current: Game, actorId: string, move: Move): Game {
       break;
   }
   advance(game);
+  tagEventBatch(game, previousEventId);
   return game;
 }
 
@@ -262,8 +333,12 @@ export function gameView(game: Game) {
   return {
     id: game.id, phase: game.phase, round: game.round, dealerId: game.players[game.dealer].id,
     turnId: game.turnId, deckCount: game.deck.length, winnerId: game.winnerId, flippedBy: game.flippedBy,
+    events: (game.events ?? []).slice(-PUBLIC_EVENT_LIMIT).map(event => ({ ...event, card: { ...event.card } })),
+    lastDraw: game.lastDraw
+      ? { id: game.lastDraw.id, actorId: game.lastDraw.actorId, card: { ...game.lastDraw.card } } : null,
     players: game.players.map(p => ({
       id: p.id, total: p.total, status: p.status, numbers: p.numbers.slice(), bonuses: p.bonuses.slice(),
+      bustCard: bustEvidence(p),
       doubled: p.doubled, secondChance: p.secondChance, roundScore: roundScore(p, game.flippedBy),
     })),
     pending: game.pending ? { ...game.pending, targets: game.pending.targets.slice() } : null,
